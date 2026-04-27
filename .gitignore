@@ -1,0 +1,84 @@
+## Dotnet .gitignore — streamlined for modern .NET projects
+
+# Build results
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+[Ww][Ii][Nn]32/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+bld/
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+
+# .NET Core
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+# ASP.NET Scaffolding
+ScaffoldingReadMe.txt
+
+# NuGet Packages
+*.nupkg
+*.snupkg
+
+# Others
+~$*
+*~
+CodeCoverage/
+
+# MSBuild
+*.binlog
+
+# MSTest
+[Tt]est[Rr]esult*/
+[Bb]uild[Ll]og.*
+
+# NUnit
+*.VisualState.xml
+TestResult.xml
+nunit-*.xml
+
+# ============================================
+# CUSTOM — EETMS Project specific
+# ============================================
+
+# Sensitive config (contains DB connection string + Brevo API key)
+appsettings.Development.json
+appsettings.Production.json
+appsettings.json
+package-lock.json
+
+# Publish profiles (may contain passwords)
+*.pubxml
+*.pubxml.user
+
+# SQL Server local database files
+*.mdf
+*.ldf
+
+# IDE local settings
+.vs/
+.vscode/
+*.suo
+*.user
+
+# Vue.js / Node frontend
+node_modules/
+dist/
+
+# Logs
+debug
+debug.log
+*.log
+
+# Environment secrets
+*.env
+.env.local
+.env.*.local

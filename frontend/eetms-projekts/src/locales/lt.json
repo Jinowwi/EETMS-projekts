@@ -1,0 +1,42 @@
+{
+  "common": {
+    "back": "Atgal",
+    "submit": "Pateikti",
+    "cancel": "Atšaukti",
+    "confirm": "Patvirtinti",
+    "search": "Ieškoti",
+    "startShiftType": "Pamainos pradžia",
+    "endShiftType": "Pamainos pabaiga",
+    "company": "Įmonė",
+    "reason": "Priežastis"
+  },
+  "homeTablet": {
+    "welcome": "Sveiki atvykę į EETMS!",
+    "tapToStart": "(Palieskite, kad pradėtumėte)"
+  },
+  "shiftManagerTablet": {
+    "choose": "Pasirinkti",
+    "startShift": "Pradėti pamainą",
+    "endShift": "Baigti pamainą"
+  },
+  "companyTablet": {
+    "chooseCompany": "Pasirinkite savo įmonę",
+    "search": "Ieškokite savo įmonės"
+  },
+  "companyConfirm": {
+    "confirmCompany": "Patvirtinkite savo įmonę"
+  },
+  "reason": {
+    "reasonChoose": "Pasirinkite priežastį"
+  },
+  "phoneNumber": {
+    "enterPhone": "Įveskite savo telefono numerį"
+  },
+  "code": {
+    "enterCode": "Įveskite kodą, kurį gavote SMS žinute"
+  },
+  "success": {
+    "successText": "Registracija sėkminga!",
+    "redirecting": "Nukreipiama į pagrindinį puslapį po"
+  }
+}

@@ -1,0 +1,43 @@
+{
+  "common": {
+    "back": "Назад",
+    "submit": "Отправить",
+    "cancel": "Отмена",
+    "confirm": "Подтвердить",
+    "search": "Поиск",
+    "startShiftType": "Начало смены",
+    "endShiftType": "Конец смены",
+    "company": "Компания",
+    "reason": "Причина"
+  },
+  "homeTablet": {
+    "welcome": "Добро пожаловать в EETMS!",
+    "tapToStart": "(Нажмите, чтобы начать)"
+  },
+  "shiftManagerTablet": {
+    "choose": "Выбрать",
+    "startShift": "Начать смену",
+    "endShift": "Завершить смену"
+  },
+  "companyTablet": {
+    "chooseCompany": "Выберите вашу компанию",
+    "search": "Найдите вашу компанию"
+  },
+  "companyConfirm": {
+    "confirmCompany": "Подтвердите вашу компанию"
+  },
+  "reason": {
+    "reasonChoose": "Выберите причину"
+  },
+  "phoneNumber": {
+    "enterPhone": "Введите ваш номер телефона"
+  },
+  "code": {
+    "enterCode": "Введите код, полученный по SMS"
+  },
+  "success": {
+    "successText": "Регистрация прошла успешно!",
+    "redirecting": "Перенаправление на главную страницу через"
+  }
+}
+

@@ -1,0 +1,42 @@
+{
+    "common": {
+        "back": "Atpakaļ",
+        "submit": "Apstiprināt",
+        "cancel": "Atcelt",
+        "confirm": "Apstiprināt",
+        "search": "Meklēt",
+        "startShiftType": "Sākot maiņu",
+        "endShiftType": "Beidzot maiņu",
+        "company": "Uzņēmums",
+        "reason": "Iemesls"
+    },
+    "homeTablet": {
+        "welcome": "Laipni lūdzam EETMS!",
+        "tapToStart": "(Pieskarieties, lai sāktu)"
+    },
+    "shiftManagerTablet": {
+        "choose": "Izvēlēties",
+        "startShift": "Sākt maiņu",
+        "endShift": "Beigt maiņu"
+    },
+    "companyTablet": {
+        "chooseCompany": "Izvēleties savu uzņēmumu",
+        "search": "Meklēt uzņēmumu"
+    },
+    "companyConfirm": {
+        "confirmCompany": "Apstipriniet savu uzņēmumu"
+    },
+    "reason": {
+        "reasonChoose": "Izvēlieties iemeslu"
+    },
+    "phoneNumber": {
+        "enterPhone": "Ievadiet savu tālruņa numuru"
+    },
+    "code": {
+        "enterCode": "Ievadiet saņemto SMS kodu"
+    },
+    "success": {
+        "successText": "Reģistrācija ir veiksmīga!",
+        "redirecting": "Pāradresēšana uz sākumlapu pēc"
+    }
+}

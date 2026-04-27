@@ -1,0 +1,43 @@
+{
+  "common": {
+    "back": "Tagasi",
+    "submit": "Esita",
+    "cancel": "Tühista",
+    "confirm": "Kinnita",
+    "search": "Otsi",
+    "startShiftType": "Vahetuse algus",
+    "endShiftType": "Vahetuse lõpp",
+    "company": "Ettevõte",
+    "reason": "Põhjus"
+  },
+  "homeTablet": {
+    "welcome": "Tere tulemast EETMS-i!",
+    "tapToStart": "(Puudutage alustamiseks)"
+  },
+  "shiftManagerTablet": {
+    "choose": "Vali",
+    "startShift": "Alusta vahetust",
+    "endShift": "Lõpeta vahetus"
+  },
+  "companyTablet": {
+    "chooseCompany": "Valige oma ettevõte",
+    "search": "Otsige oma ettevõtet"
+  },
+  "companyConfirm": {
+    "confirmCompany": "Kinnitage oma ettevõte"
+  },
+  "reason": {
+    "reasonChoose": "Valige põhjus"
+  },
+  "phoneNumber": {
+    "enterPhone": "Sisestage oma telefoninumber"
+  },
+  "code": {
+    "enterCode": "Sisestage SMS-iga saadud kood"
+  },
+  "success": {
+    "successText": "Registreerimine õnnestus!",
+    "redirecting": "Suunamine avalehele"
+  }
+}
+

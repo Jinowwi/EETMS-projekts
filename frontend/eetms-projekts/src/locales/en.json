@@ -1,0 +1,42 @@
+{
+  "common": {
+    "back": "Back",
+    "submit": "Submit",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "search": "Search",
+    "startShiftType": "Starting shift",
+    "endShiftType": "Ending shift",
+    "company": "Company",
+    "reason": "Reason"
+  },
+  "homeTablet": {
+    "welcome": "Welcome to EETMS!",
+    "tapToStart": "(Tap to Start)"
+  },
+  "shiftManagerTablet": {
+    "choose": "Choose",
+    "startShift": "Start Shift",
+    "endShift": "End Shift"
+  },
+  "companyTablet": {
+    "chooseCompany": "Choose your company",
+    "search": "Search your company"
+  },
+  "companyConfirm": {
+    "confirmCompany": "Confirm your company"
+  },
+  "reason": {
+    "reasonChoose": "Choose reason"
+  },
+  "phoneNumber": {
+    "enterPhone": "Enter your phone number"
+  },
+  "code": {
+    "enterCode": "Enter the code you received via SMS"
+  },
+  "success": {
+    "successText": "Registration is successful!",
+    "redirecting": "Redirecting to Homepage in"
+  }
+}

@@ -120,31 +120,6 @@
           </div>
         </div>
 
-        <div class="section-header">
-          <h2>Company Reasons</h2>
-          <div class="buttons">
-            <button :class="['btn', { 'active-btn': isSortModeReasons }]" @click="toggleSortModeReasons">
-              <FontAwesomeIcon :icon="['fas', 'sliders-h']" />
-            </button>
-          </div>
-        </div>
-
-        <transition name="slide-down">
-          <div v-if="isSortModeReasons" class="sort-toolbar">
-            <span class="sort-label">Filter By</span>
-            <div class="sort-options">
-              <div class="search-container">
-                <input
-                  type="text"
-                  v-model="reasonQuery"
-                  placeholder="Search reasons..."
-                  class="search-input"
-                />  
-              </div>
-            </div>
-          </div>
-        </transition>
-
         <p v-if="!user?.reasons || user.reasons.length === 0" class="no-data">
           No reasons are currently assigned to this company.
         </p>

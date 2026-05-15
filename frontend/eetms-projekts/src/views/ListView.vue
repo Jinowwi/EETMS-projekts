@@ -167,7 +167,7 @@
                             <button :class="['btn', { 'active-btn': isSortModeReasons }]" @click="toggleSortModeReasons()">
                                 <FontAwesomeIcon :icon="['fas', 'sliders-h']" />
                             </button>
-                            <button class="btn btn-edit" @click="toggleEditModeReasons()">
+                            <button :class="['btn', { 'active-btn': isEditModeReasons }]" @click="toggleEditModeReasons()">
                                 <FontAwesomeIcon :icon="['fas', 'pen']" />
                             </button>
                             <button class="btn btn-add" @click="openAddReasonModal()">

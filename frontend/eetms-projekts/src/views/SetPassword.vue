@@ -2,10 +2,11 @@
   <div class="set-password-page">
     <div class="set-password-box">
       <h2>Set Your Password</h2>
-      <p class="subtitle">Create a password for your shop account.</p>
+      <p class="subtitle">Create a password for your {{ accountLabel }} account.</p>
 
       <div v-if="success" class="msg success">
-        Password set! You can now <a href="/login-shop">log in</a>.
+        Password set! You can now <a :href="accountType === 'company' ? 
+        '/login-comp' : '/login-shop'"> log in</a>.
       </div>
 
       <div v-else-if="error" class="msg error">
@@ -42,7 +43,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { useRoute } from 'vue-router';
 import axios from 'axios';
 
@@ -55,13 +56,20 @@ const loading = ref(false);
 const success = ref(false);
 const error = ref('');
 const mismatch = ref(false);
+const accountType = ref(''); 
 
 onMounted(() => {
   email.value = route.query.email || '';
-  if (!email.value) {
+  accountType.value = route.query.type || ''; 
+
+  if (!email.value || !accountType.value) {
     error.value = 'Invalid or expired link.';
   }
 });
+
+const accountLabel = computed(() => 
+  accountType.value === 'company' ? 'company' : 'shop' 
+); 
 
 const handleSubmit = async () => {
   mismatch.value = false;
@@ -73,7 +81,12 @@ const handleSubmit = async () => {
 
   loading.value = true;
   try {
-    await axios.post('http://localhost:5001/api/shops/set-password', {
+    const endpoint = 
+      accountType.value === 'company'
+      ? 'http://localhost:5001/api/companies/set-password'
+      : 'http://localhost:5001/api/shops/set-password'; 
+
+    await axios.post(endpoint, {
       email: email.value,
       password: password.value
     });

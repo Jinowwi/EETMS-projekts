@@ -13,8 +13,8 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 builder.Services.AddSingleton<SmsService>(); 
 
 builder.Services.Configure<EmailSettings>(
-    builder.Configuration.GetSection("EmailSettings")
-);
+    builder.Configuration.GetSection("EmailSettings"));
+
 builder.Services.AddScoped<EmailService>();
 
 builder.Services.AddControllers()

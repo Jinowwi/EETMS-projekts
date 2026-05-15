@@ -491,6 +491,7 @@ import AddReasonModal from '@/components/AddReasonModal.vue';
 import AddShopModal from '@/components/AddShopModal.vue';
 import { useRouter } from 'vue-router';
 import { logout } from '@/services/auth.js';
+import PhoneNumber from '@/views-tablet/PhoneNumber.vue';
 
 const API_BASE = 'http://localhost:5001/api';
  
@@ -886,17 +887,27 @@ const handleAddReasonToCompany = async (reasonId) => {
 }; 
 
 const addCompany = async (formData) => {
-    try {
-        await axios.post(`${API_BASE}/companies`, formData);
-        closeAddCompanyModal();
-        await fetchCompanies(); 
-        await fetchCompanyReasons();
-        await fetchReasons(); 
-
-    } catch (error) {
-        console.error('Company add failed:', error.message); 
-    }
-}; 
+  try {
+    const payload = {
+      CompanyName: formData.companyName?.trim(),
+      Address: formData.address?.trim() || null,
+      Country: getCountryCode(formData.country),
+      RemID: formData.remID ?? 0,
+      PhoneNumber: formData.phoneNumber?.trim() || null,
+      RegistrationNumber: formData.registrationNumber?.trim() || null,
+      Email: formData.email?.trim().toLowerCase(),
+      Password: formData.password
+    };
+    await axios.post(`${API_BASE}/companies`, payload);
+    closeAddCompanyModal();
+    await fetchCompanies();
+    await fetchCompanyReasons();
+    await fetchReasons();
+  } catch (error) {
+    console.error('Company add failed:', error.response?.data || error.message);
+    showCustomAlert(error.response?.data || 'Failed to add company. Please try again.');
+  }
+};
 
 const addShop = async (formData) => {
   try {
@@ -906,7 +917,7 @@ const addShop = async (formData) => {
   } catch (error) {
     const msg = error.response?.data?.error;
     if (msg) {
-      showCustomAlert(msg); // shows "A shop with this email already exists." from backend
+      showCustomAlert(msg); 
     } else {
       showCustomAlert('Failed to add shop. Please try again.');
     }
@@ -917,25 +928,25 @@ const remAdministrators = computed(() => {
     return administrators.value.filter(admin => admin.typeOfAdmin === 1);
 });
 
-const updateCompany = async (row) => { 
-    try {
-        const payload = {
-            CompanyID: row.id, 
-            CompanyName: row.companyName,
-            Country: getCountryCode(row.country), 
-            Address: row.address, 
-            PhoneNumber: row.phoneNumber, 
-            RemID: row.remID,
-            RimiEmployeeEmail: row.rimiEmployeeEmail,
-            Password: undefined
-        }; 
-
-        await axios.put(`${API_BASE}/companies/${row.id}`, payload);
-        await fetchCompanies(); 
-    } catch (error) {
-        console.error('Update failed:', error); 
-        await fetchCompanies();
-    }
+const updateCompany = async (row) => {
+  try {
+    const payload = {
+      CompanyID: row.id,
+      CompanyName: row.companyName?.trim(),
+      Country: getCountryCode(row.country),
+      Address: row.address?.trim() || null,
+      PhoneNumber: row.phoneNumber?.trim() || null,
+      RegistrationNumber: row.registrationNumber?.trim() || null,
+      Email: row.email?.trim().toLowerCase(),
+      RemID: row.remID ?? 0,
+      Password: undefined
+    };
+    await axios.put(`${API_BASE}/companies/${row.id}`, payload);
+    await fetchCompanies();
+  } catch (error) {
+    console.error('Update failed:', error);
+    await fetchCompanies();
+  }
 }; 
 
 const updateReason = async (row) => {
@@ -1044,22 +1055,24 @@ const handleRemoveReasonFromCompany = async (reasonId) => {
 }
 
 const fetchCompanies = async () => {
-    try {
-        const res = await axios.get(`${API_BASE}/companies`);
-        companyData.value = res.data.map(c => ({
-            id: c.companyID,
-            companyName: c.companyName,
-            country: getCountryName(c.country),
-            address: c.address,
-            rimiEmployeeEmail: c.rimiEmployeeEmail,
-            phoneNumber: c.phoneNumber,
-            remID: c.remID,
-            reasonIds: (c.companyReasons || c.CompanyReasons || []).map(r => r.reasonID)  
-        }));
-    } catch (error) {
-        console.error('Failed to load companies:', error);
-    }
-}
+  try {
+    const res = await axios.get(`${API_BASE}/companies`);
+    companyData.value = res.data.map(c => ({
+      id: c.companyID,
+      companyName: c.companyName,
+      country: getCountryName(c.country),
+      address: c.address,
+      email: c.email,
+      rimiEmployeeEmail: c.rimiEmployeeEmail,
+      phoneNumber: c.phoneNumber,
+      registrationNumber: c.registrationNumber,
+      remID: c.remID,
+      reasonIds: (c.companyReasons || c.CompanyReasons || []).map(r => r.reasonID)
+    }));
+  } catch (error) {
+    console.error('Failed to load companies:', error);
+  }
+};
  
 // const fetchShifts = async () => {
 //     try {
@@ -1101,15 +1114,16 @@ const fetchShops = async () => {
     }
 }; 
 
-const getCountryCode = (countryName) => {
-    const countryMap = {
-        'Lithuania': 1, 
-        'Latvia': 2, 
-        'Estonia' : 3,
-        'Baltics' : 4
-    }; 
-    return countryMap[countryName]; 
-}; 
+const getCountryCode = (country) => {
+  if (typeof country === 'number') return country;
+  const countryMap = {
+    'Lithuania': 1,
+    'Latvia': 2,
+    'Estonia': 3,
+    'Baltics': 4
+  };
+  return countryMap[country] ?? null;
+};
 
 const getCountryName = (countryCode) => {
     const countryMap = {

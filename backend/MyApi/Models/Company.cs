@@ -19,7 +19,7 @@ namespace MyApi.Models
         public string? Address { get; set; }
         public string? RegistrationNumber { get; set; }
         public string? Email { get; set; }
-        public string PasswordHash { get; set; } = string.Empty; // renamed from Password
+        public string PasswordHash { get; set; } = string.Empty; 
         public int? RemID { get; set; }
         public ICollection<CompanyReason> CompanyReasons { get; set; }
 

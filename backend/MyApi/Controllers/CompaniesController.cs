@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using MyApi.Data;
 using MyApi.Models;
 using MyApi.Dto;
+using MyApi.Services;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,113 +15,242 @@ namespace MyApi.Controllers
     public class CompaniesController : ControllerBase
     {
         private readonly AppDbContext _context;
+        private readonly EmailService _emailService;
+        private const int BcryptWorkFactor = 12;
 
-        public CompaniesController(AppDbContext context)
+        public CompaniesController(AppDbContext context, EmailService emailService)
         {
             _context = context;
+            _emailService = emailService;
         }
 
         [HttpGet]
-public async Task<ActionResult<IEnumerable<CompanyDto>>> GetCompanies()
-{
-    var companies = await _context.Companies.ToListAsync();
-    var admins = await _context.Administrators.ToListAsync();
-
-    return Ok(companies.Select(c => {
-        var admin = admins.FirstOrDefault(a => a.RemID == c.RemID);
-        return new CompanyDto
+        public async Task<ActionResult<IEnumerable<CompanyDto>>> GetCompanies()
         {
-            CompanyID = c.CompanyID,
-            CompanyName = c.CompanyName ?? "",
-            Address = c.Address ?? "",
-            Country = (int)c.Country,
-            RemID = c.RemID ?? 0,
-            PhoneNumber = c.PhoneNumber,
-            RegistrationNumber = c.RegistrationNumber,
-            Email = c.Email,
-            RimiEmployeeEmail = admin?.Email,  // ✅ from Administration table
-            Password = null
-        };
-    }).ToList());
-}
+            var companies = await _context.Companies.ToListAsync();
+            var admins = await _context.Administrators.ToListAsync();
 
-    [HttpGet("{id}")]
-public async Task<ActionResult<CompanyDto>> GetCompany(int id)
-{
-    var company = await _context.Companies.FindAsync(id);
-    if (company == null) return NotFound();
-
-    var admin = company.RemID.HasValue
-        ? await _context.Administrators.FindAsync(company.RemID.Value)
-        : null;
-
-    return Ok(new CompanyDto
-    {
-        CompanyID = company.CompanyID,
-        CompanyName = company.CompanyName ?? "",
-        Address = company.Address ?? "",
-        Country = (int)company.Country,
-        RemID = company.RemID ?? 0,
-        PhoneNumber = company.PhoneNumber,
-        RegistrationNumber = company.RegistrationNumber,
-        Email = company.Email,
-        RimiEmployeeEmail = admin?.Email,  // ✅ from Administration table
-        Password = null
-    });
-}
-
-
-
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateCompany(int id, CompanyDto dto)
-        {
-            if (id != dto.CompanyID)
+            var result = companies.Select(c =>
             {
-                return BadRequest("ID mismatch");
-            }
+                var admin = admins.FirstOrDefault(a => a.RemID == c.RemID);
 
+                return new CompanyDto
+                {
+                    CompanyID = c.CompanyID,
+                    CompanyName = c.CompanyName ?? "",
+                    Address = c.Address ?? "",
+                    Country = (int)c.Country,
+                    RemID = c.RemID ?? 0,
+                    PhoneNumber = c.PhoneNumber,
+                    RegistrationNumber = c.RegistrationNumber,
+                    Email = c.Email,
+                    RimiEmployeeEmail = admin?.Email,
+                    Password = null
+                };
+            }).ToList();
+
+            return Ok(result);
+        }
+
+        [HttpGet("{id}")]
+        public async Task<ActionResult<CompanyDto>> GetCompany(int id)
+        {
             var company = await _context.Companies.FindAsync(id);
-            
             if (company == null)
-            {
                 return NotFound();
-            }
+
+            var admin = company.RemID.HasValue
+                ? await _context.Administrators.FirstOrDefaultAsync(a => a.RemID == company.RemID.Value)
+                : null;
+
+            var result = new CompanyDto
+            {
+                CompanyID = company.CompanyID,
+                CompanyName = company.CompanyName ?? "",
+                Address = company.Address ?? "",
+                Country = (int)company.Country,
+                RemID = company.RemID ?? 0,
+                PhoneNumber = company.PhoneNumber,
+                RegistrationNumber = company.RegistrationNumber,
+                Email = company.Email,
+                RimiEmployeeEmail = admin?.Email,
+                Password = null
+            };
+
+            return Ok(result);
+        }
+
+        [HttpPost]
+        public async Task<ActionResult<CompanyDto>> CreateCompany([FromBody] CompanyDto dto)
+        {
+            if (dto == null)
+                return BadRequest("Request body is required");
+
+            if (string.IsNullOrWhiteSpace(dto.CompanyName))
+                return BadRequest("Company name is required");
+
+            if (string.IsNullOrWhiteSpace(dto.Email))
+                return BadRequest("Email is required");
 
             if (!Enum.IsDefined(typeof(Country), dto.Country))
-            {
                 return BadRequest("Invalid country value");
-            }
 
-            company.CompanyName = dto.CompanyName;
-            company.Address = dto.Address;
-            company.Country = (Country)dto.Country;
-            company.RemID = dto.RemID;
-            company.PhoneNumber = dto.PhoneNumber;
-            company.RegistrationNumber = dto.RegistrationNumber;
-            company.Email = dto.Email;
+            var normalizedEmail = dto.Email.Trim().ToLower();
 
-            if (!string.IsNullOrWhiteSpace(dto.Password))
-                company.PasswordHash = dto.Password; 
-            
+            var emailExists = await _context.Companies
+                .AnyAsync(c => c.Email != null && c.Email.ToLower() == normalizedEmail);
+
+            if (emailExists)
+                return BadRequest("A company with this email already exists");
+
+            var company = new Company
+            {
+                CompanyName = dto.CompanyName.Trim(),
+                Address = dto.Address?.Trim(),
+                PhoneNumber = dto.PhoneNumber?.Trim(),
+                RegistrationNumber = dto.RegistrationNumber?.Trim(),
+                Email = normalizedEmail,
+                Country = (Country)dto.Country,
+                RemID = dto.RemID == 0 ? null : dto.RemID,
+                PasswordHash = string.Empty
+            };
+
+            _context.Companies.Add(company);
+            await _context.SaveChangesAsync();
+
             try
             {
-                var entry = _context.Entry(company);
-foreach (var prop in entry.Properties)
-{
-    Console.WriteLine($"{prop.Metadata.Name}: Original={prop.OriginalValue}, Current={prop.CurrentValue}, Modified={prop.IsModified}");
-}
-                await _context.SaveChangesAsync();
+                await _emailService.SendCompanyPasswordSetupEmailAsync(
+                    company.Email!,
+                    company.CompanyName ?? "Company" 
+                );
             }
-            catch (DbUpdateConcurrencyException)
+            catch (Exception ex)
             {
-                if (!CompanyExists(id))
-                {
-                    if (!CompanyExists(id)) return NotFound();
-                }
-                throw;
+                return StatusCode(500, $"Company created, but email sending failed: {ex.Message}");
             }
 
+            var result = new CompanyDto
+            {
+                CompanyID = company.CompanyID,
+                CompanyName = company.CompanyName,
+                Address = company.Address,
+                Country = (int)company.Country,
+                RemID = company.RemID ?? 0,
+                PhoneNumber = company.PhoneNumber,
+                RegistrationNumber = company.RegistrationNumber,
+                Email = company.Email,
+                Password = null
+            };
+
+            return CreatedAtAction(nameof(GetCompany), new { id = company.CompanyID }, result);
+        }
+
+        [HttpPost("set-password")]
+        public async Task<IActionResult> SetPassword([FromBody] SetPasswordByEmailDto dto)
+        {
+            if (dto == null)
+                return BadRequest("Request body is required");
+
+            if (string.IsNullOrWhiteSpace(dto.Email))
+                return BadRequest("Email is required");
+
+            if (string.IsNullOrWhiteSpace(dto.Password))
+                return BadRequest("Password is required");
+
+            var normalizedEmail = dto.Email.Trim().ToLower();
+
+            var company = await _context.Companies
+                .FirstOrDefaultAsync(c => c.Email != null && c.Email.ToLower() == normalizedEmail);
+
+            if (company == null)
+                return NotFound("Company not found");
+
+            company.SetPassword(dto.Password);
+            await _context.SaveChangesAsync();
+
+            return Ok(new { message = "Password set successfully" });
+        }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateCompany(int id, [FromBody] CompanyDto dto)
+        {
+            if (dto == null)
+                return BadRequest("Request body is required");
+
+            if (id != dto.CompanyID)
+                return BadRequest("ID mismatch");
+
+            if (string.IsNullOrWhiteSpace(dto.CompanyName))
+                return BadRequest("Company name is required");
+
+            if (string.IsNullOrWhiteSpace(dto.Email))
+                return BadRequest("Email is required");
+
+            if (!Enum.IsDefined(typeof(Country), dto.Country))
+                return BadRequest("Invalid country value");
+
+            var company = await _context.Companies.FindAsync(id);
+            if (company == null)
+                return NotFound();
+
+            var normalizedEmail = dto.Email.Trim().ToLower();
+
+            var duplicateEmailExists = await _context.Companies
+                .AnyAsync(c => c.CompanyID != id && c.Email != null && c.Email.ToLower() == normalizedEmail);
+
+            if (duplicateEmailExists)
+                return BadRequest("Another company already uses this email");
+
+            company.CompanyName = dto.CompanyName.Trim();
+            company.Address = dto.Address?.Trim();
+            company.PhoneNumber = dto.PhoneNumber?.Trim();
+            company.RegistrationNumber = dto.RegistrationNumber?.Trim();
+            company.Email = normalizedEmail;
+            company.Country = (Country)dto.Country;
+            company.RemID = dto.RemID == 0 ? null : dto.RemID;
+
+            if (!string.IsNullOrWhiteSpace(dto.Password))
+            {
+                company.SetPassword(dto.Password);
+            }
+
+            await _context.SaveChangesAsync();
             return NoContent();
+        }
+
+        [HttpPost("login")]
+        public async Task<ActionResult> Login([FromBody] LoginDto dto)
+        {
+            if (dto == null)
+                return BadRequest("Request body is required");
+
+            if (string.IsNullOrWhiteSpace(dto.Email) || string.IsNullOrWhiteSpace(dto.Password))
+                return BadRequest("Email and password are required");
+
+            var normalizedEmail = dto.Email.Trim().ToLower();
+
+            var company = await _context.Companies
+                .FirstOrDefaultAsync(c => c.Email != null && c.Email.ToLower() == normalizedEmail);
+
+            if (company == null || string.IsNullOrWhiteSpace(company.PasswordHash))
+                return Unauthorized("Invalid email or password");
+
+            if (!company.VerifyPassword(dto.Password))
+                return Unauthorized("Invalid email or password");
+
+            if (BCrypt.Net.BCrypt.PasswordNeedsRehash(company.PasswordHash, BcryptWorkFactor))
+            {
+                company.SetPassword(dto.Password);
+                await _context.SaveChangesAsync();
+            }
+
+            return Ok(new
+            {
+                companyId = company.CompanyID,
+                companyName = company.CompanyName,
+                email = company.Email
+            });
         }
 
         [HttpDelete("{id}")]
@@ -128,62 +258,18 @@ foreach (var prop in entry.Properties)
         {
             var company = await _context.Companies.FindAsync(id);
             if (company == null)
-            {
                 return NotFound();
-            }
 
             _context.Companies.Remove(company);
             await _context.SaveChangesAsync();
 
             return NoContent();
         }
+    }
 
-        [HttpPost]
-public async Task<ActionResult<CompanyDto>> CreateCompany(CompanyDto dto)
-{
-    var company = new Company
+    public class SetPasswordByEmailDto
     {
-        CompanyName = dto.CompanyName,
-        Address = dto.Address,
-        PhoneNumber = dto.PhoneNumber,
-        RegistrationNumber = dto.RegistrationNumber,
-        Email = dto.Email,
-        PasswordHash = dto.Password,
-        Country = (Country)(dto.Country == 0 ? 2 : dto.Country), 
-        RemID = dto.RemID == 0 ? null : dto.RemID
-    };
-
-    _context.Companies.Add(company);
-    await _context.SaveChangesAsync();
-
-    return CreatedAtAction(nameof(GetCompany), new { id = company.CompanyID }, new CompanyDto
-    {
-        CompanyID = company.CompanyID,
-        CompanyName = company.CompanyName,
-        Email = company.Email,
-        Country = (int)company.Country
-    });
-}
-
-[HttpPost("login")]
-public async Task<ActionResult> Login([FromBody] LoginDto dto)
-{
-    var company = await _context.Companies
-        .FirstOrDefaultAsync(c => c.Email == dto.Email);
-
-    if (company == null || !company.VerifyPassword(dto.Password))
-        return Unauthorized("Invalid email or password");
-
-    return Ok(new
-    {
-        companyId = company.CompanyID,
-        companyName = company.CompanyName
-    });
-}
-
-        private bool CompanyExists(int id)
-        {
-            return _context.Companies.Any(e => e.CompanyID == id);
-        }
+        public string Email { get; set; } = string.Empty;
+        public string Password { get; set; } = string.Empty;
     }
 }

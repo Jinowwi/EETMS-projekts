@@ -36,11 +36,11 @@
 
           <div class="form-group">
             <label>Phone Number:</label>
-            <input 
+            <input
               v-model.trim="form.phoneNumber"
               minlength="8"
               class="edit-input"
-              required 
+              required
               maxlength="12"
               pattern="\\+?[0-9]+"
               @keyup.enter="handleSave"
@@ -54,7 +54,7 @@
             v-model.trim="form.address"
             minlength="10"
             class="edit-input"
-            required 
+            required
             maxlength="50"
             placeholder="Street, City, Postal Code"
             @keyup.enter="handleSave"
@@ -63,7 +63,7 @@
 
         <div class="form-group">
           <label>Registration Number:</label>
-          <input 
+          <input
             v-model.trim="form.registrationNumber"
             minlength="9"
             class="edit-input"
@@ -72,8 +72,21 @@
             @keyup.enter="handleSave"
           />
         </div>
+
+        <div class="form-group">
+          <label>Email:</label>
+          <input
+            v-model.trim="form.email"
+            type="email"
+            class="edit-input"
+            required
+            maxlength="50"
+            placeholder="company@example.com"
+            @keyup.enter="handleSave"
+          />
+        </div>
       </form>
-      
+
       <div class="modal-actions">
         <button @click="handleSave" class="btn-save" title="Save Company">
           <FontAwesomeIcon :icon="['fas', 'check']" />
@@ -87,94 +100,92 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue'; 
+import { ref, watch } from 'vue';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 
 const emit = defineEmits(['close', 'save']);
-const props = defineProps({ isOpen: Boolean }); 
-const showWarning = ref(false); 
-const warningMessage = ref(''); 
+const props = defineProps({ isOpen: Boolean });
+const showWarning = ref(false);
+const warningMessage = ref('');
 
-let warningTimer = null; 
+let warningTimer = null;
 
 const showWarningMessage = (message) => {
-  warningMessage.value = message
-  showWarning.value = true
-
-  if (warningTimer) clearTimeout(warningTimer) 
+  warningMessage.value = message;
+  showWarning.value = true;
+  if (warningTimer) clearTimeout(warningTimer);
   warningTimer = setTimeout(() => {
-    showWarning.value = false
-  }, 3000)
+    showWarning.value = false;
+  }, 3000);
 };
 
 const form = ref({
-    companyName: '',
-    country: 2,
-    phoneNumber: '',
-    address: '', 
-    registrationNumber: '',
-    remID: 1 
-}); 
+  companyName: '',
+  country: 2,
+  phoneNumber: '',
+  address: '',
+  registrationNumber: '',
+  email: '',
+  remID: 1
+});
 
 const handleSave = () => {
-  showWarning.value = false
-  warningMessage.value = ''
+  showWarning.value = false;
+  warningMessage.value = '';
 
-  const companyName = (form.value.companyName ?? '').trim() 
-  const phone = (form.value.phoneNumber ?? '').trim()
-  const address = (form.value.address ?? '').trim()
-  const regNo = (form.value.registrationNumber ?? '').trim()
+  const companyName = (form.value.companyName ?? '').trim();
+  const phone = (form.value.phoneNumber ?? '').trim();
+  const address = (form.value.address ?? '').trim();
+  const regNo = (form.value.registrationNumber ?? '').trim();
+  const email = (form.value.email ?? '').trim();
 
-  if (!companyName || !phone || !address || !regNo) {
-    showWarningMessage('Please fill in all required fields.')
-    return
+  if (!companyName || !phone || !address || !regNo || !email) {
+    showWarningMessage('Please fill in all required fields.');
+    return;
   }
 
-  const phoneOk = /^\+?\d+$/.test(phone)
-  if (!phoneOk) {
-    showWarningMessage('Phone number may contain only numbers.')
-    return
+  if (!/^\+?\d+$/.test(phone)) {
+    showWarningMessage('Phone number may contain only numbers.');
+    return;
   }
 
   if (phone.length < 8 || address.length < 10 || regNo.length < 9) {
-    showWarningMessage('Some fields are too short.')
-    return 
+    showWarningMessage('Some fields are too short.');
+    return;
   }
 
-  const missingRequired = !companyName || !address || !regNo
-  if (missingRequired) {
-    showWarningMessage('Please fill all required fields.')
-    return 
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    showWarningMessage('Please enter a valid email address.');
+    return;
   }
 
   emit('save', {
-    ...form.value,
+    companyName: companyName,
+    address: address,
+    registrationNumber: regNo,
     phoneNumber: phone,
-    companyName: form.value.companyName.trim(),
-    address: form.value.address.trim(),
-    registrationNumber: form.value.registrationNumber.trim(),
+    email: email,
     country: Number(form.value.country),
     remID: Number(form.value.remID)
-  })
-}
+  });
+};
 
 watch(() => props.isOpen, (val) => {
   if (!val) {
-    if (warningTimer) clearTimeout(warningTimer) 
-    showWarning.value = false
-    warningMessage.value = ''
-
-    form.value = {     
+    if (warningTimer) clearTimeout(warningTimer);
+    showWarning.value = false;
+    warningMessage.value = '';
+    form.value = {
       companyName: '',
       phoneNumber: '',
       country: 2,
       address: '',
       registrationNumber: '',
+      email: '',
       remID: 1
-    }
+    };
   }
 });
-
 </script>
 
 <style scoped>
@@ -200,7 +211,7 @@ watch(() => props.isOpen, (val) => {
   width: 100%;
   position: relative;
   box-shadow: 0 4px 20px var(--shadow-berry);
-  overflow: hidden; 
+  overflow: hidden;
 }
 
 .section-header {
@@ -223,19 +234,13 @@ watch(() => props.isOpen, (val) => {
   position: fixed;
   top: 20px;
   right: 20px;
-  z-index: 3000; 
+  z-index: 3000;
   animation: slideIn 0.3s ease-out;
 }
 
 @keyframes slideIn {
-  from {
-    transform: translateX(400px);
-    opacity: 0;
-  }
-  to {
-    transform: translateX(0);
-    opacity: 1;
-  }
+  from { transform: translateX(400px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
 }
 
 .warning-content {
@@ -305,11 +310,11 @@ watch(() => props.isOpen, (val) => {
   letter-spacing: 0.5px;
 }
 
-.edit-input, 
+.edit-input,
 .edit-select {
-  width: 100%; 
-  height: 42px; 
-  border: 2px solid var(--color-border); 
+  width: 100%;
+  height: 42px;
+  border: 2px solid var(--color-border);
   border-radius: 40px;
   font-family: 'Inter';
   box-shadow: 0 2px 8px var(--shadow-berry);
@@ -318,7 +323,8 @@ watch(() => props.isOpen, (val) => {
   transition: border-color 0.3s ease;
 }
 
-.edit-input:focus, .edit-select:focus {
+.edit-input:focus,
+.edit-select:focus {
   outline: none;
   border-color: var(--brand-berry);
 }
@@ -330,7 +336,8 @@ watch(() => props.isOpen, (val) => {
   padding: 0 30px 30px 30px;
 }
 
-.btn-save, .btn-delete {
+.btn-save,
+.btn-delete {
   width: 45px;
   height: 45px;
   border: none;
@@ -345,7 +352,8 @@ watch(() => props.isOpen, (val) => {
   transition: all 0.3s ease;
 }
 
-.btn-save:hover, .btn-delete:hover {
+.btn-save:hover,
+.btn-delete:hover {
   background: var(--header-gradient);
   color: var(--color-white);
   transform: scale(1.1);

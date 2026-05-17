@@ -59,6 +59,7 @@ const navigateTo = (path) => {
 
 <style scoped>
 .shift-manager {
+  font-family: 'Inter', sans-serif;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -76,6 +77,7 @@ const navigateTo = (path) => {
 }
 
 .shift-container {
+  font-family: 'Inter', sans-serif;
   background: white;
   border-radius: 20px;
   padding: 50px 60px;

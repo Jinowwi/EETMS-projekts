@@ -269,7 +269,7 @@
           </button>
         </div>
 
-
+<div class="table-scroll-wrapper">
         <table>
           <thead>
             <tr>
@@ -317,6 +317,7 @@
             </tr>
           </tbody>
         </table>
+        </div>
       </div>
     </div>
 
@@ -1840,88 +1841,134 @@ onMounted(async () => {
 .company-table {
   background: rgba(255, 255, 255, 0.82);
   backdrop-filter: blur(16px);
-  width: 100%;
   -webkit-backdrop-filter: blur(16px);
   border: 1.5px solid rgba(255, 255, 255, 0.9);
-  padding: 24px;
-  border-radius: 20px;
-  box-shadow: 0 8px 32px rgba(161, 41, 113, 0.08), 0 2px 8px rgba(0,0,0,0.06);
-  overflow-x: visible;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(161, 41, 113, 0.08), 0 2px 8px rgba(0, 0, 0, 0.06);
+  width: 100%;
 }
 
-.company-table::-webkit-scrollbar { height: 0; display: none; }
-.company-table { scrollbar-width: none; }
-
 .table-header-section {
+  flex-shrink: 0;
+  margin-bottom: 20px;
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: 12px;
-  margin-bottom: 16px;
-  flex-wrap: wrap;
 }
 
 .table-header-section h3 {
-  font-size: 18px;
-  font-weight: 700;
+  font-size: 24px;
+  width: 100%;
+  font-weight: bolder;
   margin: 0;
   color: var(--brand-berry-light);
+  line-height: 1;
 }
 
-.company-table > table {
-  width: 100%;
-  min-width: 700px;
-  border-collapse: separate;
-  border-spacing: 0;
+.table-scroll-wrapper {
+  overflow-y: auto;
+  overflow-x: hidden;
+  max-height: 600px;
+  border-radius: 12px;
+  position: relative;
   border: 1.5px solid rgba(161, 41, 113, 0.12);
-  border-radius: 14px;
-  overflow: hidden;
-  font-size: 13px;
-  min-width: 480px;
+  -ms-overflow-style: none;
 }
 
-.company-table > table > thead > tr > th {
+.table-scroll-wrapper::-webkit-scrollbar {
+  width: 8px;
+}
+
+.table-scroll-wrapper::-webkit-scrollbar-track {
+  background: var(--color-bg-light);
+  border-radius: 10px;
+}
+
+.table-scroll-wrapper::-webkit-scrollbar-thumb {
+  background: var(--brand-berry);
+  border-radius: 10px;
+  transition: background 0.2s ease;
+}
+
+.table-scroll-wrapper::-webkit-scrollbar-thumb:hover {
+  background: var(--brand-berry-light);
+}
+
+.table-scroll-wrapper table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--color-white);
+  font-size: 13px;
+  table-layout: auto;
+}
+
+.table-scroll-wrapper thead {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: var(--header-gradient);
+}
+
+.table-scroll-wrapper thead tr th {
   text-align: center;
-  padding: 13px 16px;
+  padding: 12px 16px;
   font-size: 11px;
-  font-weight: 700;
+  font-weight: 600;
   color: var(--color-white);
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-  background: var(--header-gradient);
-  white-space: nowrap;
+  letter-spacing: 0.6px;
   border: none;
-}
-
-.sortable-header {
-  cursor: pointer;
-  user-select: none;
-  transition: opacity 0.2s;
+  background: transparent;
+  vertical-align: middle;
   white-space: nowrap;
 }
 
-.sortable-header:hover { opacity: 0.85; }
-
-.company-table > table > tbody > tr {
+.table-scroll-wrapper tbody tr {
   border-bottom: 1px solid rgba(161, 41, 113, 0.07);
   transition: background 0.15s;
   cursor: pointer;
 }
 
-.company-table > table > tbody > tr:hover { background: rgba(161, 41, 113, 0.04); }
-.company-table > table > tbody > tr:last-child { border-bottom: none; }
-
-.company-table > table > tbody > tr > td {
-  padding: 13px 16px;
-  font-size: 13px;
-  color: var(--color-text-main);
-  text-align: center;
-  border: none;
+.table-scroll-wrapper tbody tr:hover {
+  background: rgba(161, 41, 113, 0.04);
 }
 
-.company-table > table > tbody > tr > td:first-child,
-.company-table > table > tbody > tr > td:last-child {
+.table-scroll-wrapper tbody tr:last-child {
+  border-bottom: none;
+}
+
+.table-scroll-wrapper tbody tr td {
+  padding: 12px 16px;
+  font-size: 14px;
+  color: var(--color-text-main);
+  font-weight: 500;
+  text-align: center;
+  border: none;
+  white-space: nowrap;
+}
+
+.table-scroll-wrapper tbody tr td:first-child,
+.table-scroll-wrapper tbody tr td:last-child {
   font-weight: 600;
+  color: var(--color-black);
+}
+
+.sortable-header {
+  cursor: pointer;
+  user-select: none;
+  position: relative;
+  transition: opacity 0.2s;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.sortable-header:hover {
+  opacity: 0.85;
 }
 
 /* ── Export button ── */

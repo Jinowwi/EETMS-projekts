@@ -28,6 +28,10 @@
     --reminder-header: #dc3545;
 }
 
+* {
+  font-family: 'Inter', sans-serif;
+}
+
 .alert-overlay {
   position: fixed;
   inset: 0;

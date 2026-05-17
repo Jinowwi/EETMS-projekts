@@ -10,9 +10,9 @@
                 <p class="company-label">{{t('common.company')}}: {{ companyName }}</p>
                 <h1 class="hero-title">{{ t('reason.reasonChoose') }}</h1>
             </div>
-
+            <!-- Attēlo iemeslu sarakstu kā pogas, filtrētus pēc izvēlētā uzņēmuma -->
             <div class="reason-buttons">
-                <button 
+                <button
                     v-for="reason in reasons"
                     :key="reason.reasonID"
                     class="reason-btn"
@@ -21,7 +21,7 @@
                     {{ reason.name }}
                 </button>
             </div>
-           
+            
             <button class="back-btn" @click="navigateTo('/verification')">{{ t('common.back') }}</button>
         </div>
     </div>
@@ -40,14 +40,16 @@ const { registrationData, setReason, setCompanyReasonId, reset } = useShiftRegis
 const selectedReason = ref(null);
 const reasons = ref([]);
 
+// Iegūst maiņas tipu, uzņēmuma ID, nosaukumu un veikala informāciju no reģistrācijas datiem
 const shiftType = computed(() => registrationData.value.shiftType);
 const companyId = computed(() => registrationData.value.companyId);
 const companyName = computed(() => registrationData.value.companyName);
-
 const shopCode = computed(() => registrationData.value.shopCode);
 const shopType = computed(() => registrationData.value.shopType);
 const shopAddress = computed(() => registrationData.value.shopAddress);
 
+// Ielādē iemeslus no API pēc uzņēmuma ID un saglabā tos reasons masīvā
+// Ja uzņēmuma ID nav pieejams, funkcija tiek pārtraukta
 const fetchReasons = async () => {
     console.log('Fetching reasons for company ID:', companyId.value);
     
@@ -73,11 +75,13 @@ const fetchReasons = async () => {
     }
 };
 
+// Saglabā izvēlēto iemeslu reģistrācijas datos un iegūst CompanyReasonID no starptabulas
+// Pēc veiksmīgas saglabāšanas pāriet uz tālruņa numura ievades lapu
 const selectReason = async (reason) => {
     setReason(reason.reasonID, reason.name);
     
     try {
-        // Get CompanyReasonID from junction table
+        // Iegūst CompanyReasonID no starptabulas pēc uzņēmuma un iemesla ID
         const response = await fetch(
             `http://localhost:5001/api/shifts/companyreason?companyId=${companyId.value}&reasonId=${reason.reasonID}`
         );
@@ -87,9 +91,7 @@ const selectReason = async (reason) => {
         const data = await response.json();
         setCompanyReasonId(data.companyReasonID);
         
-        
         router.push('/phone');
-        
     } catch (error) {
         console.error('Error:', error);
         alert('Failed to save reason. Please try again.');
@@ -100,12 +102,12 @@ const navigateTo = (path) => {
     router.push(path);
 };
 
+// Pēc komponentes ielādes pārbauda reģistrācijas datus un ielādē iemeslus
 onMounted(() => {
     console.log('Reason - Registration Data:', registrationData.value);
     fetchReasons();
 });
 </script>
-
 
 <style scoped>
 .page-layout {

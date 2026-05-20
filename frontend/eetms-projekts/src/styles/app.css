@@ -32,6 +32,11 @@
   font-family: 'Inter', sans-serif;
 }
 
+.status-sent       { background: #ddeeff; color: #1a4a8b; }
+.status-approved   { background: #d4efcc; color: #2a6e1a; }
+.status-inprogress { background: #fff0cc; color: #7a5500; }
+.status-done       { background: #e0e0e0; color: #444;    }
+
 .alert-overlay {
   position: fixed;
   inset: 0;
@@ -100,7 +105,7 @@
   color: var(--brand-berry);
   border: 1.5px solid rgba(255, 255, 255, 0.8);
   border-radius: 50px;
-  font-family: Inter;
+  font-family: 'Inter', sans-serif;
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
@@ -164,7 +169,7 @@ body {
 }
 
 .shift-type-label {
-    font-family: 'Inter';
+    font-family: 'Inter', sans-serif;
     font-size: 18px;
     font-weight: 600;
     color: #a12971;
@@ -188,7 +193,7 @@ body {
     margin-top: 30px;
     font-weight: 600;
     font-size: 60px;
-    font-family: 'Inter';
+    font-family: 'Inter', sans-serif;
     background: var(--brand-gradient);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -252,7 +257,7 @@ body {
     flex: 1;
     text-align: left;
     font-size: 25px;
-    font-family: 'Inter';
+    font-family: 'Inter', sans-serif;
     font-weight: 600;
     padding: 12px 20px;
     background: var(--header-gradient);
@@ -267,7 +272,7 @@ h1 {
   margin: 30px 0 30px 0;
   font-weight: 900;
   font-size: clamp(32px, 5vw, 60px);
-  font-family: 'Inter';
+  font-family: 'Inter', sans-serif;
   background: var(--brand-berry
   );
   -webkit-background-clip: text;
@@ -280,7 +285,7 @@ table {
     width: 100%;
     border-collapse: collapse;
     font-size: 18px;
-    font-family: 'Inter';
+    font-family: 'Inter', sans-serif;
     table-layout: auto;
 }
 
@@ -360,7 +365,7 @@ tbody tr:last-child td {
     height: 35px; 
     border: 2px solid var(--color-border); 
     border-radius: 40px;
-    font-family: 'Inter';
+    font-family: 'Inter', sans-serif;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     padding-left: 10px;
     border: none;
@@ -468,7 +473,7 @@ tbody tr:last-child td {
 }
 
 .sort-label {
-    font-family: 'Inter';
+    font-family: 'Inter', sans-serif;
     font-weight: bold; 
     color: var(--brand-berry);
     font-size: 20px;
@@ -484,7 +489,7 @@ tbody tr:last-child td {
     border-radius: 20px;
     border: 1px solid #ddd;
     background: var(--color-white);
-    font-family: 'Inter';
+    font-family: 'Inter', sans-serif;
     font-size: 13px;
     cursor: pointer;
     transition: all 0.3s ease;
@@ -516,7 +521,7 @@ tbody tr:last-child td {
     border-radius: 20px;
     outline: none;
     background: white;
-    font-family: 'Inter';
+    font-family: 'Inter', sans-serif;
     font-size: 13px;
 } */
 
@@ -530,7 +535,7 @@ tbody tr:last-child td {
     border-radius: 20px;
     outline: none;
     background: var(--color-white);
-    font-family: 'Inter';
+    font-family: 'Inter', sans-serif;
     font-size: 13px;
 }
 

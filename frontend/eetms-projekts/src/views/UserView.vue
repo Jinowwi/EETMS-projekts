@@ -131,7 +131,7 @@ const tableData = ref([
     gap: 25px;
     padding-top: 20px;
     font-size: 25px;
-    font-family: 'Inter';
+    font-family: 'Inter', sans-serif;
     margin-bottom: 120px;
 }
 

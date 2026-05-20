@@ -68,7 +68,7 @@ onUnmounted(() => {
     right: 0;
     bottom: 0;
     margin: 0;
-    font-family: 'Inter';
+    font-family: 'Inter', sans-serif;
 }
 
 .page-container {
@@ -94,7 +94,7 @@ onUnmounted(() => {
 }
 
 h1 {
-    font-family: 'Inter';
+    font-family: 'Inter', sans-serif;
     font-size: 40px;
     font-weight: 700;
     color: #333;

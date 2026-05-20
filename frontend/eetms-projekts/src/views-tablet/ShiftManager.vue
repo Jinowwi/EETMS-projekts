@@ -90,7 +90,7 @@ const navigateTo = (path) => {
 
 .choose-title {
   text-align: center;
-  font-family: 'Inter';
+  font-family: 'Inter', sans-serif;
   font-size: 32px;
   font-weight: 700;
   color: #333;
@@ -109,7 +109,7 @@ const navigateTo = (path) => {
   height: 290px;
   border: none;
   border-radius: 20px;
-  font-family: 'Inter';
+  font-family: 'Inter', sans-serif;
   font-size: 36px;
   font-weight: 700;
   color: white;
@@ -152,7 +152,7 @@ const navigateTo = (path) => {
   background: transparent;
   border: none;
   color: #a12971;
-  font-family: 'Inter';
+  font-family: 'Inter', sans-serif;
   font-size: 25px;
   font-weight: bold;
   cursor: pointer;

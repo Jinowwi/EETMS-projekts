@@ -425,7 +425,7 @@ const formatDate = (dateLike) => {
 
 .reminder-header {
   margin: 0; 
-  font-family: 'Inter';
+  font-family: 'Inter', sans-serif;
   font-size: 25px;
   font-weight: bold;
   color: var(--brand-berry);
@@ -433,14 +433,14 @@ const formatDate = (dateLike) => {
 
 .reminder-body {
   margin: 0;
-  font-family: 'Inter';
+  font-family: 'Inter', sans-serif;
   font-size: 20px;
   color: var(--brand-berry);
 }
 
 .reminder-navigation {
   margin: 0;
-  font-family: 'Inter';
+  font-family: 'Inter', sans-serif;
   font-size: 20px;
   color: var(--brand-berry);
   cursor: pointer;
@@ -456,7 +456,7 @@ const formatDate = (dateLike) => {
 .no-more {
   text-align: center;
   padding: 50px 20px;
-  font-family: 'Inter';
+  font-family: 'Inter', sans-serif;
   font-size: 15px;
   font-weight: 500;
   color: #aaa;

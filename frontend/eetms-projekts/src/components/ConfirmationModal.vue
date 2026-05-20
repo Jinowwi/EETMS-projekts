@@ -59,7 +59,7 @@ const cancel = () => {
 }
 
 .confirm-box h3 {
-  font-family: 'Inter';
+  font-family: 'Inter', sans-serif;
   font-size: 24px;
   font-weight: 700;
   color: #333;
@@ -74,7 +74,7 @@ const cancel = () => {
 
 .btn-no,
 .btn-yes {
-  font-family: 'Inter';
+  font-family: 'Inter', sans-serif;
   font-size: 18px;
   font-weight: 700;
   padding: 14px 35px;

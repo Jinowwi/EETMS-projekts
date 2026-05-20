@@ -169,7 +169,7 @@ onMounted(() => {
 
 .hero-title {
     text-align: left;
-    font-family: 'Inter';
+    font-family: 'Inter', sans-serif;
     font-size: 32px;
     font-weight: 700;
     color: #333;
@@ -196,7 +196,7 @@ onMounted(() => {
 }
 
 .search-input {
-    font-family: 'Inter';
+    font-family: 'Inter', sans-serif;
     flex: 1;
     border: none;
     padding: 6px;
@@ -251,7 +251,7 @@ onMounted(() => {
     border: none;
     border-radius: 16px;
     padding: 10px 18px;
-    font-family: 'Inter';
+    font-family: 'Inter', sans-serif;
     font-size: 12px;
     font-weight: 600;
     cursor: pointer;
@@ -277,7 +277,7 @@ onMounted(() => {
   background: transparent;
   border: none;
   color: #a12971;
-  font-family: 'Inter';
+  font-family: 'Inter', sans-serif;
   font-size: 22px;
   font-weight: bold;
   cursor: pointer;

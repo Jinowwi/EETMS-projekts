@@ -354,7 +354,7 @@ const closeModal = () => emit('close');
 }
 
 .detail-row {
-  font-family: 'Inter';
+  font-family: 'Inter', sans-serif;
   font-size: 16px;
   margin-bottom: 0;
 }

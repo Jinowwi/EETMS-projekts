@@ -47,7 +47,7 @@ defineEmits(['confirm', 'cancel']);
 }
 
 .modal-content h2 {
-  font-family: 'Inter';
+  font-family: 'Inter', sans-serif;
   font-size: 28px;
   font-weight: 700;
   color: #333;
@@ -55,7 +55,7 @@ defineEmits(['confirm', 'cancel']);
 }
 
 .modal-content p {
-  font-family: 'Inter';
+  font-family: 'Inter', sans-serif;
   font-size: 20px;
   color: #666;
   margin-bottom: 30px;
@@ -71,7 +71,7 @@ defineEmits(['confirm', 'cancel']);
   padding: 12px 40px;
   border: none;
   border-radius: 10px;
-  font-family: 'Inter';
+  font-family: 'Inter', sans-serif;
   font-size: 18px;
   font-weight: 600;
   cursor: pointer;

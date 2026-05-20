@@ -146,7 +146,7 @@ onMounted(() => {
 }
 
 .company-label {
-    font-family: 'Inter';
+    font-family: 'Inter', sans-serif;
     font-size: 16px;
     font-weight: 500;
     color: #666;
@@ -156,7 +156,7 @@ onMounted(() => {
 
 .hero-title {
     text-align: center;
-    font-family: 'Inter';
+    font-family: 'Inter', sans-serif;
     font-size: 40px;
     font-weight: 700;
     color: #333;
@@ -201,7 +201,7 @@ onMounted(() => {
     border: none;
     border-radius: 25px;
     padding: 15px 30px;
-    font-family: 'Inter';
+    font-family: 'Inter', sans-serif;
     font-size: 14px;
     font-weight: 600;
     cursor: pointer;
@@ -226,7 +226,7 @@ onMounted(() => {
     background: transparent;
     border: none;
     color: #a12971;
-    font-family: 'Inter';
+    font-family: 'Inter', sans-serif;
     font-size: 25px;
     font-weight: bold;
     cursor: pointer;
@@ -257,7 +257,7 @@ onMounted(() => {
 }
 
 .search-input {
-    font-family: 'Inter';
+    font-family: 'Inter', sans-serif;
     flex: 1;
     border: none;
     padding: 8px;

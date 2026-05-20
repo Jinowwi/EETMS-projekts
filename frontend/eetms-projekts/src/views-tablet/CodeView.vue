@@ -217,7 +217,7 @@ const navigateTo = (path) => {
 }
 
 .shift-type-label {
-    font-family: 'Inter';
+    font-family: 'Inter', sans-serif;
     font-size: 16px;
     font-weight: 600;
     color: #a12971;
@@ -227,7 +227,7 @@ const navigateTo = (path) => {
 .company-label,
 .reason-label,
 .phone-label {
-    font-family: 'Inter';
+    font-family: 'Inter', sans-serif;
     font-size: 14px;
     font-weight: 500;
     color: #666;
@@ -236,7 +236,7 @@ const navigateTo = (path) => {
 
 h1 {
     text-align: center;
-    font-family: 'Inter';
+    font-family: 'Inter', sans-serif;
     font-size: 28px;
     font-weight: 700;
     color: #333;
@@ -255,7 +255,7 @@ h1 {
     border-radius: 25px;
     border: 1.5px solid #333;
     padding: 0 20px;
-    font-family: 'Inter';
+    font-family: 'Inter', sans-serif;
     font-size: 16px;
     color: #333;
     outline: none;
@@ -277,7 +277,7 @@ h1 {
 
 button {
     border-radius: 40px;
-    font-family: 'Inter';
+    font-family: 'Inter', sans-serif;
     border: none;
     font-size: 20px;
     padding: 12px 45px;
@@ -306,7 +306,7 @@ button:active {
     background: transparent;
     border: none;
     color: #a12971;
-    font-family: 'Inter';
+    font-family: 'Inter', sans-serif;
     font-size: 25px;
     font-weight: bold;
     cursor: pointer;

@@ -828,7 +828,7 @@ onMounted(async () => {
 
 .time-period label { 
   font-size: 13px; 
-  font-family: 'Inter';
+  font-family: 'Inter', sans-serif;
   font-weight: 600; 
   color: var(--brand-berry, #a12971); 
 }
@@ -838,7 +838,7 @@ onMounted(async () => {
   border-radius: 14px;
   border: 1px solid var(--color-border, #e0e0e0);
   font-size: 13px;
-  font-family: 'Inter';
+  font-family: 'Inter', sans-serif;
   width: 100%;
   box-sizing: border-box; 
 }
@@ -858,7 +858,7 @@ onMounted(async () => {
   border-radius: 14px; 
   border: 1px solid var(--color-border, #e0e0e0); 
   font-size: 13px;
-  font-family: 'Inter';
+  font-family: 'Inter', sans-serif;
   box-sizing: border-box; 
   cursor: pointer; 
 }

@@ -153,7 +153,7 @@ onBeforeUnmount(() => {
     text-align: center;
     justify-content: center;
     gap: 40px;
-    font-family: 'Inter';
+    font-family: 'Inter', sans-serif;
     position: relative;
     cursor: pointer;
     transition: transform 0.2s ease;
@@ -193,7 +193,7 @@ onBeforeUnmount(() => {
 
 .toggle-btn {
     border-radius: 40px;
-    font-family: 'Inter';
+    font-family: 'Inter', sans-serif;
     border: none;
     font-size: 24px;
     padding: 12px 50px;
@@ -214,7 +214,7 @@ onBeforeUnmount(() => {
 }
 
 .shop-label {
-  font-family: 'Inter';
+  font-family: 'Inter', sans-serif;
   font-size: 18px;
   font-weight: 600;
   color: #333;
@@ -225,7 +225,7 @@ onBeforeUnmount(() => {
   padding: 8px 12px;
   border-radius: 999px;
   border: 1.5px solid #333;
-  font-family: 'Inter';
+  font-family: 'Inter', sans-serif;
   font-size: 16px;
   outline: none;
 }
@@ -236,7 +236,7 @@ onBeforeUnmount(() => {
 
 .shop-error {
   margin: 0;
-  font-family: 'Inter';
+  font-family: 'Inter', sans-serif;
   font-size: 14px;
   color: #e5484d;
 }
@@ -260,7 +260,7 @@ onBeforeUnmount(() => {
 
 .toggle-btn {
   border-radius: 40px;
-  font-family: 'Inter';
+  font-family: 'Inter', sans-serif;
   border: none;
   font-size: 18px;
   padding: 10px 26px;

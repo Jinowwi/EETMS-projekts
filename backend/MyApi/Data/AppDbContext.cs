@@ -111,8 +111,8 @@ namespace MyApi.Data
                     .IsRequired();
 
                 entity.HasOne(e => e.ShiftRequest)
-                    .WithMany()
-                    .HasForeignKey(e => e.ShiftRequestID)
+                    .WithOne(p => p.PlannedShift)
+                    .HasForeignKey<PlannedShifts>(e => e.ShiftRequestID)
                     .OnDelete(DeleteBehavior.Cascade);
             });
         }

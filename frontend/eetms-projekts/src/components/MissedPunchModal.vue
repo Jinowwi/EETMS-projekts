@@ -244,7 +244,7 @@ const savePunch = () => {
 }
 
 .modal-header h2 {
-  font-family: 'Inter';
+  font-family: 'Inter', sans-serif;
   font-size: 28px;
   font-weight: bold;
   background: linear-gradient(135deg, #a12971, #2ba492);
@@ -255,7 +255,7 @@ const savePunch = () => {
 }
 
 .date-label {
-  font-family: 'Inter';
+  font-family: 'Inter', sans-serif;
   font-size: 16px;
   color: #666;
   margin: 0;
@@ -274,7 +274,7 @@ const savePunch = () => {
 }
 
 .form-group label {
-  font-family: 'Inter';
+  font-family: 'Inter', sans-serif;
   font-size: 14px;
   font-weight: bold;
   color: #333;
@@ -292,11 +292,11 @@ const savePunch = () => {
   font-weight: 600;
   font-size: 14px;
   display: inline-block;
-  font-family: 'Inter';
+  font-family: 'Inter', sans-serif;
 }
 
 .form-input {
-  font-family: 'Inter';
+  font-family: 'Inter', sans-serif;
   font-size: 16px;
   padding: 12px 16px;
   border: 2px solid #e0e0e0;
@@ -311,7 +311,7 @@ const savePunch = () => {
 }
 
 .form-textarea {
-  font-family: 'Inter';
+  font-family: 'Inter', sans-serif;
   font-size: 16px;
   padding: 12px 16px;
   border: 2px solid #e0e0e0;
@@ -335,7 +335,7 @@ const savePunch = () => {
 .btn-cancel,
 .btn-save {
   flex: 1;
-  font-family: 'Inter';
+  font-family: 'Inter', sans-serif;
   font-size: 16px;
   font-weight: 600;
   padding: 14px 24px;
@@ -369,7 +369,7 @@ const savePunch = () => {
 }
 
 :deep(.form-input) {
-  font-family: 'Inter';
+  font-family: 'Inter', sans-serif;
   font-size: 16px;
   padding: 12px 16px;
   border: 2px solid #e0e0e0;

@@ -33,10 +33,6 @@
             <span class="label">Total external shifts: </span>
             <span class="value">{{ totalExternalShifts }}</span>
           </div>
-          <div class="info-row">
-            <span class="label">Total requested shifts: </span>
-            <span class="value">—</span>
-          </div>
         </div>
 
         <div class="card shift-requests">
@@ -44,16 +40,19 @@
           <div v-if="shiftRequests.length === 0" class="empty-msg">
             No relevant shift requests
           </div>
-          <div v-else>
+          <div v-else class="request-list">
             <div
               v-for="req in shiftRequests"
               :key="req.shiftRequestID"
-              class="request-item"
-              @click="selectedRequest = req"
-              style="cursor: pointer;"
+              class="request-row"
             >
-              <span class="req-reason">{{ req.reason?.name }}</span>
-              <span class="req-status">{{ req.status }}</span>
+              <div class="request-info">
+                <span class="req-reason">{{ req.reason?.name }}</span>
+                <span :class="['req-status', statusClass(req.status)]">
+                  {{ statusMap[req.status] ?? req.status }}
+                </span>
+              </div>
+              <button class="btn-view" @click="selectedRequest = req">View</button>
             </div>
           </div>
         </div>
@@ -74,6 +73,8 @@
           v-if="selectedRequest"
           :request="selectedRequest"
           @close="selectedRequest = null"
+          @deleted="refreshRequests"
+          @updated="refreshRequests"
         />
       </div>
 
@@ -100,7 +101,6 @@ const shop = ref(null)
 const totalExternalShifts = ref(0)
 const isLoading = ref(true)
 const shopId = ref(null)
-
 const selectedRequest = ref(null)
 
 const countryMap = {
@@ -114,6 +114,25 @@ const typeMap = {
   2: 'Super',
   3: 'Mini',
   4: 'Express'
+}
+
+// Maps enum number → display label
+const statusMap = {
+  1: 'Sent',
+  2: 'Approved',
+  3: 'In Progress',
+  4: 'Done'
+}
+
+// Maps enum number → CSS class
+function statusClass(status) {
+  const map = {
+    1: 'status-sent',
+    2: 'status-approved',
+    3: 'status-inprogress',
+    4: 'status-done'
+  }
+  return map[status] ?? 'status-default'
 }
 
 const handleLogout = () => {
@@ -285,4 +304,87 @@ h1 {
 .plus-btn:hover {
   background: rgba(76, 175, 135, 0.15);
 }
+
+.request-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 6px;
+}
+
+.request-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(255, 255, 255, 0.7);
+  border: 1.5px solid rgba(255, 255, 255, 0.6);
+  border-radius: 12px;
+  padding: 12px 16px;
+  gap: 12px;
+}
+
+.request-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.req-reason {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--brand-berry);
+}
+
+.req-status {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 2px 10px;
+  border-radius: 999px;
+  width: fit-content;
+}
+
+.status-pending {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.status-approved {
+  background: #d4edda;
+  color: #155724;
+}
+
+.status-rejected {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+.status-default {
+  background: var(--color-bg-muted);
+  color: var(--color-text-dim);
+}
+
+.btn-view {
+  flex-shrink: 0;
+  background: transparent;
+  border: 1.5px solid var(--brand-berry);
+  color: var(--brand-berry);
+  border-radius: 8px;
+  padding: 6px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+
+.btn-view:hover {
+  background: var(--brand-berry);
+  color: white;
+}
+
+.status-sent       { background: #ddeeff; color: #1a4a8b; }
+.status-approved   { background: #d4efcc; color: #2a6e1a; }
+.status-inprogress { background: #fff0cc; color: #7a5500; }
+.status-done       { background: #e0e0e0; color: #444;    }
 </style>

@@ -66,39 +66,40 @@ const API_BASE = 'http://localhost:5001/api'
 
 const email = ref('')
 const password = ref('')
-
 const showPassword = ref(false)
 const error = ref('')
-const successMessage = ref('')
 const loading = ref(false)
 
 const handleLogin = async () => {
-  error.value = '';
-  loading.value = true;
+  error.value = ''
+  loading.value = true
 
   try {
     const res = await fetch(`${API_BASE}/shops/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email: email.value, password: password.value })
-    });
+    })
 
-    const data = await res.json();
+    // Read as text first — backend may return plain string errors
+    const text = await res.text()
+    const data = text ? JSON.parse(text) : {}
 
     if (!res.ok) {
-      error.value = data.error || 'Invalid email or password.';
-      return;
+      error.value = data.error || text || 'Invalid email or password.'
+      return
     }
 
-    localStorage.setItem('shopId', data.shopID);
-    router.push('/shop-home');
+    localStorage.setItem('shopId', data.shopId) // lowercase 'd'
+    router.push('/shop-home')
+
   } catch (e) {
-    console.error(e);
-    error.value = 'A network error occurred. Is the API running?';
+    console.error(e)
+    error.value = 'A network error occurred. Is the API running?'
   } finally {
-    loading.value = false;
+    loading.value = false
   }
-};
+}
 </script>
 
 <style scoped>

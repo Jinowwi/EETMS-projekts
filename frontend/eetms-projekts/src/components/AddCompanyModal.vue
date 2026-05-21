@@ -204,7 +204,7 @@ watch(() => props.isOpen, (val) => {
 }
 
 .modal-content {
-  font-family: 'Inter';
+  font-family: 'Inter', sans-serif;
   background: var(--color-white);
   border-radius: 12px;
   max-width: 600px;
@@ -224,7 +224,7 @@ watch(() => props.isOpen, (val) => {
 .section-header h2 {
   margin: 0;
   color: var(--color-white);
-  font-family: 'Inter';
+  font-family: 'Inter', sans-serif;
   font-size: 22px;
   font-weight: 600;
   padding: 15px 20px;
@@ -300,7 +300,7 @@ watch(() => props.isOpen, (val) => {
 }
 
 .form-group label {
-  font-family: 'Inter';
+  font-family: 'Inter', sans-serif;
   font-size: 14px;
   font-weight: 600;
   color: var(--brand-berry);
@@ -316,7 +316,7 @@ watch(() => props.isOpen, (val) => {
   height: 42px;
   border: 2px solid var(--color-border);
   border-radius: 40px;
-  font-family: 'Inter';
+  font-family: 'Inter', sans-serif;
   box-shadow: 0 2px 8px var(--shadow-berry);
   padding: 0 15px;
   box-sizing: border-box;

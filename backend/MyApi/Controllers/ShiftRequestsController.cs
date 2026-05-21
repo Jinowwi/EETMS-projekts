@@ -15,6 +15,35 @@ namespace MyApi.Controllers
         {
             _context = context;
         }
+        
+        [HttpGet]
+        public async Task<IActionResult> GetAll()
+        {
+            var requests = await _context.ShiftRequests
+                .Include(r => r.Reason)
+                .Include(r => r.Company)
+                .Include(r => r.Shop)
+                .Include(r => r.Rem)
+                .Include(r => r.PlannedShift)
+                .ToListAsync();
+
+            return Ok(requests);
+        }
+
+        [HttpPatch("{id}/accept")]
+        public async Task<IActionResult> AcceptShiftRequest(int id, [FromBody] AcceptShiftRequestDto dto)
+        {
+            var request = await _context.ShiftRequests.FindAsync(id);
+            if (request == null)
+                return NotFound();
+
+            request.RemId = dto.RemId;
+            request.Status = ShiftRequestStatus.Approved;
+
+            await _context.SaveChangesAsync();
+
+            return Ok(request);
+        }
 
         // GET: api/shiftrequests/byshop/{shopId}
         [HttpGet("byshop/{shopId}")]
@@ -24,8 +53,9 @@ namespace MyApi.Controllers
                 .Include(r => r.Reason)
                 .Include(r => r.Rem)
                 .Include(r => r.Company)
-                .Where(r => r.ShopId == shopId &&
-                            r.Status != ShiftRequestStatus.Done)
+                .Include(r => r.Shop)
+                .Include(r => r.PlannedShift)
+                .Where(r => r.ShopId == shopId && r.Status != ShiftRequestStatus.Done)
                 .ToListAsync();
 
             return Ok(requests);
@@ -49,6 +79,61 @@ namespace MyApi.Controllers
 
             return CreatedAtAction(nameof(GetByShop),
                 new { shopId = request.ShopId }, request);
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteShiftRequest(int id)
+        {
+            var request = await _context.ShiftRequests.FindAsync(id);
+            if (request == null)
+                return NotFound();
+
+            _context.ShiftRequests.Remove(request);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
+
+        [HttpPatch("{id}")]
+        public async Task<IActionResult> UpdateShiftRequest(int id, [FromBody] UpdateShiftRequestDto dto)
+        {
+            var request = await _context.ShiftRequests.FindAsync(id);
+            if (request == null)
+                return NotFound();
+
+            request.Status = (ShiftRequestStatus)dto.Status;
+            request.CompanyId = dto.CompanyId;
+
+            await _context.SaveChangesAsync();
+
+            return Ok(request);
+        }
+
+        [HttpPatch("{id}/planned-shift")]
+        public async Task<IActionResult> SavePlannedShift(int id, [FromBody] PlannedShiftDto dto)
+        {
+            var request = await _context.ShiftRequests
+                .Include(r => r.PlannedShift)
+                .FirstOrDefaultAsync(r => r.ShiftRequestID == id);
+
+            if (request == null)
+                return NotFound();
+
+            if (request.PlannedShift == null)
+            {
+                request.PlannedShift = new PlannedShifts
+                {
+                    ShiftRequestID = request.ShiftRequestID
+                };
+                _context.PlannedShifts.Add(request.PlannedShift);
+            }
+
+            request.PlannedShift.approx_date = dto.ApproxDate;
+            request.PlannedShift.approx_start_time = dto.ApproxStartTime;
+            request.PlannedShift.approx_duration = dto.ApproxDuration;
+
+            await _context.SaveChangesAsync();
+            return Ok(request.PlannedShift);
         }
     }
 }

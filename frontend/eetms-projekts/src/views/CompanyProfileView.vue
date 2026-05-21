@@ -277,7 +277,7 @@ onMounted(() => {
     flex: 1;
     text-align: left;
     font-size: 25px;
-    font-family: 'Inter';
+    font-family: 'Inter', sans-serif;
     font-weight: 600;
     padding: 12px 20px;
     background: var(--header-gradient);
@@ -339,7 +339,7 @@ onMounted(() => {
 }
 
 label {
-    font-family: 'Inter';
+    font-family: 'Inter', sans-serif;
     font-size: 14px;
     font-weight: 600;
     color: var(--brand-berry);
@@ -349,7 +349,7 @@ label {
 }
 
 .static-value {
-    font-family: 'Inter';
+    font-family: 'Inter', sans-serif;
     font-size: 16px;
     color: var(--color-text-main);
     padding: 5px 0;
@@ -373,7 +373,7 @@ label {
     height: 40px; 
     border: 2px solid var(--color-border); 
     border-radius: 40px;
-    font-family: 'Inter';
+    font-family: 'Inter', sans-serif;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
     padding: 0 15px;
     transition: all 0.2s ease;
@@ -401,7 +401,7 @@ label {
     background: var(--color-white);
     border: 2px solid var(--color-border);
     border-radius: 40px;
-    font-family: 'Inter';
+    font-family: 'Inter', sans-serif;
     font-weight: 600;
     color: var(--color-text-dim);
     cursor: pointer;
@@ -420,7 +420,7 @@ label {
     background: var(--color-white);
     border: 2px solid var(--color-border);
     border-radius: 40px;
-    font-family: 'Inter';
+    font-family: 'Inter', sans-serif;
     font-weight: 600;
     color: var(--color-text-dim);
     cursor: pointer;
@@ -435,7 +435,7 @@ label {
 }
 
 .error-state {
-    font-family: 'Inter';
+    font-family: 'Inter', sans-serif;
     color: var(--color-warning-text);
     background: var(--color-warning-bg);
     border: 1px solid var(--color-warning-border);

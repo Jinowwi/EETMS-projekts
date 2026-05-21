@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MyApi.Data;
 
@@ -11,9 +12,11 @@ using MyApi.Data;
 namespace MyApi.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260429200411_InitialUpdate")]
+    partial class InitialUpdate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -137,8 +140,7 @@ namespace MyApi.Migrations
 
                     b.HasKey("PlannedShiftsID");
 
-                    b.HasIndex("ShiftRequestID")
-                        .IsUnique();
+                    b.HasIndex("ShiftRequestID");
 
                     b.ToTable("PlannedShifts");
                 });
@@ -319,8 +321,8 @@ namespace MyApi.Migrations
             modelBuilder.Entity("MyApi.Models.PlannedShifts", b =>
                 {
                     b.HasOne("MyApi.Models.ShiftRequest", "ShiftRequest")
-                        .WithOne("PlannedShift")
-                        .HasForeignKey("MyApi.Models.PlannedShifts", "ShiftRequestID")
+                        .WithMany()
+                        .HasForeignKey("ShiftRequestID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -397,11 +399,6 @@ namespace MyApi.Migrations
             modelBuilder.Entity("MyApi.Models.Reason", b =>
                 {
                     b.Navigation("CompanyReasons");
-                });
-
-            modelBuilder.Entity("MyApi.Models.ShiftRequest", b =>
-                {
-                    b.Navigation("PlannedShift");
                 });
 
             modelBuilder.Entity("MyApi.Models.Shop", b =>

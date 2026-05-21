@@ -38,6 +38,11 @@
             </div>
 
             <div class="form-group">
+            <label>Rimi Employee Email</label>
+              <div class="static-value">{{ companyData.rimiEmployeeEmail || 'Not assigned' }}</div>
+            </div>
+
+            <div class="form-group">
               <label>Company Name</label>
               <template v-if="!isEditMode">
                 <div class="static-value">{{ companyData.companyName || 'Not provided' }}</div>
@@ -84,7 +89,7 @@
               <input v-else v-model="editForm.address" type="text" class="edit-input" />
             </div>
           </div>
-
+          
           <div v-if="isEditMode" class="form-actions slide-down">
             <button type="button" class="btn-cancel" @click="cancelEdit">Cancel</button>
             <button type="submit" class="btn-save-override" :disabled="saving">

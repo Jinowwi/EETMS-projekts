@@ -26,24 +26,26 @@ const props = defineProps({
   }
 });
 
+const emit = defineEmits(['punchClick']);
+
 const initialPage = computed(() => {
-  if(!props.initialDate) return undefined;
+  if (!props.initialDate) return undefined;
 
   const d = props.initialDate instanceof Date
     ? props.initialDate
     : new Date(props.initialDate);
 
-  return { month: d.getMonth() + 1, year: d.getFullYear()
-  }; 
-}); 
-
-const emit = defineEmits(['punchClick']);
+  return {
+    month: d.getMonth() + 1,
+    year: d.getFullYear()
+  };
+});
 
 const clickDay = (day) => {
   const missedPunch = props.missedPunches.find(punch => {
     const punchDate = new Date(punch.date);
-    const sameDay = punchDate.toDateString() === day.date.toDateString(); 
-    return sameDay && punch.type !== null;
+    const sameDay = punchDate.toDateString() === day.date.toDateString();
+    return sameDay && !punch.endTime;
   });
 
   if (missedPunch) {
@@ -57,15 +59,23 @@ const changeDate = (page) => {
 
 const calendarAttributes = computed(() => {
   return props.missedPunches
-  .filter(punch => punch.type !== null)
-  .map(punch => ({
-    dot: {
-      color: 'red',
-      class: 'missed-punch-dot'
-    },
-    dates: new Date(punch.date),
-    customData: punch
-  }));
+    .filter(punch => !punch.endTime)
+    .map((punch, index) => ({
+      key: `${punch.ShiftID || punch.shiftID || index}-${punch.date}`,
+      dot: {
+        color: 'red',
+        class: 'missed-punch-dot'
+      },
+      dates: new Date(punch.date),
+      popover: {
+        label: `${punch.companyName || 'No company'} — Missing end time`,
+        visibility: 'hover'
+      },
+      customData: {
+        ...punch,
+        companyName: punch.companyName
+      }
+    }));
 });
 </script>
 
@@ -148,6 +158,9 @@ const calendarAttributes = computed(() => {
   background: var(--color-white);
   border: none;
   padding: 12px;
+  font-size: 13px;
+  color: #333;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
 :deep(.vc-popover-caret) {
@@ -476,15 +489,12 @@ const calendarAttributes = computed(() => {
   }
 }
 
-
 @media (min-width: 1024px) {
   .calendar-container {
     max-width: 850px;
     width: 90%;
     margin: 0 auto;
     padding: 18px 16px 0 16px;
-
-    /* margin-left: 100px; */
   }
 
   :deep(.vc-title) {

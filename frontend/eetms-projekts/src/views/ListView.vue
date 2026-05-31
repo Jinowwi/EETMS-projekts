@@ -892,12 +892,13 @@ const addCompany = async (formData) => {
       CompanyName: formData.companyName?.trim(),
       Address: formData.address?.trim() || null,
       Country: getCountryCode(formData.country),
-      RemID: formData.remID ?? 0,
+      RemID: formData.remID ?? null,
       PhoneNumber: formData.phoneNumber?.trim() || null,
       RegistrationNumber: formData.registrationNumber?.trim() || null,
       Email: formData.email?.trim().toLowerCase(),
       Password: formData.password
     };
+
     await axios.post(`${API_BASE}/companies`, payload);
     closeAddCompanyModal();
     await fetchCompanies();
@@ -938,7 +939,7 @@ const updateCompany = async (row) => {
       PhoneNumber: row.phoneNumber?.trim() || null,
       RegistrationNumber: row.registrationNumber?.trim() || null,
       Email: row.email?.trim().toLowerCase(),
-      RemID: row.remID ?? 0,
+      RemID: row.remID ?? null,
       Password: undefined
     };
     await axios.put(`${API_BASE}/companies/${row.id}`, payload);

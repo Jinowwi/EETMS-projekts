@@ -87,7 +87,7 @@ const roleLevel = ref(Number(getAdminRoleLevel()));
 const router = useRouter();
 const route = useRoute();
 const activeIcon = ref('home');
-const collapsed = ref(false);
+const collapsed = ref(true);
 
 const visibleIcons = computed(() => {    
     if (!roleLevel.value || roleLevel.value === 0) {

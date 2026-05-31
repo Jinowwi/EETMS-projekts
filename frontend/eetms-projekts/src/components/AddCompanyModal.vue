@@ -126,7 +126,7 @@ const form = ref({
   address: '',
   registrationNumber: '',
   email: '',
-  remID: 1
+  remID: null 
 });
 
 const handleSave = () => {
@@ -182,7 +182,7 @@ watch(() => props.isOpen, (val) => {
       address: '',
       registrationNumber: '',
       email: '',
-      remID: 1
+      remID: null
     };
   }
 });

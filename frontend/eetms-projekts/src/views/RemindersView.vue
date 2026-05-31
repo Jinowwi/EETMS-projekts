@@ -161,6 +161,9 @@ const fetchUnassignedCompanies = async () => {
                 })
                 .map(c => ({
                     ...c,
+                    companyID: c.companyID ?? c.CompanyID,
+                    companyName: c.companyName ?? c.CompanyName,
+                    address: c.address ?? c.Address, 
                     selectedRemId: ''
                 }));
         }

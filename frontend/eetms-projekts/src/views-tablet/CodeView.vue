@@ -85,25 +85,27 @@ const handleSubmit = async () => {
   setVerificationCode(code.value);
 
   try {
+    /*
     const verifyRes = await fetch(`${API_BASE}/sms/verify`, {
-        method: 'POST', 
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            phoneNumber: phoneNumber.value,
-            otp: code.value
-        })
-    }); 
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        phoneNumber: phoneNumber.value,
+        otp: code.value
+      })
+    });
 
     if (!verifyRes.ok) {
-        const err = await verifyRes.json(); 
-        if (err.error === 'expired') {
-            alert('Code has expired. Request a new one.');
-        } else {
-            alert('Incorrect code.')
-            code.value = ''; 
-        }
-        return; 
+      const err = await verifyRes.json();
+      if (err.error === 'expired') {
+        alert('Code has expired. Request a new one.');
+      } else {
+        alert('Incorrect code.');
+        code.value = '';
+      }
+      return;
     }
+    */
 
     if (shiftType.value === 'start') {
       const startDateTime = new Date(registrationData.value.startDate);
@@ -137,7 +139,6 @@ const handleSubmit = async () => {
       return;
     }
 
-    // shiftType === 'end'
     const response = await fetch(`${API_BASE}/shifts/${shiftId.value}/end`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' }

@@ -22,5 +22,6 @@ namespace MyApi.Models
         public int ShopId { get; set; }
         public Shop Shop { get; set; }
         public PlannedShifts? PlannedShift { get; set; }
+        public Ratings? Rating { get; set; }
     }
 }

@@ -19,12 +19,12 @@
                         readonly
                         @focus="$event.target.blur()"
                     />
+                    
                 </div>
             </div>
 
-            <!-- Attēlo filtrēto uzņēmumu sarakstu kā pogas -->
             <div class="company-buttons">
-                <button
+                <button 
                     v-for="company in filteredCompanies"
                     :key="company.companyID"
                     class="company-btn"
@@ -37,13 +37,14 @@
             <button class="back-btn" @click="navigateTo('/shifts')">{{ t('common.back') }}</button>
         </div>
 
-        <!-- Apstiprinājuma dialogs, kas atveras pēc uzņēmuma izvēles -->
-        <CompanyConfirm
+        <CompanyConfirm 
             :isOpen="confirmOpen"
             :companySelected="selectedCompany"
             @confirm="handleConfirm"
             @cancel="handleCancel"
         />
+
+        <Keyboard v-model="queryLimited" />
     </div>
 </template>
 
@@ -59,7 +60,6 @@ const { t } = useI18n();
 const router = useRouter();
 const { registrationData, setCompany, reset } = useShiftRegistration();
 
-// Iegūst veikala informāciju no reģistrācijas datiem
 const shopCode = computed(() => registrationData.value.shopCode);
 const shopType = computed(() => registrationData.value.shopType);
 const shopAddress = computed(() => registrationData.value.shopAddress);
@@ -67,27 +67,22 @@ const shopAddress = computed(() => registrationData.value.shopAddress);
 const selectedCompany = ref(null);
 const companies = ref([]);
 const API_BASE = 'http://localhost:5001/api';
-const query = ref('');
-// Maksimālais meklēšanas ievades simbolu skaits
-const maxlength = 20;
+const query = ref(''); 
+const maxlength = 20; 
 const confirmOpen = ref(false);
 
-// Vērtība, kas ierobežo meklēšanas ievades garumu
 const queryLimited = computed({
-    get: () => query.value,
+    get: () => query.value, 
     set: (v) => {
-        query.value = (v ?? '').slice(0, maxlength);
+        query.value = (v ?? '').slice(0, maxlength); 
     }
-});
+}); 
 
-// Iegūst maiņas tipu (sākums vai beigas) no reģistrācijas datiem
 const shiftType = computed(() => registrationData.value.shiftType);
 
-// Filtrē uzņēmumus pēc meklēšanas vaicājuma, ignorējot lielo un mazo burtu atšķirības
-// Ja meklēšanas lauks ir tukšs, atgriež pilnu uzņēmumu sarakstu
 const filteredCompanies = computed(() => {
   if (!query.value.trim()) return companies.value;
-  return companies.value.filter(company =>
+  return companies.value.filter(company => 
     company.companyName.toLowerCase().includes(query.value.toLowerCase())
   );
 });
@@ -95,6 +90,7 @@ const filteredCompanies = computed(() => {
 const handleConfirm = () => {
   console.log('Company confirmed:', selectedCompany.value);
   setCompany(selectedCompany.value.companyID, selectedCompany.value.companyName);
+  
   router.push('/reason');
   confirmOpen.value = false;
 };
@@ -104,7 +100,6 @@ const handleCancel = () => {
   selectedCompany.value = null;
 };
 
-// Pāriet uz norādīto maršrutu
 const navigateTo = (path) => {
     router.push(path);
 };
@@ -123,14 +118,12 @@ const selectCompany = (company) => {
     confirmOpen.value = true;
 };
 
-// Pēc komponentes ielādes pārbauda reģistrācijas datus un ielādē uzņēmumus
 onMounted(() => {
     console.log('Verification - Registration Data:', registrationData.value);
     console.log('Verification - Shift Type:', shiftType.value);
     fetchCompanies();
 });
 </script>
-
 <style scoped>
 .page-layout {
     display: flex;

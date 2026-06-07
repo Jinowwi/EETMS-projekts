@@ -123,10 +123,21 @@
           <div
             v-for="company in companies"
             :key="company.id"
-            class="company-row"
+            class="company-row clickable-company"
+            @click="selectedCompany = company"
           >
-            <p class="company-name">{{ company.companyName }}</p>
-            <p class="company-sub">{{ company.address }}</p>
+            <div class="company-main">
+              <p class="company-name">{{ company.companyName }}</p>
+              <p class="company-sub">{{ company.address }}</p>
+            </div>
+
+            <button
+              class="view-btn"
+              type="button"
+              @click.stop="selectedCompany = company"
+            >
+              View
+            </button>
           </div>
         </div>
 
@@ -154,6 +165,13 @@
       @close="modalOpen = false"
       @save="handleSave"
     />
+
+    <CompanyDetailsModal
+      v-if="selectedCompany"
+      :company="selectedCompany"
+      :ratings="companyRatingsForModal"
+      @close="selectedCompany = null"
+    />
   </div>
 </template>
 
@@ -173,8 +191,12 @@ import Calendar from '@/components/calendar.vue'
 // Importēt modālos logus
 import MissedPunchModal from '@/components/MissedPunchModal.vue'
 import ShiftRequestRemModal from '@/components/ShiftRequestRemModal.vue'
+<<<<<<< HEAD
 
 // Importēt izrakstīšanās funkciju un administratoru piekļūves līmeni
+=======
+import CompanyDetailsModal from '@/components/CompanyDetailsModal.vue'
+>>>>>>> d4ba59517d570442cfba15254d822e5fd1001658
 import { logout } from '@/services/auth.js'
 import { getAdminRoleLevel, getAdmin } from '@/services/auth.js'
 
@@ -195,6 +217,7 @@ const shifts = ref([])
 const companies = ref([])
 const modalOpen = ref(false)
 const selectedPunch = ref({})
+const selectedCompany = ref(null)
 
 // Reaktīvie dati darba iemesliem un pieprasījumiem
 const allReasons = ref([])
@@ -261,7 +284,23 @@ const refreshAllData = async () => {
   }
 }
 
+<<<<<<< HEAD
 // Ielādēt uzņēmumus no API
+=======
+const companyRatingsForModal = computed(() => {
+  if (!selectedCompany.value) return []
+
+  const selectedCompanyId = Number(
+    selectedCompany.value.companyID ?? selectedCompany.value.id
+  )
+
+  return allShiftRequests.value.filter(req => {
+    const reqCompanyId = Number(req.companyId ?? req.company?.companyID)
+    return reqCompanyId === selectedCompanyId && req.rating
+  })
+})
+
+>>>>>>> d4ba59517d570442cfba15254d822e5fd1001658
 const fetchCompanies = async () => {
   const res = await fetch(`${API_BASE_ADMIN}/companies`)
   if (!res.ok) return []
@@ -276,8 +315,13 @@ const fetchCompanies = async () => {
 
   companies.value = data.map(c => ({
     id: c.companyID,
+    companyID: c.companyID,
     companyName: c.companyName,
-    address: c.address
+    address: c.address,
+    country: c.country,
+    phoneNumber: c.phoneNumber,
+    registrationNumber: c.registrationNumber,
+    email: c.email
   }))
 
   return companies.value.map(c => c.companyName)
@@ -348,8 +392,9 @@ const relevantShiftRequests = computed(() => {
     const reasonMatches = myReasonIds.value.includes(req.reasonID)
     const visibleToMe =
       req.status === 1 || req.remId === myRemId
+    const isActive = Number(req.status) !== 4
 
-    return reasonMatches && visibleToMe
+    return reasonMatches && visibleToMe && isActive
   })
 })
 

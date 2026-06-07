@@ -25,6 +25,7 @@ namespace MyApi.Controllers
                 .Include(r => r.Shop)
                 .Include(r => r.Rem)
                 .Include(r => r.PlannedShift)
+                .Include(r => r.Rating)
                 .ToListAsync();
 
             return Ok(requests);
@@ -55,7 +56,8 @@ namespace MyApi.Controllers
                 .Include(r => r.Company)
                 .Include(r => r.Shop)
                 .Include(r => r.PlannedShift)
-                .Where(r => r.ShopId == shopId && r.Status != ShiftRequestStatus.Done)
+                .Include(r => r.Rating)
+                .Where(r => r.ShopId == shopId)
                 .ToListAsync();
 
             return Ok(requests);

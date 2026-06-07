@@ -91,10 +91,16 @@ namespace MyApi.Data
                 entity.Property(e => e.Stars)
                     .IsRequired();
 
+                entity.Property(e => e.Comment)
+                    .HasMaxLength(1000);
+
                 entity.HasOne(e => e.ShiftRequest)
-                    .WithMany()
-                    .HasForeignKey(e => e.ShiftRequestID)
+                    .WithOne(sr => sr.Rating)
+                    .HasForeignKey<Ratings>(e => e.ShiftRequestID)
                     .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasIndex(e => e.ShiftRequestID)
+                    .IsUnique();
             });
 
             modelBuilder.Entity<PlannedShifts>(entity =>

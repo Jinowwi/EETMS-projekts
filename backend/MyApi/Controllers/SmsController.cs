@@ -36,13 +36,12 @@ namespace MyApi.Controllers
         }
 
         [HttpPost("verify")]
-        public IActionResult Verify([FromBody] VerifyOtpRequest req)
+        public async Task<IActionResult> Verify([FromBody] VerifyOtpRequest req)
         {
-            if (string.IsNullOrEmpty (req.PhoneNumber) || 
-            string.IsNullOrEmpty(req.Otp))
-                return BadRequest(new { error = "Missing fields"}); 
+            if (string.IsNullOrEmpty(req.PhoneNumber) || string.IsNullOrEmpty(req.Otp))
+                return BadRequest(new { error = "Missing fields" });
 
-            var result = _smsService.VerifyOtp(req.PhoneNumber, req.Otp); 
+            var result = await _smsService.VerifyOtpAsync(req.PhoneNumber, req.Otp);
 
             if (!result.Valid)
                 return BadRequest(new { error = result.Reason });

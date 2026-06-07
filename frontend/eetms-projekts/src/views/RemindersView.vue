@@ -1,10 +1,14 @@
 <template>
     <div class="page-content">
+        <!-- Fona noformējuma elementi-->
         <div class="blob blob-teal"></div>
         <div class="blob blob-pink"></div>
         
+        <!-- Virsraksts, pārslēgšanās starp cilnēm -->
         <h1>{{ activeTab === 'notifications' ? 'Notifications' : 'Assign REM' }}</h1>
         
+        <!-- Atļaut pārslēgšanās ja lietotāja loma ir 3.līmeņa -->
+        <!-- Pogu pārslēgšanās starp paziņojumiem un REM pievienošanu uzņēmumiem -->
         <div class="toggle-container" v-if="roleLevel === 3">
             <div class="toggle-switch">
                 <button 
@@ -22,6 +26,7 @@
             </div>
         </div>
 
+        <!-- Rādīt paziņojumus, ja lietotāja loma ir 1. vai 3. līmeņa -->
         <div v-if="activeTab === 'notifications' && (roleLevel === 1 || roleLevel === 3)" class="reminders-container">
             <div 
                 v-for="r in reminders"
@@ -43,21 +48,26 @@
                 </div>
             </div>
 
+            <!-- Teksts, ja vairs nav paziņojumu -->
             <div v-if="reminders.length === 0" class="no-more">
                 No More Notifications
             </div>
         </div>
 
+        <!-- REM piešķiršanas sadaļa redzama 2. vai 3. līmeņa lietotājam -->
         <div v-if="activeTab === 'assign' && (roleLevel === 2 || roleLevel === 3)" class="reminders-container">
             <div 
                 v-for="(c, index) in unassignedCompanies"
                 :key="c.companyID" 
                 class="reminder-card assign-card"
             >
+                <!-- Uzņēmuma informācija -->
                 <div class="reminder-content">
                     <p class="reminder-header">{{ c.companyName || c.CompanyName }}</p>
                     <p class="reminder-body">{{ c.address || c.Address }}</p>
                 </div>
+
+                <!-- REM izvēle un piešķiršanas poga -->
                 <div class="assign-action">
                   <select v-model="c.selectedRemId" class="rem-select">
                     <option disabled value="">Choose REM</option>
@@ -73,6 +83,7 @@
                 </div>
             </div>
             
+            <!-- Ziņa, ja nav neviena uzņēmuma bez piešķirta REM -->
             <div v-if="unassignedCompanies.length === 0" class="no-more">
                 No unassigned companies waiting.
             </div>
@@ -86,23 +97,36 @@ import { ref, onMounted, computed, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { getAdminRoleLevel, getAdmin } from '@/services/auth.js'; 
 
+// Lietotāja lomas līmenis
 const roleLevel = Number(getAdminRoleLevel());
+
+// Pašreizējā administratora dati
 const currentAdmin = getAdmin(); 
+
+// Routeris navigācijai starp lapām
 const router = useRouter();
+
+// API bāzes adrese
 const API_BASE = 'http://localhost:5001/api'; 
 
+// Paziņojumu saraksts
 const reminders = ref([]); 
+
+// Aktīvā cilne
+// 2. līmenim pēc noklusējuma "assign", pārējiem "notifications"
 const activeTab = ref(roleLevel === 2 ? 'assign' : 'notifications'); 
 const unassignedCompanies = ref([]);
-const visibleReminderCount = ref(6); 
 
+// const visibleReminderCount = ref(6); 
+
+// Administratori ar REM lomu
+const remAdmins = ref([]); 
+
+/* 
 const reminderSortBy = ref('date'); 
 const reminderSortDirection = ref('asc'); 
-
 const assignSortBy = ref('companyName');
 const assignSortDirection = ref('asc'); 
-
-const remAdmins = ref([]); 
 
 const handleReminderSort = (column) => {
   if (reminderSortBy.value === column) {
@@ -113,13 +137,19 @@ const handleReminderSort = (column) => {
     reminderSortDirection.value = 'asc'; 
   }
 }; 
+*/ 
 
+// Ielādē paziņojumus no API
 const fetchReminders = async () => {
+    // Iegūst uzņēmumu sarakstu
     const compRes = await fetch(`${API_BASE}/companies`); 
     let myCompanyNames = []; 
+    
     if (compRes.ok) {
         const companies = await compRes.json(); 
 
+        // Ja lietotājs ir 1. līmeņa REM administrators,
+        // sagatavot sarakstu ar viņam piesaistītajiem uzņēmumiem
         if (roleLevel === 1) {
           const currentRemId = currentAdmin?.remId
             ? Number(currentAdmin.remId)
@@ -136,10 +166,13 @@ const fetchReminders = async () => {
         }
     }
 
+    // Iegūst maiņu atgādinājumus
     const res = await fetch(`${API_BASE}/shifts/reminders`); 
     if (!res.ok) throw new Error(await res.text());
     let data = await res.json(); 
 
+    // Ja lietotājs ir REM administrators, 
+    // filtrē tikai viņa uzņēmumu paziņojumus
     if (roleLevel === 1) {
       if (myCompanyNames.length > 0) {
         data = data.filter(r => myCompanyNames.includes(r.companyName));
@@ -148,6 +181,7 @@ const fetchReminders = async () => {
     reminders.value = data;  
 }; 
 
+// Ielādēt uzņēmumus, kuriem vēl nav piešķirts REM
 const fetchUnassignedCompanies = async () => {
     try {
         const res = await fetch(`${API_BASE}/companies`);
@@ -172,6 +206,7 @@ const fetchUnassignedCompanies = async () => {
     }
 };
 
+// Ielādēt administratorus, kuriem ir REM tips
 const fetchRemAdmins = async () => {
   try {
     const res = await fetch(`${API_BASE}/administrators`); 
@@ -188,10 +223,12 @@ const fetchRemAdmins = async () => {
   }
 }; 
 
+// Piešķirt izvēlēto REM uzņēmumam
 const assignRem = async (company) => {
     if (!company.selectedRemId) return;
 
     try {
+      // Sagatavot datus nosūtīšanai uz backend
         const payload = {
             ...company,
             RemID: Number(company.selectedRemId),
@@ -200,14 +237,17 @@ const assignRem = async (company) => {
 
         delete payload.selectedRemId;
 
+        // Noteikt uzņēmuma ID
         const compId = company.companyID ?? company.CompanyID;
 
+        // Atjaunot uzņēmuma datus
         const res = await fetch(`${API_BASE}/companies/${compId}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
         });
 
+        // Ja piešķiršana veiksmīga, pārlādēt nepiešķirto uzņēmumu sarakstu
         if (res.ok) {
             await fetchUnassignedCompanies();
         } else {
@@ -218,7 +258,9 @@ const assignRem = async (company) => {
     }
 }; 
 
+// Komponentes ielādes brīdī ielādēt nepieciešamos datus
 onMounted(async () => {
+    // Ielādēt paziņojumus 1. un 3. līmeņa lietotājiem
     if (roleLevel === 1 || roleLevel === 3) {
         try {
             await fetchReminders(); 
@@ -227,6 +269,7 @@ onMounted(async () => {
         }
     }
 
+    // Ielādēt REM administratorus un uzņēmumus 2. un 3. līmeņa lietotājiem
     if (roleLevel === 2 || roleLevel === 3) {
         try {
             await Promise.all([
@@ -239,11 +282,13 @@ onMounted(async () => {
     }
 }); 
 
+// Pāriet uz kalendāra lapu ar izvēlēto datumu
 const goToCalendar = (r) => {
     const date = r.startDate || r.endDate; 
     router.push({ path: '/calendar', query: { date } });
 };
 
+// Formatēt datumu uz DD.MM.GGGG formātu
 const formatDate = (dateLike) => {
     if (!dateLike) return ''
     const s = String(dateLike).trim().replaceAll('/home', '-')
@@ -258,6 +303,7 @@ const formatDate = (dateLike) => {
 </script>
 
 <style scoped>
+/* Galvenais lapas konteiners */
 .page-content {
   display: flex;
   flex-direction: column;
@@ -271,6 +317,7 @@ const formatDate = (dateLike) => {
   overflow-x: hidden;
 }
 
+/* Cilņu pārslēgšanas ārējais konteiners */
 .toggle-container {
   display: flex;
   justify-content: center;
@@ -280,6 +327,7 @@ const formatDate = (dateLike) => {
   z-index: 1;
 }
 
+/* Pārslēgšanas slēdža stils */
 .toggle-switch {
   display: flex;
   background: rgba(255, 255, 255, 0.5);
@@ -291,6 +339,7 @@ const formatDate = (dateLike) => {
   border: 1px solid rgba(255, 255, 255, 0.7);
 }
 
+/* Vienas cilnes pogas stils */
 .toggle-btn {
   flex: 1;
   padding: 10px 0;
@@ -305,12 +354,14 @@ const formatDate = (dateLike) => {
   transition: all 0.3s ease;
 }
 
+/* Aktīvās cilnes poga */
 .toggle-btn.active {
   background-color: white;
   color: var(--brand-berry, #a12971);
   box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
 
+/* Kartīte REM piešķiršanas režīmā */
 .assign-card {
   align-items: center;
 }
@@ -321,6 +372,7 @@ const formatDate = (dateLike) => {
   align-items: center;
 }
 
+/* Teksta ievades lauks */
 .rem-input {
   width: 80px;
   padding: 8px 12px;
@@ -336,6 +388,7 @@ const formatDate = (dateLike) => {
   border-color: var(--brand-teal);
 }
 
+/* REM izvēles saraksts */
 .rem-select {
   width: 220px;
   height: 42px;
@@ -356,6 +409,7 @@ const formatDate = (dateLike) => {
   transition: all 0.25s ease;
 }
 
+/* Poga REM piešķiršanai */
 .assign-btn {
   padding: 0px 16px;
   width: 80px; 
@@ -375,18 +429,19 @@ const formatDate = (dateLike) => {
   box-shadow: 0 4px 12px rgba(161, 41, 113, 0.3);
 }
 
+/* Paziņojumu / kartīšu konteiners */
 .reminders-container {
   position: relative;
-  z-index: 10; /* Change from 1 to 10 */
+  z-index: 10; 
   width: 100%;
   max-width: 800px;
   display: flex;
   flex-direction: column;
   gap: 16px;
-  margin-top: 20px; /* Ensure it has space below the toggle switch! */
+  margin-top: 20px; 
 }
 
-
+/* Paziņojumu kartīte */
 .reminder-card {
   display: flex;
   align-items: flex-start;
@@ -407,6 +462,7 @@ const formatDate = (dateLike) => {
   background: rgba(255, 255, 255, 0.65);
 }
 
+/* Paziņojuma ikonas zona */
 .reminder-icon {
   flex-shrink: 0;
   width: 28px;
@@ -419,6 +475,7 @@ const formatDate = (dateLike) => {
   margin-top: 0;
 }
 
+/* Paziņojuma teksta saturs */
 .reminder-content {
   flex: 1;
   display: flex;
@@ -441,6 +498,7 @@ const formatDate = (dateLike) => {
   color: var(--brand-berry);
 }
 
+/* Saite uz kalendāru */
 .reminder-navigation {
   margin: 0;
   font-family: 'Inter', sans-serif;
@@ -456,6 +514,7 @@ const formatDate = (dateLike) => {
   font-weight: bold;
 }
 
+/* Teksts, ja saraksts ir tukšs */
 .no-more {
   text-align: center;
   padding: 50px 20px;
@@ -466,6 +525,7 @@ const formatDate = (dateLike) => {
   letter-spacing: 0.3px;
 }
 
+/* Responsivitāte: lielajiem ekrāniem */
 @media (min-width: 1441px) {
   .reminders-container { max-width: 900px; }
   .reminder-card { padding: 35px 40px; }
@@ -512,7 +572,7 @@ const formatDate = (dateLike) => {
   }
 }
 
-
+/* Responsivitāte: planšetdatoriem un klēpjdatoriem */
 @media (max-width: 1024px) {
   .page-content { padding: 30px 20px; }
   h1 { margin-bottom: 32px; }
@@ -534,6 +594,7 @@ const formatDate = (dateLike) => {
   .reminder-navigation { font-size: 15px; }
 }
 
+/* Responsivitāte: mobilam ierīcem */
 @media (max-width: 480px) {
   .page-content { padding: 16px 12px; }
   h1 { margin-bottom: 20px; }

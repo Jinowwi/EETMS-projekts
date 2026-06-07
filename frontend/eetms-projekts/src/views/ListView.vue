@@ -1,10 +1,12 @@
 <template>
     <div>
+    <!-- Izrakstīšanās poga -->
     <button v-if="currentUserRole === 2" class="logout-btn" @click="handleLogout">
         <FontAwesomeIcon icon="fa-solid fa-right-from-bracket" />
         Logout
     </button>
     <div class="page-content">
+        <!-- Fona noformējuma elementi -->
         <div class="blob blob-teal"></div>
         <div class="blob blob-pink"></div>
 
@@ -127,7 +129,7 @@
                                     </select>
                                 </td>
 
-                                <!-- Standarta skats: Rimi administrācijas darbnieka e-pasts -->
+                                <!-- Standarta skats: Rimi administrācijas darbinieka e-pasts -->
                                 <td v-if="!isEditModeCompanies">{{ row.rimiEmployeeEmail }}</td>
                                 
                                 <!-- Rediģēšanas skats: e-pasta adreses izvēlne -->
@@ -159,10 +161,12 @@
                     </table>
                     </div>
                 </div>
- 
+                
+                <!-- Darba iemeslu tabulas sadaļa -->
                 <div class="table-section">
                     <div class="section-header">
                         <h2>Reasons</h2>
+                        <!-- Rediģēšanas un kārtošanas pogas -->
                         <div class="buttons">
                             <button :class="['btn', { 'active-btn': isSortModeReasons }]" @click="toggleSortModeReasons()">
                                 <FontAwesomeIcon :icon="['fas', 'sliders-h']" />
@@ -178,6 +182,7 @@
                     <transition name="slide-down">
                         <div v-if="isSortModeReasons" class="sort-toolbar">
                             <div class="sort-options">
+                                <!-- Meklēšanas ievades lauks -->
                                 <div class="search-container">
                                 <input
                                     type="text"
@@ -191,20 +196,24 @@
                     </transition>
                     <div class="table-scrollable">
                        <table>
+                        <!-- Darba iemeslu tabulu galvene -->
                         <thead>
                             <tr>
                                 <th>Reasons</th>
                                 <th v-if="isEditModeReasons"></th>
                             </tr>
                         </thead>
+                        <!-- Darba iemeslu tabulas saturs -->
                         <tbody>
                             <tr v-for="row in filteredReasonData" :key="row.id"
                             @click="!isEditModeReasons && openReasonModal(row)"
                             class="clickable-row">
 
+                            <!-- Parasts skats-->
                                 <td v-if="!isEditModeReasons">
                                     {{ row.reasonName }}
                                 </td>
+                                <!-- Rediģēšanas skats -->
                                 <td v-else>
                                     <input v-model="row.reasonName"
                                     @blur="updateReason(row)"
@@ -212,6 +221,7 @@
                                     class="edit-input" />
                                 </td>
 
+                                <!-- Dzēšanas poga -->
                                 <td v-if="isEditModeReasons">
                                     <button @click.stop="deleteReason(row.id, row.reasonName)" class="btn-delete">
                                         <FontAwesomeIcon :icon="['fas', 'xmark']" />
@@ -223,26 +233,37 @@
                     </div>
                 </div> 
 
+                <!-- Veikalu tabula -->
                 <div class="table-section">
                     <div class="section-header">
                         <h2>Shops</h2>
+
+                        <!-- Darbību pogas -->
                         <div class="buttons">
                             <button :class="['btn', { 'active-btn': isSortModeShops }]" @click="toggleSortModeShops()">
                                 <FontAwesomeIcon :icon="['fas', 'sliders-h']" />
                             </button>
+                            
+                            <!-- Rediģēšanas režīms -->
                             <button :class="['btn', { 'active-btn': isEditModeShops }]" @click="toggleEditModeShops()">
                                 <FontAwesomeIcon :icon="['fas', 'pen']" />
                             </button>
+
+                            <!-- Jauna veikala pievienošana -->
                             <button :class="['btn', { 'active-btn': addShopModalOpen }]" @click="openAddShopModal">
                                 <FontAwesomeIcon :icon="['fas', 'plus']" />
                             </button>
                         </div>
                     </div>
+
+                    <!-- Veikalu filtrēšanas josla -->
                     <transition name="slide-down">
                         <div v-if="isSortModeShops" class="sort-toolbar">
                             <span class="sort-label">Filter By</span>
                             <div class="sort-options">
-                                    <select v-model="filterShopType" class="search-input">
+                                
+                                <!-- Filtrēšana pēc veikala tipa -->
+                                <select v-model="filterShopType" class="search-input">
                                         <option value="">All Types</option>
                                         <option value="Express">Express</option>
                                         <option value="Mini">Mini</option>
@@ -250,13 +271,15 @@
                                         <option value="Hyper">Hyper</option>
                                     </select>
 
+                                    <!-- Filtrēšana pēc valsts -->
                                     <select v-model="filterShopCountry" class="search-input">
                                         <option value="">All Countries</option>
                                         <option value="Lithuania">Lithuania</option>
                                         <option value="Latvia">Latvia</option>
                                         <option value="Estonia">Estonia</option>
                                     </select>
-
+                                    
+                                    <!-- Meklēšanas ievades lauks -->
                                     <input
                                         type="text"
                                         v-model="queryShops"
@@ -266,10 +289,13 @@
                             </div>
                         </div>
                     </transition>
+
+                    <!-- Veikalu tabula -->
                     <div class="table-scrollable">
                         <table>
                         <thead>
                         <tr>
+                            <!-- Kārtošana pēc veikala tipa -->
                             <th @click="handleHeaderSortShops('type')" class="sortable-header">
                                 Shop Type
                                 <FontAwesomeIcon v-if="sortColumnShops === 'type'" 
@@ -277,6 +303,8 @@
                             class="sort-icon" />
                                 <FontAwesomeIcon v-else :icon="['fas', 'sort']" class="sort-icon placeholder" />
                             </th>
+
+                            <!-- Kārtošana pēc valsts -->
                             <th @click="handleHeaderSortShops('country')" class="sortable-header">
                                 Country 
                                 <FontAwesomeIcon v-if="sortColumnShops === 'country'"
@@ -284,6 +312,8 @@
                             class="sort-icon" />
                                 <FontAwesomeIcon v-else :icon="['fas', 'sort']" class="sort-icon placeholder" /> 
                             </th>
+
+                            <!-- Kārtošana pēc adreses -->
                             <th @click="handleHeaderSortShops('address')" class="sortable-header">
                                 Address
                                 <FontAwesomeIcon v-if="sortColumnShops === 'address'"
@@ -291,6 +321,8 @@
                             class="sort-icon" />
                                 <FontAwesomeIcon v-else :icon="['fas', 'sort']" class="sort-icon placeholder" />
                             </th>
+
+                            <!-- Kārtošana pēc veikala koda -->
                             <th @click="handleHeaderSortShops('code')" class="sortable-header">
                                 Shop Code 
                                 <FontAwesomeIcon v-if="sortColumnShops === 'code'"
@@ -298,25 +330,37 @@
                             class="sort-icon" />
                                 <FontAwesomeIcon v-else :icon="['fas', 'sort']" class="sort-icon placeholder" />
                             </th>
+
+                            <!-- E-pasta tabulas kolonna -->
                             <th>Email</th>
+
+                            <!-- Dzēšanas kolonna -->
                             <th v-if="isEditModeShops"></th>
                         </tr>
                         </thead>
                         <tbody>
+                            <!-- Veikalu tabulas rindas -->
                             <tr v-for="row in sortedShopData" :key="row.id">
+                                
+                                <!-- Veikala tipa kolonna -->
                                 <td v-if="!isEditModeShops">
                                     {{ row.type }}
                                 </td>
+
+                                <!-- Rediģēšanas skats -->
                                 <td v-else @click.stop>
                                     <input v-model="row.type"
                                         @blur="updateShop(row)"
                                         @keydown.enter="updateShop(row)"
                                         class="edit-input" />
                                 </td>
-
+                                
+                                <!-- Valsts kolonna -->
                                 <td v-if="!isEditModeShops">
                                     {{ row.country }}
                                 </td>
+
+                                <!-- Rediģēšanas skats -->
                                 <td v-else @click.stop>
                                     <select v-model="row.country"
                                             @change="updateShop(row)"
@@ -326,6 +370,8 @@
                                         <option value="Estonia">Estonia</option>
                                     </select>
                                 </td>
+
+                                <!-- Adrese -->
                                 <td v-if="!isEditModeShops">
                                     {{ row.address }}
                                 </td>
@@ -336,6 +382,8 @@
                                     class="edit-input" 
                                     />
                                 </td>
+
+                                <!-- Veikala kods -->
                                 <td v-if="!isEditModeShops">
                                     {{ row.code }}
                                 </td>
@@ -346,6 +394,8 @@
                                     class="edit-input" 
                                     />
                                 </td>
+
+                                <!-- Veikala e-pasta adrese -->
                                 <td v-if="!isEditModeShops">{{ row.email }}</td>
                                 <td v-else @click.stop>
                                     <input v-model="row.email" type="email" @blur="updateShop(row)" @keydown.enter="updateShop(row)" class="edit-input"/>
@@ -361,9 +411,12 @@
                     </div>   
                 </div>
 
+                <!-- Administrācijas sadaļa -->
                 <div v-if="currentUserRole === 3" class="table-section">
                     <div class="section-header">
                         <h2>Rimi Administration</h2>
+
+                        <!-- Pogas flitrēšanai -->
                         <div class="buttons">
                             <button :class="['btn', {
                                 'active-btn' : isSortModeAdmins }]"
@@ -372,15 +425,18 @@
                             </button>
                         </div>
                     </div>
-
+                    
+                    <!-- Filtrēšana -->
                     <transition name="slide-down">
                         <div v-if="isSortModeAdmins" class="sort-toolbar">
                             <div class="sort-options">
+                                <!-- Filtrēšana pēc tipa -->
                                 <select v-model="filterAdminType" class="search-input">
                                     <option value="">All Types</option>
                                     <option value="1">Real Estate (REM)</option>
                                     <option value="2">Admin</option>
                                 </select>
+                                <!-- Meklēšanas josla -->
                                 <div class="search-container">
                                     <input
                                         type="text"
@@ -392,11 +448,13 @@
                             </div>
                         </div>
                     </transition>
-
+                    
+                    <!-- Tabulas saturs -->
                     <div class="table-scrollable">
                         <table>
                             <thead>
                                 <tr>
+                                    <!-- Kārtošana pēc e-pasta adreses -->
                                     <th @click="handleHeaderSortAdmins('email')" class="sortable-header">
                                         Email 
                                         <FontAwesomeIcon v-if="sortColumnAdmins === 'email'"
@@ -406,6 +464,8 @@
                                         />
                                         <FontAwesomeIcon v-else :icon="['fas', 'sort']" class="sort-icon placeholder" />
                                     </th>
+
+                                    <!-- Kārtošana pēc darbinieka tipa -->
                                     <th @click="handleHeaderSortAdmins('typeOfAdmin')" class="sortable-header">
                                         Admin Type
                                         <FontAwesomeIcon v-if="sortColumnAdmins === 'typeOfAdmin'" 
@@ -416,6 +476,7 @@
                                 </tr>
                             </thead>
                             <tbody>
+                                <!-- Tabulas rindas -->
                                 <tr v-for="row in sortedAdminData" :key="row.remID || row.id">
                                     <td>{{  row.email }}</td>
                                     <td>
@@ -431,6 +492,7 @@
             </div>
         </div>
         
+        <!-- Apstiprinājuma modālais logs -->
         <div v-if="confirmModalOpen" class="confirm-overlay" @click.self="closeConfirmModal">
             <div class="confirm-box">
             <div class="confirm-header">
@@ -442,12 +504,16 @@
             </div>
 
             <div class="confirm-actions">
+                <!-- Atcelt dzēšanu -->
                 <button class="confirm-cancel" @click="closeConfirmModal">Cancel</button>
+
+                <!-- Apstiprināt dzēšanu -->
                 <button class="confirm-delete" @click="executeConfirmAction">Delete</button>
             </div>
             </div>
         </div>
 
+        <!-- Modālais logs maiņu sadaļai -->
         <ShiftModal
           :isOpen="modalOpen"
           :user="selectedUser"
@@ -466,12 +532,14 @@
             @save="addCompany"
         />
         
+        <!-- Modālais logs jauna darba iemesla pievienošanai -->
         <AddReasonModal 
             :isOpen="addReasonModalOpen"
             @close="closeAddReasonModal"
             @save="addReason"
         /> 
 
+        <!-- Modālais logs jauna veikala pievienošanai -->
         <AddShopModal 
             :isOpen="addShopModalOpen"
             @close="closeAddShopModal"
@@ -482,50 +550,69 @@
 </template>
  
 <script setup>
+// Vue importi 
 import { ref, computed, onMounted, nextTick } from 'vue';
+
+// HTTP pieprasījumi
 import axios from 'axios';
+
+// FontAwesome ikonas
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
+
+// Modālie logi
 import ShiftModal from '@/components/ShiftModal.vue';
 import AddCompanyModal from '@/components/AddCompanyModal.vue';
 import AddReasonModal from '@/components/AddReasonModal.vue';
 import AddShopModal from '@/components/AddShopModal.vue';
+
+// Maršrutēšana un autentifikācija
 import { useRouter } from 'vue-router';
 import { logout } from '@/services/auth.js';
-import PhoneNumber from '@/views-tablet/PhoneNumber.vue';
 
+// import PhoneNumber from '@/views-tablet/PhoneNumber.vue';
+
+// API bāzes adrese 
 const API_BASE = 'http://localhost:5001/api';
- 
+
+// Meklēšanas ievades
 const query = ref('');
 const queryReasons = ref(''); 
 const queryShops = ref(''); 
 const queryAdmins = ref(''); 
 const filterAdminType = ref(''); 
 
+// Modāla loga stāvoklis
 const modalOpen = ref(false);
 const selectedUser = ref({});
 const selectedShift = ref([]);
 
+// Filtrēšana
 const filterCountry = ref(''); 
 const filterRem = ref(''); 
 const filterShopType = ref('');
 const filterShopCountry = ref(''); 
 
+// Rediģēšanas režīmi
 const isEditModeCompanies = ref(false);
 const isEditModeReasons = ref(false); 
 const isEditModeShops = ref(false); 
 
+// Datu masīvi
 const companyData = ref([]);
 const reasonData = ref([]);
 const shopData = ref([]); 
 
+// Pievienošanas modālo logu stāvokļi
 const addCompanyModalOpen = ref(false); 
 const addShopModalOpen = ref(false); 
 
+// Filtrēšanas režīmi
 const isSortModeCompanies = ref(false); 
 const isSortModeReasons = ref(false); 
 const isSortModeShops = ref(false); 
 const isSortModeAdmins = ref(false); 
 
+// Kārtošana
 const sortColumn = ref('companyName'); 
 const sortDirection = ref('asc'); 
 const sortColumnShops = ref('type'); 
@@ -533,19 +620,23 @@ const sortDirectionShops = ref('asc');
 const sortColumnAdmins = ref('email');
 const sortDirectionAdmins = ref('asc');
 
+// Saldētie dati rediģēšanā
 const frozenData = ref([]); 
 const frozenShopData = ref([]); 
 
+// Papildus dati
 const administrators = ref([]); 
 const companyReasonsData = ref([]); 
 const currentUserRole = ref(Number(localStorage.getItem('userRole')));
 const router = useRouter();
 
+// Apstiprinājuma modāla loga dati
 const confirmModalOpen = ref(false) 
 const confirmTitle = ref('Confirm action')
 const confirmMessage = ref('')
 const confirmAction = ref(null)
 
+// Apstiprinājuma modāla atvēršana
 const openConfirmModal = (message, action, title = 'Confirm deletion') => {
   confirmTitle.value = title
   confirmMessage.value = message
@@ -553,6 +644,7 @@ const openConfirmModal = (message, action, title = 'Confirm deletion') => {
   confirmModalOpen.value = true
 }
 
+// Apstiprinājuma modāla aizvēršana
 const closeConfirmModal = () => {
   confirmModalOpen.value = false
   confirmTitle.value = 'Confirm action'
@@ -560,6 +652,7 @@ const closeConfirmModal = () => {
   confirmAction.value = null
 }
 
+// Izpildīt apstiprināto darbību
 const executeConfirmAction = async () => {
   if (confirmAction.value) {
     await confirmAction.value()
@@ -567,11 +660,13 @@ const executeConfirmAction = async () => {
   closeConfirmModal()
 }
 
+// Izrakstīšanās
 const handleLogout = () => {
     logout();
     router.push('/roleselect');
 };
 
+// Noformējums paziņojuma radīšanai 
 function showCustomAlert(message) {
   const oldBox = document.querySelector('.alert-box')
   if (oldBox) oldBox.remove()
@@ -593,6 +688,7 @@ function showCustomAlert(message) {
   document.body.appendChild(box)
 }
 
+// Administrātoru ielādēšana 
 const fetchAdministrators = async () => {
     try {
         const res = await axios.get(`${API_BASE}/administrators`);
@@ -603,6 +699,7 @@ const fetchAdministrators = async () => {
     }
 }; 
 
+// Uzņēmumu un iemeslu saites ielādēšana
 const fetchCompanyReasons = async () => {
     try {
         const res = await axios.get(`${API_BASE}/companyreasons`);
@@ -612,6 +709,7 @@ const fetchCompanyReasons = async () => {
     }
 }; 
 
+// Pārslēgšanās starp tabulu kārtošanas/rediģēšanas režīmiem 
 const toggleSortModeReasons = () => {
     if(!isSortModeReasons.value) {
         isEditModeReasons.value = false;
@@ -657,6 +755,7 @@ const toggleSortModeAdmins = () => {
     isSortModeAdmins.value = !isSortModeAdmins.value;
 }; 
 
+// Administratoru tabulas kārtošana 
 const handleHeaderSortAdmins = (column) => {
     if (sortColumnAdmins.value === column) {
         sortDirectionAdmins.value = sortDirectionAdmins.value === 'asc' ? 'desc' : 'asc';
@@ -666,6 +765,7 @@ const handleHeaderSortAdmins = (column) => {
     }
 };
 
+// Veikala pievienošanas modāla loga atvēršana un aizvēršana
 const openAddShopModal = () => {
     isSortModeShops.value = false;
     isEditModeShops.value = false;
@@ -676,6 +776,7 @@ const closeAddShopModal = () => {
     addShopModalOpen.value = false;
 };
 
+// Uzņēmumu kārtošana/filtrēšana 
 const sortedCompanyData = computed(() => {
     if (isEditModeCompanies.value && frozenData.value.length > 0) {
         return frozenData.value; 
@@ -683,6 +784,7 @@ const sortedCompanyData = computed(() => {
 
     let filtered = companyData.value; 
 
+    // Meklēšana
     if (query.value) {
         const search = query.value.toLowerCase();
         filtered = filtered.filter(row => {
@@ -694,14 +796,17 @@ const sortedCompanyData = computed(() => {
         }); 
     }
 
+    // Filtrs pēc valsts
     if (filterCountry.value) {
         filtered = filtered.filter(row => row.country === filterCountry.value); 
     }
 
+    // Filtrs pēc REM
     if (filterRem.value) {
         filtered = filtered.filter(row => row.rimiEmployeeEmail === filterRem.value); 
     }
 
+    // Kārtošana
     const result = [...filtered].sort((a, b) => {
         let valA = a[sortColumn.value] || '';
         let valB = b[sortColumn.value] || ''; 
@@ -718,6 +823,7 @@ const sortedCompanyData = computed(() => {
     return result; 
 });
 
+// Veikalu kārtošana/filtrēšana 
 const sortedShopData = computed(() => {
     if (isEditModeShops.value && frozenShopData.value.length > 0) {
         return frozenShopData.value; 
@@ -725,6 +831,7 @@ const sortedShopData = computed(() => {
 
     let filtered = shopData.value; 
 
+    // Meklēšana
     if (queryShops.value) {
         const search = queryShops.value.toLowerCase();
         filtered = filtered.filter(row => 
@@ -735,14 +842,17 @@ const sortedShopData = computed(() => {
         );
     }
 
+    // Filtrs pēc tipa
     if (filterShopType.value) {
         filtered = filtered.filter(row => row.type === filterShopType.value);
     }
 
+    // Filtrs pēc valsts
     if (filterShopCountry.value) {
         filtered = filtered.filter(row => row.country === filterShopCountry.value); 
     }
 
+    // Kārtošana
     return [...filtered].sort((a, b) => {
         let valA = a[sortColumnShops.value] || '';
         let valB = b[sortColumnShops.value] || ''; 
@@ -754,14 +864,17 @@ const sortedShopData = computed(() => {
     }); 
 }); 
 
+// Administratoru kārtošana/filtrēšana 
 const sortedAdminData = computed(() => {
     let filtered = (administrators.value || []).filter(row => 
         Number(row.typeOfAdmin) !== 3); 
 
+    // Filtrs pēc tipa
     if (filterAdminType.value !== '') {
         filtered = filtered.filter(row => Number(row.typeOfAdmin) === Number(filterAdminType.value));
     }
 
+    // Meklēšana
     if (queryAdmins.value) {
         const search = queryAdmins.value.toLowerCase();
         filtered = filtered.filter(row => 
@@ -771,6 +884,7 @@ const sortedAdminData = computed(() => {
         );
     }
 
+        // Kārtošana
         return [...filtered].sort((a, b) => {
             let valA = a[sortColumnAdmins.value] || ''; 
             let valB = b[sortColumnAdmins.value] || ''; 
@@ -790,6 +904,7 @@ const sortedAdminData = computed(() => {
     }
 ); 
 
+// Formatēt administratora tipu
 const formatAdminType = (typeValue) => {
     if (typeof typeValue === 'string') return typeValue;
     
@@ -801,6 +916,7 @@ const formatAdminType = (typeValue) => {
     }
 };
 
+// Filtrēt iemeslus
 const filteredReasonData = computed(() => {
     if (!queryReasons.value) {
         return reasonData.value; 
@@ -812,8 +928,10 @@ const filteredReasonData = computed(() => {
     ); 
 }); 
 
+// Iemesla pievienošanas modālais logs
 const addReasonModalOpen = ref(false); 
 
+// Atvert modālus logus
 const openAddReasonModal = () => {
     addReasonModalOpen.value = true; 
 }; 
@@ -824,6 +942,7 @@ const openAddCompanyModal = () => {
     addCompanyModalOpen.value = true; 
 }; 
 
+// Aizvērt modālus logus
 const closeAddReasonModal = () => {
     addReasonModalOpen.value = false; 
 }; 
@@ -832,10 +951,12 @@ const closeAddCompanyModal = () => {
     addCompanyModalOpen.value = false; 
 }; 
 
+// Pārslēgt iemeslu rediģēšanu
 const toggleEditModeReasons = () => {
     isEditModeReasons.value = !isEditModeReasons.value; 
 }; 
 
+// Pievienot darba iemeslu
 const addReason = async (formData) => {
     try {
         await axios.post(`${API_BASE}/reasons`, formData); 
@@ -848,6 +969,7 @@ const addReason = async (formData) => {
     }
 }; 
 
+// Kārtot uzņēmumu/veikalu tabulas
 const handleHeaderSort = (column) => {
     if (sortColumn.value === column) {
         sortDirection.value = sortDirection.value === 'asc' ? 'desc' : 'asc'; 
@@ -866,6 +988,7 @@ const handleHeaderSortShops = (column) => {
     }
 };
 
+// Pievienot darba iemeslu uzņēmumam 
 const handleAddReasonToCompany = async (reasonId) => {
     try {
         const payload = {
@@ -886,6 +1009,7 @@ const handleAddReasonToCompany = async (reasonId) => {
     }
 }; 
 
+// Pievienot uzņēmumu/veikalu
 const addCompany = async (formData) => {
   try {
     const payload = {
@@ -925,10 +1049,12 @@ const addShop = async (formData) => {
   }
 };
 
+// Atlasīt tikai REM administratorus
 const remAdministrators = computed(() => {
     return administrators.value.filter(admin => admin.typeOfAdmin === 1);
 });
 
+// Rediģēt uzņēmumu
 const updateCompany = async (row) => {
   try {
     const payload = {
@@ -950,6 +1076,7 @@ const updateCompany = async (row) => {
   }
 }; 
 
+// Rediģēt darba iemeslu
 const updateReason = async (row) => {
     const numericId = parseInt(row.id);
     const numericCompanyId = parseInt(row.companyID); 
@@ -973,6 +1100,7 @@ const updateReason = async (row) => {
     }
 };
 
+// Rediģēt veikalu
 const updateShop = async (row) => {
   try {
     const original = shopData.value.find(s => s.id === row.id);
@@ -995,15 +1123,15 @@ const updateShop = async (row) => {
   } catch (error) {
     const msg = error.response?.data?.error;
     if (msg) {
-      showCustomAlert(msg); // shows "A shop with this email already exists." from backend
+      showCustomAlert(msg); 
     } else {
       showCustomAlert('Failed to update shop. Please try again.');
     }
-    // Revert the row back to original values so the table doesn't show the bad email
     await fetchShops();
   }
 };
 
+// Dzēst uzņēmumu
 const deleteCompany = async (id, companyName) => {
   openConfirmModal(`Delete company "${companyName}"?`, async () => {
     try {
@@ -1016,6 +1144,7 @@ const deleteCompany = async (id, companyName) => {
   })
 }
 
+// Dzēst veikalu
 const deleteShop = async (id, code) => {
   openConfirmModal(`Delete shop "${code}"?`, async () => {
     try {
@@ -1028,6 +1157,7 @@ const deleteShop = async (id, code) => {
   })
 }
 
+// Dzēst darba iemeslu
 const deleteReason = async (id, reasonName) => {
   openConfirmModal(`Delete reason "${reasonName}"?`, async () => {
     try {
@@ -1042,6 +1172,7 @@ const deleteReason = async (id, reasonName) => {
   })
 } 
 
+// Noņemt darba iemeslu no uzņēmuma
 const handleRemoveReasonFromCompany = async (reasonId) => {
   openConfirmModal('Remove this reason from this company?', async () => {
     try {
@@ -1055,6 +1186,7 @@ const handleRemoveReasonFromCompany = async (reasonId) => {
   })
 }
 
+// Ielādēt uzņēmumus
 const fetchCompanies = async () => {
   try {
     const res = await axios.get(`${API_BASE}/companies`);
@@ -1074,16 +1206,8 @@ const fetchCompanies = async () => {
     console.error('Failed to load companies:', error);
   }
 };
- 
-// const fetchShifts = async () => {
-//     try {
-//         const res = await axios.get(`${API_BASE}/shifts`);
-//         shiftDataArray.value = res.data;
-//     } catch (error) {
-//         console.error('Failed to load shifts:', error);
-//     }
-// };
- 
+
+// Ielādēt darba iemeslus
 const fetchReasons = async () => {
     try {
         const res = await axios.get(`${API_BASE}/reasons`);
@@ -1099,6 +1223,7 @@ const fetchReasons = async () => {
     }
 };
 
+// Ielādēt veikalus
 const fetchShops = async () => {
     try {
         const res = await axios.get(`${API_BASE}/shops`);
@@ -1115,6 +1240,7 @@ const fetchShops = async () => {
     }
 }; 
 
+// Pārvērst valsts nosaukumu uz kodu
 const getCountryCode = (country) => {
   if (typeof country === 'number') return country;
   const countryMap = {
@@ -1126,6 +1252,7 @@ const getCountryCode = (country) => {
   return countryMap[country] ?? null;
 };
 
+// Pārvērst kodu uz valsts nosaukumu
 const getCountryName = (countryCode) => {
     const countryMap = {
         1: 'Lithuania',
@@ -1137,16 +1264,16 @@ const getCountryName = (countryCode) => {
     return countryMap[Number(countryCode)] || countryCode;
 }; 
 
+// Ielādēt datus pēc komponenta ielādēšanas
 onMounted(async () => { 
     fetchCompanies();
     fetchReasons();  
     fetchAdministrators();
     fetchShops(); 
     fetchCompanyReasons();
-    //fetchEmployees();
-    //fetchShifts();
 });
  
+// Atvērt uzņēmuma modālo logu
 const openCompanyModal = async (company) => {
   const mappingsForCompany = companyReasonsData.value.filter(cr => 
     Number(cr.companiesCompanyID || cr.CompaniesCompanyID || cr.companyID || cr.CompanyID) === Number(company.id)
@@ -1177,6 +1304,7 @@ const openCompanyModal = async (company) => {
   modalOpen.value = true;
 };
 
+// Aizvērt modālo logu
 const closeModal = () => {
     modalOpen.value = false;
 };

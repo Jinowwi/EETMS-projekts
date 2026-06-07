@@ -1,14 +1,19 @@
 <template>
   <div class="page-content">
+    <!-- Fona noformējums -->
     <div class="blob blob-teal"></div>
     <div class="blob blob-pink"></div>
+
+    <!-- Rādīt uzņēmuma pārstāvja statistiku, ja lomas limenis ir 0, vai lomas nav -->
     <template v-if="!roleLevel || roleLevel === 0">
       <CompanyRepresentativeStats />
     </template>
 
+    <!-- Citām lomām rādīt veikalu/uzņēmumu statistiku -->
     <template v-else>
       <div class="reports-header">
       <div class="statistics-switcher">
+        <!-- Pogas parslēgšanai starp veikaliem/uzņēmumiem -->
         <button 
           :class="['switch-btn', { active: activeTab === 'shops' }]"
           @click="activeTab = 'shops'"
@@ -34,6 +39,7 @@
       </div>
     </div>
 
+    <!-- Rādīt atbilstošo komponentu atkarībā no izvēlētas cilnes -->
     <ShopStatistics v-if="activeTab === 'shops'" />
     <CompanyStatistics v-else />
     </template>
@@ -41,18 +47,27 @@
 </template>
 
 <script setup>
+// Vue funkcijas
 import { ref, onMounted, watch } from 'vue'
+
+// Veikalu, Uzņēmumu un Uzņēmuma pārstavja statistikas komponenti
 import ShopStatistics from '@/components/ShopStatistics.vue'
 import CompanyStatistics from '@/components/CompanyStatistics.vue'
 import CompanyRepresentativeStats from '@/components/CompanyRepresentativeStats.vue'
+
+// Funkcija administratora lomas iegūšanai
 import { getAdminRoleLevel } from '@/services/auth'
 
+// Aktīvā cilne pēc noklusējuma
 const activeTab = ref('shops')
 
-// Bulletproof role logic:
+// Droša loģika lomas līmeņa noteikšanai
+// Neapstrādātas vērtības iegūšana un tās pārveidošana
+// Ja vērtība nav pieejama, tad pārveido to par 0
 const rawLevel = getAdminRoleLevel()
 const roleLevel = ref(rawLevel ? Number(rawLevel) : 0);
 
+// Izvēlētas cilnes atjaunošana, kad komponents ir ielādēts
 onMounted(() => {
   const savedTab = localStorage.getItem('activeStatisticsTab')
   if (savedTab && (savedTab === 'shops' || savedTab === 'companies')) {
@@ -60,6 +75,7 @@ onMounted(() => {
   }
 })
 
+// Aktīvās cilnes novērošana un tās saglabāšana
 watch(activeTab, (newTab) => {
   localStorage.setItem('activeStatisticsTab', newTab)
 })
@@ -67,6 +83,7 @@ watch(activeTab, (newTab) => {
 
 
 <style scoped>
+/* Galvenais lapas satura konteineris */ 
 .page-content {
   padding: 16px 24px;
   font-family: 'Inter', sans-serif;
@@ -74,13 +91,14 @@ watch(activeTab, (newTab) => {
   width: 100%;
 }
 
+/* Veikala statistikas bloks */ 
 .shop-statistics-container {
   width: 100%;
   max-width: 1300px;
   box-sizing: border-box;
 }
 
-
+/* Augšējā daļa ar virsrakstu un statistikas pārslēgu */
 .reports-header {
   display: flex;
   justify-content: space-between;
@@ -95,6 +113,7 @@ watch(activeTab, (newTab) => {
   color: var(--color-black);
 }
 
+/* Pogu grupa pārslēgšanai starp statistikas sadaļām */
 .statistics-switcher {
   display: flex;
   gap: 8px;
@@ -104,6 +123,7 @@ watch(activeTab, (newTab) => {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 }
 
+/* Pārslēgšanas pogas stils */
 .switch-btn {
   display: flex;
   align-items: center;
@@ -129,6 +149,7 @@ watch(activeTab, (newTab) => {
   background: rgba(161, 41, 113, 0.05);
 }
 
+/* Otrā līmeņa virsraksti */
 .switch-btn.active {
   background: var(--brand-berry);
   color: var(--color-white);
@@ -142,6 +163,7 @@ watch(activeTab, (newTab) => {
   color: var(--color-text-main);
 }
 
+/* Pielāgojumi planšetēm un mobilajām ierīcēm */
 @media (max-width: 768px) {
   .reports-header {
     flex-direction: column;

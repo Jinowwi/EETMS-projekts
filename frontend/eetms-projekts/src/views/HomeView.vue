@@ -1,5 +1,6 @@
 <template>
   <div class="home">
+    <!-- Dekoratīvais fons un galvenā izrakstīšanās poga -->
     <div class="blob blob-teal"></div>
     <div class="blob blob-pink"></div>
 
@@ -8,12 +9,14 @@
       Logout
     </button>
 
+    <!-- Hero sadaļa ar galveno virsrakstu un īsu aprakstu -->
     <div class="page-center">
       <div class="hero">
         <h1 class="hero-title">Welcome to EETMS!</h1>
         <p class="hero-sub">Easy tool to manage your external employees.</p>
       </div>
 
+      <!-- Navigācijas kartītes uz galvenajām sistēmas sadaļām -->
       <div class="cards-row">
         <button @click="navigateTo('/list')" class="info-card">
           <div class="card-icon">
@@ -61,10 +64,14 @@
 </template>
 
 <script setup>
+// Importi navigācijai, autentifikācijai un ikonām
 import { useRouter } from 'vue-router';
 import { logout } from '@/services/auth.js';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 
+// Routera inicializācija un galvenās darbības:
+// navigateTo pāriet uz izvēlēto lapu,
+// handleLogout izraksta lietotāju un atgriež lomu izvēlē
 const router = useRouter();
 const navigateTo = (path) => router.push(path);
 const handleLogout = () => {
@@ -74,6 +81,7 @@ const handleLogout = () => {
 </script>
 
 <style scoped>
+/* Lapas kopējais izkārtojums */
 .home {
   height: 100vh;
   position: fixed;
@@ -84,7 +92,8 @@ const handleLogout = () => {
   justify-content: center;
 }
 
-/* ── Center wrapper ── */
+/* Centrē visu galveno saturu vertikāli un horizontāli,
+  piešķir atstarpes starp hero daļu un kartītēm */
 .page-center {
   display: flex;
   flex-direction: column;
@@ -95,7 +104,7 @@ const handleLogout = () => {
   padding: 0 40px;
 }
 
-/* ── Hero ── */
+/* Hero sadaļa */
 .hero {
   text-align: center;
 }
@@ -120,7 +129,7 @@ const handleLogout = () => {
   font-weight: 400;
 }
 
-/* ── Cards row ── */
+/* Kartīšu rinda */
 .cards-row {
   display: flex;
   flex-direction: row;
@@ -130,7 +139,7 @@ const handleLogout = () => {
   align-items: stretch;
 }
 
-/* ── Glossy card ── */
+/* Navigācijas kartītes */
 .info-card {
   position: relative;
   display: flex;
@@ -148,7 +157,6 @@ const handleLogout = () => {
   overflow: hidden;
   transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
 
-  /* Glassmorphism base */
   background: linear-gradient(
     160deg,
     rgba(255, 255, 255, 0.75) 0%,
@@ -162,7 +170,7 @@ const handleLogout = () => {
   color: var(--brand-berry);
 }
 
-/* Glossy top shine */
+/* Augšējais spīdums un animēts gaismas pārslīdējums */
 .info-card::before {
   content: '';
   position: absolute;
@@ -179,7 +187,6 @@ const handleLogout = () => {
   pointer-events: none;
 }
 
-/* Shimmer sweep on hover */
 .info-card::after {
   content: '';
   position: absolute;
@@ -218,7 +225,7 @@ const handleLogout = () => {
   transition: all 0.1s ease;
 }
 
-/* ── Icon circle ── */
+/* Kartītes ikona, nosaukums un apraksts */
 .card-icon {
   width: 52px;
   height: 52px;
@@ -262,7 +269,7 @@ const handleLogout = () => {
   line-height: 1.4;
 }
 
-/* ── Logout ── */
+/* Izrakstīšanas poga */
 .logout-btn {
   position: fixed;
   top: 24px;
@@ -290,7 +297,6 @@ const handleLogout = () => {
   transform: translateY(-2px);
 }
 
-/* ── Brand logo ── */
 .brand-logo {
   position: fixed;
   bottom: 40px;
@@ -311,13 +317,13 @@ const handleLogout = () => {
   object-fit: contain;
 }
 
-/* ── Responsive: tablets ── */
+/* Responsivitāte: planšetdators */
 @media (max-width: 1023px) {
   .cards-row { gap: 14px; }
   .info-card { width: 140px; padding: 22px 16px; }
 }
 
-/* ── Responsive: mobile ── */
+/* Responsivitāte: mobilas ierīces */
 @media (max-width: 767px) {
   .home {
     position: relative;

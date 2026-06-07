@@ -1,9 +1,11 @@
 <template>
   <div class="login-wrapper">
+    <!-- Dekoratīvais fons -->
     <div class="blob blob-teal"></div>
     <div class="blob blob-pink"></div>
 
     <div class="login-card">
+      <!-- Poga atgriešanai uz sākuma lapu -->
       <button class="back-btn" @click="router.push('/')">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
           stroke="currentColor" stroke-width="2.5" width="15" height="15">
@@ -12,9 +14,12 @@
         Back
       </button>
 
+      <!-- Virsraksts un apraksts mainās atkarībā no tā, 
+      vai lietotājs pieslēdzas vai reģistrējas -->
       <h2 class="login-title">{{ isLogin ? 'Welcome back' : 'Create account' }}</h2>
       <p class="login-sub">{{ isLogin ? 'Sign in to your company account' : 'Register a new company' }}</p>
-
+      
+      <!-- Pārslēgs starp login un register režīmu -->
       <div class="toggle-container">
         <div class="toggle-switch">
           <button 
@@ -32,6 +37,7 @@
         </div>
       </div>
 
+      <!-- Reģistrācijas lauki parādās tikai tad, kad isLogin ir false -->
       <form @submit.prevent="handleSubmit">
         <div class="input-group">
           <label>Email</label>
@@ -85,9 +91,11 @@
           </div>
         </template>
 
+        <!-- Kļūdas un veiksmīgas darbības paziņojumi -->
         <p v-if="error" class="error">{{ error }}</p>
         <p v-if="successMessage" class="success">{{ successMessage }}</p>
 
+        <!-- Galvenā formas poga ar loading indikatoru -->
         <button type="submit" :disabled="loading" class="login-btn">
           <span v-if="loading" class="btn-spinner"></span>
           <span v-else>{{ isLogin ? 'Login' : 'Register Company' }}</span>
@@ -98,6 +106,7 @@
 </template>
 
 <script setup>
+// Importi router un Vue reaktivitātei
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 
@@ -117,6 +126,9 @@ const error = ref('')
 const successMessage = ref('')
 const loading = ref(false)
 
+// Login režīmā tiek atsūtīts autentifikācijas pieprasījums
+// Register režīmā izveidots jauns uzņēmums 
+// un pēc tam tiek pārslēgts atpakaļ uz login
 const handleSubmit = async () => {
   error.value = ''
   successMessage.value = ''
@@ -124,7 +136,7 @@ const handleSubmit = async () => {
 
   try {
     if (isLogin.value) {
-      // LOGIN
+      // Pieslēgšanās 
       const res = await fetch(`${API_BASE}/companies/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -139,9 +151,9 @@ const handleSubmit = async () => {
       } else {
         error.value = 'Invalid email or password.'
       }
-
+    
+    // Reģistrācija
     } else {
-      // REGISTER
       const newCompanyData = {
         CompanyName: companyName.value,
         Address: address.value,
@@ -149,16 +161,18 @@ const handleSubmit = async () => {
         RegistrationNumber: reg_num.value,
         Email: email.value,
         Password: password.value,
-        Country: 2,  // ✅ Latvia as int, not string
+        Country: 2,  
         RemID: null
       }
 
+      // Post pieprasījums
       const res = await fetch(`${API_BASE}/companies`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(newCompanyData)
       })
 
+      // Ja dati atbilst formātam, tiek veiksmīgi reģistrēts uzņēmums
       if (res.ok) {
         successMessage.value = "Registration successful! You can now log in."
         isLogin.value = true
@@ -178,11 +192,10 @@ const handleSubmit = async () => {
     loading.value = false
   }
 }
-
 </script>
 
-
 <style scoped>
+/* Lapas kopējais izkārtojums un fona elementi */
 .login-wrapper {
   min-height: 100vh;
   display: flex;
@@ -223,6 +236,7 @@ input::-webkit-credentials-auto-fill-button {
   right: -320px;
 }
 
+/* Login kartīte un tās galvenes daļa */
 .login-card {
   position: relative;
   z-index: 1;
@@ -292,7 +306,7 @@ input::-webkit-credentials-auto-fill-button {
   text-align: center;
 }
 
-/* --- Toggle Switch Styling (Adapted for new theme) --- */
+/* Login/Registration pārslēgs */
 .toggle-container {
   display: flex;
   justify-content: center;
@@ -330,6 +344,7 @@ input::-webkit-credentials-auto-fill-button {
   box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
 
+/* Formas lauki un paroles ievade */
 form {
   width: 100%;
 }
@@ -401,7 +416,7 @@ form {
   color: var(--brand-teal);
 }
 
-/* Animations */
+/* Animācijas */
 .slide-down {
   animation: slideDown 0.3s ease-out;
 }
@@ -435,6 +450,7 @@ form {
   text-align: center;
 }
 
+/* Apstiprinājuma poga */
 .login-btn {
   width: 100%;
   padding: 14px;
@@ -484,6 +500,7 @@ form {
   to { transform: rotate(360deg); }
 }
 
+/* Responsivitāte: mobilas ierīces */
 @media (max-width: 480px) {
   .login-card {
     margin: 20px;

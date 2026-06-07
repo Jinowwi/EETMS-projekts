@@ -1,9 +1,11 @@
 <template>
   <div class="login-wrapper">
+    <!-- Dekoratīvais fons un login kartīte -->
     <div class="blob blob-teal"></div>
     <div class="blob blob-pink"></div>
 
     <div class="login-card">
+      <!-- Poga atgriešanai uz sākuma lapu -->
       <button class="back-btn" @click="router.push('/')">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
           stroke="currentColor" stroke-width="2.5" width="15" height="15">
@@ -12,9 +14,12 @@
         Back
       </button>
 
+      <!-- Virsraksts un īss apraksts veikala vadītāja pieslēgšanās formai -->
       <h2 class="login-title">Welcome back</h2>
       <p class="login-sub">Sign in to your EETMS shop director account</p>
 
+      <!-- Pieslēgšanās forma ar e-pastu, 
+      paroli, kļūdas paziņojumu un apstiprinājuma pogu -->
       <form @submit.prevent="handleLogin">
         <div class="input-group">
           <label>Email</label>
@@ -58,9 +63,11 @@
 </template>
 
 <script setup>
+// Importi Vue reaktivitātei un router navigācijai 
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 
+// Formas stāvokļi un API adrese
 const router = useRouter()
 const API_BASE = 'http://localhost:5001/api'
 
@@ -70,10 +77,14 @@ const showPassword = ref(false)
 const error = ref('')
 const loading = ref(false)
 
+// Login pieprasījums veikala lietotājam
+// Nosūta e-pasta adresi un paroli, apstrada backend atbildi, 
+// saglaba veikala ID un pārslēdzās uz shop-home sadaļu
 const handleLogin = async () => {
   error.value = ''
   loading.value = true
 
+  // Post pieprasījums 
   try {
     const res = await fetch(`${API_BASE}/shops/login`, {
       method: 'POST',
@@ -81,7 +92,6 @@ const handleLogin = async () => {
       body: JSON.stringify({ email: email.value, password: password.value })
     })
 
-    // Read as text first — backend may return plain string errors
     const text = await res.text()
     const data = text ? JSON.parse(text) : {}
 
@@ -90,7 +100,7 @@ const handleLogin = async () => {
       return
     }
 
-    localStorage.setItem('shopId', data.shopId) // lowercase 'd'
+    localStorage.setItem('shopId', data.shopId) 
     router.push('/shop-home')
 
   } catch (e) {
@@ -103,6 +113,7 @@ const handleLogin = async () => {
 </script>
 
 <style scoped>
+/* Lapas fons un izkārtojums */ 
 .login-wrapper {
   min-height: 100vh;
   display: flex;
@@ -138,23 +149,7 @@ const handleLogin = async () => {
   right: -320px;
 }
 
-.login-card {
-  position: relative;
-  z-index: 1;
-  background: rgba(255, 255, 255, 0.35);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  border: 1.5px solid rgba(255, 255, 255, 0.6);
-  border-radius: 20px;
-  padding: 48px 40px 40px;
-  width: 100%;
-  max-width: 440px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
+/* Paslēpj pārlūkos noklusēto paroles redzamības ikonu */ 
 input[type="password"]::-ms-reveal,
 input[type="password"]::-ms-clear,
 input::-webkit-credentials-auto-fill-button {
@@ -182,6 +177,24 @@ input::-webkit-credentials-auto-fill-button {
   color: var(--brand-teal);
 }
 
+/* Login kartīte un tās galvenes elementi */
+.login-card {
+  position: relative;
+  z-index: 1;
+  background: rgba(255, 255, 255, 0.35);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1.5px solid rgba(255, 255, 255, 0.6);
+  border-radius: 20px;
+  padding: 48px 40px 40px;
+  width: 100%;
+  max-width: 440px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
 .login-title {
   font-family: 'Inter', sans-serif;
   font-size: 26px;
@@ -202,6 +215,7 @@ input::-webkit-credentials-auto-fill-button {
   text-align: center;
 }
 
+/* Formas lauki un paroles redzamības poga */
 form {
   width: 100%;
 }
@@ -273,6 +287,7 @@ form {
   color: var(--brand-teal);
 }
 
+/* Kļūdas stāvoklis un galvenā login poga */
 .error {
   font-family: 'Inter', sans-serif;
   font-size: 13px;
@@ -330,6 +345,7 @@ form {
   display: inline-block;
 }
 
+/* Responsivitāte: maza izmēra ekrāniem */
 @keyframes spin {
   to { transform: rotate(360deg); }
 }

@@ -1,20 +1,24 @@
 <template>
+  <!-- Izrakstīšanās poga -->
   <button class="logout-btn" @click="handleLogout">
     <FontAwesomeIcon icon="fa-solid fa-right-from-bracket" />
     Logout
   </button>
 
   <div class="page-content">
+    <!-- Dekoratīvie fona elementi -->
     <div class="blob blob-teal"></div>
     <div class="blob blob-pink"></div>
 
     <div class="home-header">
       <div class="welcome-wrapper">
+        <!-- Sākuma lapas virsraksts -->
         <h1 class="welcome-title">Welcome to EETMS!</h1>
       </div>
     </div>
 
     <div class="home-grid">
+      <!-- Paziņojumu bloks -->
       <div class="widget widget-notifications">
         <h2 class="widget-title widget-title-link" @click="router.push('/reminders')">
           <span class="title-icon">
@@ -24,6 +28,7 @@
         </h2>
 
         <div class="notifications-list">
+          <!-- Atgādinājumu saraksts -->
           <div
             v-for="r in reminders"
             :key="r.shiftID ?? r.ShiftID"
@@ -41,10 +46,12 @@
               <p class="reminder-nav" @click="goToCalendar(r)">To Calendar</p>
             </div>
           </div>
+          <!-- Teksts, ja paziņojumu nav -->
           <div v-if="reminders.length === 0" class="no-more">No more notifications</div>
         </div>
       </div>
 
+      <!-- Maiņu pieprasījumu bloks -->
       <div class="widget widget-shiftrequests">
         <h2 class="widget-title">
           <span class="title-icon">
@@ -54,6 +61,7 @@
         </h2>
 
         <div class="shiftrequests-list">
+          <!-- AttēloT lietotājam aktuālos maiņu pieprasījumus -->
           <div
             v-for="req in relevantShiftRequests"
             :key="req.shiftRequestID"
@@ -62,6 +70,8 @@
             <div class="shiftrequest-main">
               <div class="shiftrequest-top">
                 <p class="shiftrequest-reason">{{ req.reason?.name ?? 'Unknown reason' }}</p>
+                
+                <!-- Atzīmet, ja pieprasījums attiecas uz lietotāja uzņēmumu -->
                 <span
                   v-if="isMyCompanyRequest(req)"
                   class="your-company-tag"
@@ -75,17 +85,20 @@
               </p>
             </div>
 
+            <!-- Poga detalizēta pieprasījuma skatīšanai -->
             <button class="view-btn" type="button" @click="selectedShiftRequest = req">
               View
             </button>
           </div>
 
+          <!-- Teksts, ja nav atbilstošu pieprasījumu -->
           <div v-if="relevantShiftRequests.length === 0" class="no-more">
             No relevant shift requests
           </div>
         </div>
       </div>
 
+      <!-- Kalendāra bloks -->
       <div class="widget widget-calendar">
         <h2 class="widget-title widget-title-link" @click="router.push('/calendar')">
           <span class="title-icon">
@@ -96,6 +109,7 @@
         <Calendar :missedPunches="shifts" @punchClick="handlePunchClick" />
       </div>
 
+      <!-- Lietotāja uzņēmumu bloks -->
       <div class="widget widget-companies">
         <h2 class="widget-title">
           <span class="title-icon">
@@ -104,6 +118,7 @@
           Your companies
         </h2>
 
+        <!-- Uzņēmumu saraksts -->
         <div class="companies-list">
           <div
             v-for="company in companies"
@@ -115,10 +130,12 @@
           </div>
         </div>
 
+        <!-- Poga statistikas atvēršanai -->
         <button class="view-stats-btn" @click="router.push('/charts')">View stats</button>
       </div>
     </div>
 
+    <!-- Modālais logs maiņu pieprasījuma apskatei -->
     <ShiftRequestRemModal
       v-if="selectedShiftRequest"
       :request="selectedShiftRequest"
@@ -130,6 +147,7 @@
       @updated="refreshAllData"
     />
 
+    <!-- Modālais logs nokavēta punch ieraksta labošanai -->
     <MissedPunchModal
       :isOpen="modalOpen"
       :punchData="selectedPunch"
@@ -140,34 +158,53 @@
 </template>
 
 <script setup>
+// Importēt Vue funkcijas reaktivitātei 
 import { ref, onMounted, computed } from 'vue'
+
+// Importēt Vue Router navigācijai
 import { useRouter } from 'vue-router'
+
+// Importēt FontAwesome ikonu komponenti
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+
+// Importē kalendāra komponenti
 import Calendar from '@/components/calendar.vue'
+
+// Importēt modālos logus
 import MissedPunchModal from '@/components/MissedPunchModal.vue'
 import ShiftRequestRemModal from '@/components/ShiftRequestRemModal.vue'
+
+// Importēt izrakstīšanās funkciju un administratoru piekļūves līmeni
 import { logout } from '@/services/auth.js'
 import { getAdminRoleLevel, getAdmin } from '@/services/auth.js'
 
+// Noteikt lietotāja lomas līmeni un administratoru
 const roleLevel = Number(getAdminRoleLevel())
 const currentAdmin = getAdmin()
 
+// Inicializēt routeri
 const router = useRouter()
+
+// API bāzes adreses
 const API_BASE_REM = 'http://localhost:5001/api'
 const API_BASE_ADMIN = 'http://localhost:5001/api'
 
+// Reaktīvie dati paziņojumiem, maiņām un uzņēmumiem
 const reminders = ref([])
 const shifts = ref([])
 const companies = ref([])
 const modalOpen = ref(false)
 const selectedPunch = ref({})
 
+// Reaktīvie dati darba iemesliem un pieprasījumiem
 const allReasons = ref([])
 const allCompanyReasons = ref([])
 const allShiftRequests = ref([])
 
+// Izvēlētais maiņas pieprasījums
 const selectedShiftRequest = ref(null)
 
+// Iegūst lietotāja remId no auth vai localStorage
 function getMyRemId() {
   if (currentAdmin && currentAdmin.remId) {
     return Number(currentAdmin.remId)
@@ -177,8 +214,10 @@ function getMyRemId() {
   return storedId ? Number(storedId) : 1
 }
 
+// Lietotāja remId vērtība
 const myRemId = getMyRemId()
 
+// Maiņu pieprasījumu statusu inicializācija
 const shiftRequestStatusMap = {
   1: 'Sent',
   2: 'Approved',
@@ -186,6 +225,7 @@ const shiftRequestStatusMap = {
   4: 'Done'
 }
 
+// Atjaunot maiņu pieprasījumu datus
 const refreshShiftRequests = async () => {
   await fetchShiftRequestData()
 
@@ -200,6 +240,7 @@ const refreshShiftRequests = async () => {
   }
 }
 
+// Atjaunot visus sākuma lapas datus
 const refreshAllData = async () => {
   const myCompanyNames = companies.value.map(c => c.companyName)
 
@@ -220,12 +261,14 @@ const refreshAllData = async () => {
   }
 }
 
+// Ielādēt uzņēmumus no API
 const fetchCompanies = async () => {
   const res = await fetch(`${API_BASE_ADMIN}/companies`)
   if (!res.ok) return []
 
   let data = await res.json()
 
+  // Ja lietotājam ir 1. līmeņa piekļuve, rādīt tikai viņa uzņēmumus
   if (roleLevel === 1) {
     const myRemIdLocal = getMyRemId()
     data = data.filter(c => c.remID === myRemIdLocal)
@@ -240,11 +283,13 @@ const fetchCompanies = async () => {
   return companies.value.map(c => c.companyName)
 }
 
+// Ielādēt maiņu datus
 const fetchShifts = async (myCompanyNames = []) => {
   const res = await fetch(`${API_BASE_REM}/shifts`)
   if (res.ok) {
     let data = await res.json()
 
+    // Filtrēt maiņas tikai lietotāja uzņēmumiem
     if (roleLevel === 1 && myCompanyNames.length > 0) {
       data = data.filter(shift => myCompanyNames.includes(shift.companyName))
     }
@@ -257,11 +302,13 @@ const fetchShifts = async (myCompanyNames = []) => {
   }
 }
 
+// Ielādēt atgādinājumus no API
 const fetchReminders = async (myCompanyNames = []) => {
   const res = await fetch(`${API_BASE_REM}/shifts/reminders`)
   if (res.ok) {
     let data = await res.json()
 
+    // Filtrēt atgādinājumus tikai lietotāja uzņēmumiem
     if (roleLevel === 1 && myCompanyNames.length > 0) {
       data = data.filter(r => myCompanyNames.includes(r.companyName))
     }
@@ -270,6 +317,7 @@ const fetchReminders = async (myCompanyNames = []) => {
   }
 }
 
+// Ielādēt maiņu pieprasījumus, iemeslus un uzņēmumu iemeslus
 const fetchShiftRequestData = async () => {
   const [requestsRes, reasonsRes, companyReasonsRes] = await Promise.all([
     fetch(`${API_BASE_REM}/shiftrequests`),
@@ -282,8 +330,10 @@ const fetchShiftRequestData = async () => {
   if (companyReasonsRes.ok) allCompanyReasons.value = await companyReasonsRes.json()
 }
 
+// Lietotāja uzņēmumu ID saraksts
 const myCompanyIds = computed(() => companies.value.map(c => c.id))
 
+// Lietotāja uzņēmumiem piesaistīto iemeslu ID saraksts
 const myReasonIds = computed(() => {
   const ids = allCompanyReasons.value
     .filter(cr => myCompanyIds.value.includes(cr.companiesCompanyID))
@@ -292,6 +342,7 @@ const myReasonIds = computed(() => {
   return [...new Set(ids)]
 })
 
+// Lietotājam redzamie maiņu pieprasījumi
 const relevantShiftRequests = computed(() => {
   return allShiftRequests.value.filter(req => {
     const reasonMatches = myReasonIds.value.includes(req.reasonID)
@@ -302,10 +353,12 @@ const relevantShiftRequests = computed(() => {
   })
 })
 
+// Pārbaudīt, vai pieprasījums pieder lietotāja uzņēmumam
 const isMyCompanyRequest = (req) => {
   return req.companyId != null && myCompanyIds.value.includes(req.companyId)
 }
 
+// Parādīt sākotnējos datus, kad komponents tiek ielādēts
 onMounted(async () => {
   const myCompanyNames = await fetchCompanies()
 
@@ -316,22 +369,27 @@ onMounted(async () => {
   ])
 })
 
+// Izrakstīt lietotāju no sistēmas
 const handleLogout = () => {
   logout()
   router.push('/roleselect')
 }
 
+// Atvert kalendāru ar konkrētu datumu
 const goToCalendar = (r) => {
   router.push({ path: '/calendar', query: { date: r.startDate || r.endDate } })
 }
 
+// Atvert modālo logu izvēlētajam  ierakstam
 const handlePunchClick = (punchData) => {
   selectedPunch.value = punchData
   modalOpen.value = true
 }
 
+// Pārveidot laiku uz HH:MM:SS formātu
 const toHHMMSS = (hhmm) => (hhmm && hhmm.length === 5 ? `${hhmm}:00` : hhmm)
 
+// Saglabāt izlaboto maiņu ierakstu
 const handleSave = async (updatedShift) => {
   const id = updatedShift.ShiftID || updatedShift.shiftID
   const patch = []
@@ -357,6 +415,7 @@ const handleSave = async (updatedShift) => {
   }
 }
 
+// Formatēt datumu attēlošanai
 const formatDate = (dateLike) => {
   if (!dateLike) return ''
   const d = new Date(String(dateLike).trim().replaceAll('/home', '-'))
@@ -370,6 +429,7 @@ const formatDate = (dateLike) => {
 </script>
 
 <style scoped>
+/* Galvenais lapas satura konteiners */
 .page-content {
   padding: 32px 32px;
   min-height: 100vh;
@@ -381,6 +441,7 @@ const formatDate = (dateLike) => {
   align-items: flex-start;
 }
 
+/* Augšējā daļa ar virsrakstu */
 .home-header {
   position: relative;
   z-index: 1;
@@ -390,6 +451,7 @@ const formatDate = (dateLike) => {
   margin-bottom: 28px;
 }
 
+/* Bloks ap virsraksta tekstu */
 .welcome-wrapper {
   background: rgba(255, 255, 255, 0.5);
   backdrop-filter: blur(24px);
@@ -399,6 +461,7 @@ const formatDate = (dateLike) => {
   padding: 12px 24px;
 }
 
+/* Virsraksta stils */
 .welcome-title {
   font-family: 'Inter', sans-serif;
   font-size: 40px;
@@ -411,6 +474,7 @@ const formatDate = (dateLike) => {
   text-align: left;
 }
 
+/* Galvenais logrīku režģis */
 .home-grid {
   position: relative;
   z-index: 1;
@@ -421,26 +485,31 @@ const formatDate = (dateLike) => {
   align-items: start;
 }
 
+/* Paziņojumu logrīka pozīcija */
 .widget-notifications {
   grid-column: 1;
   grid-row: 1;
 }
 
+/* Maiņu pieprasījumu logrīka pozīcija */
 .widget-shiftrequests {
   grid-column: 1;
   grid-row: 2;
 }
 
+/* Kalendāra logrīka pozīcija */
 .widget-calendar {
   grid-column: 2;
   grid-row: 1;
 }
 
+/* Uzņēmumu logrīka pozīcija */
 .widget-companies {
   grid-column: 2;
   grid-row: 2;
 }
 
+/* Logrīku stils */
 .widget {
   background: rgba(255, 255, 255, 0.5);
   backdrop-filter: blur(24px);
@@ -454,11 +523,13 @@ const formatDate = (dateLike) => {
   gap: 12px;
 }
 
+/* Klikšķināms logrīka virsraksts */
 .widget-title-link {
   cursor: pointer;
   width: fit-content;
 }
 
+/* Virsraksta teksta stils */
 .title-text {
   display: inline-block;
   position: relative;
@@ -469,6 +540,7 @@ const formatDate = (dateLike) => {
   background-clip: text;
 }
 
+/* Bultiņas stils pie virsraksta */
 .title-arrow {
   position: absolute;
   right: -22px;
@@ -481,6 +553,7 @@ const formatDate = (dateLike) => {
   background-clip: text;
 }
 
+/* Virsraksta animācija un bultiņas */
 .widget-title-link:hover .title-text {
   padding-right: 28px;
 }
@@ -490,6 +563,7 @@ const formatDate = (dateLike) => {
   right: 0;
 }
 
+/* Logrīku virsrakstu stils */
 .widget-title {
   font-size: 28px;
   font-weight: 700;
@@ -500,6 +574,7 @@ const formatDate = (dateLike) => {
   color: var(--brand-berry);
 }
 
+/* Ikonas aplis virsrakstos */
 .title-icon {
   width: 36px;
   height: 36px;
@@ -513,6 +588,7 @@ const formatDate = (dateLike) => {
   font-size: 16px;
 }
 
+/* Sarakstu stils */
 .notifications-list,
 .shiftrequests-list {
   display: flex;
@@ -523,16 +599,19 @@ const formatDate = (dateLike) => {
   padding-right: 4px;
 }
 
+/* Scrollbar platums */
 .notifications-list::-webkit-scrollbar,
 .shiftrequests-list::-webkit-scrollbar {
   width: 6px;
 }
 
+/* Scrollbar fons */
 .notifications-list::-webkit-scrollbar-track,
 .shiftrequests-list::-webkit-scrollbar-track {
   background: transparent;
 }
 
+/* Scrollbar stils */
 .notifications-list::-webkit-scrollbar-thumb,
 .shiftrequests-list::-webkit-scrollbar-thumb {
   background: var(--brand-berry);
@@ -540,7 +619,21 @@ const formatDate = (dateLike) => {
   opacity: 0.5;
 }
 
-.reminder-card,
+/* Atgādinājuma kartītes stils */
+.reminder-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1.5px solid rgba(255, 255, 255, 0.85);
+  border-radius: 12px;
+  padding: 14px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+
+/* Maiņu pieprasījuma rindas stils */
 .shiftrequest-row {
   display: flex;
   align-items: flex-start;
@@ -555,6 +648,7 @@ const formatDate = (dateLike) => {
   box-shadow: 0 2px 8px rgba(0,0,0,0.04);
 }
 
+/* Atgādinājuma ikonas stils */
 .reminder-icon {
   color: var(--reminder-header, #e53e3e);
   font-size: 18px;
@@ -562,6 +656,7 @@ const formatDate = (dateLike) => {
   margin-top: 2px;
 }
 
+/* Atgādinājumu un pieprasījumu tekstu stili */
 .reminder-content,
 .shiftrequest-main {
   display: flex;
@@ -585,6 +680,7 @@ const formatDate = (dateLike) => {
   margin: 0;
 }
 
+/* Saite uz kalendāru (atgādinājuma kartīte) */
 .reminder-nav {
   font-size: 13px;
   color: var(--brand-berry);
@@ -597,6 +693,7 @@ const formatDate = (dateLike) => {
   color: #841c40;
 }
 
+/* Maiņu pieprasījuma bloka iekšējais izkārtojums */
 .shiftrequest-top {
   display: flex;
   align-items: center;
@@ -616,6 +713,7 @@ const formatDate = (dateLike) => {
   white-space: nowrap;
 }
 
+/* Pogas pieprasījuma apskatei */
 .view-btn {
   align-self: center;
   padding: 8px 16px;
@@ -636,6 +734,7 @@ const formatDate = (dateLike) => {
   color: white;
 }
 
+/* Tukšs saraksts – teksts, ja nav datu */
 .no-more {
   text-align: center;
   justify-content: center;
@@ -654,6 +753,7 @@ const formatDate = (dateLike) => {
   border-radius: 0;
 }
 
+/* Uzņēmumu saraksta bloki */
 .companies-list {
   display: flex;
   flex-direction: column;
@@ -683,6 +783,7 @@ const formatDate = (dateLike) => {
   margin: 0;
 }
 
+/* Poga statistikas atvēršanai */
 .view-stats-btn {
   align-self: flex-end;
   padding: 10px 20px;
@@ -703,6 +804,7 @@ const formatDate = (dateLike) => {
   box-shadow: 0 6px 16px rgba(161, 41, 113, 0.4);
 }
 
+/* Responsivitāte: planšetdatori */
 @media (max-width: 1024px) {
   .page-content {
     padding: 24px;
@@ -722,6 +824,7 @@ const formatDate = (dateLike) => {
   }
 }
 
+/* Responsivitāte: mobilas ierīces */
 @media (max-width: 600px) {
   .page-content {
     padding: 16px 12px;

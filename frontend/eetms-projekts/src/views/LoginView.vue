@@ -1,9 +1,11 @@
 <template>
   <div class="login-wrapper">
+    <!-- Dekoratīvais fons un login kartīte -->
     <div class="blob blob-teal"></div>
     <div class="blob blob-pink"></div>
 
     <div class="login-card">
+      <!-- Poga atgriešanai uz sākuma lapu -->
       <button class="back-btn" @click="router.push('/')">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
           stroke="currentColor" stroke-width="2.5" width="15" height="15">
@@ -12,9 +14,11 @@
         Back
       </button>
 
+      <!-- Virsraksts un īss apraksts -->
       <h2 class="login-title">Welcome back</h2>
       <p class="login-sub">Sign in to your EETMS account</p>
 
+      <!-- Login forma ar e-pastu, paroli un submit pogu -->
       <form @submit.prevent="handleLogin">
         <div class="input-group">
           <label>Email</label>
@@ -58,10 +62,12 @@
 </template>
 
 <script setup>
+// Importi reaktivitātei, navigācijai un autentifikācijai
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { login, getAdminRoleLevel } from '@/services/auth.js'
 
+// Formas dati
 const email = ref('')
 const password = ref('')
 const error = ref('')
@@ -69,6 +75,8 @@ const loading = ref(false)
 const showPassword = ref(false)
 const router = useRouter()
 
+// Login loģika: lietotāja autentifikācija, 
+// lomas saglabāšana un norvirzīšana uz atbilstošo lapu
 const handleLogin = async () => {
   error.value = ''
   loading.value = true
@@ -95,6 +103,7 @@ const handleLogin = async () => {
 </script>
 
 <style scoped>
+/* Lapas fons un dekoratīvie elementi */
 .login-wrapper {
   min-height: 100vh;
   display: flex;
@@ -130,6 +139,7 @@ const handleLogin = async () => {
   right: -320px;
 }
 
+/* Login kartīte, pogas un virsraksti */
 .login-card {
   position: relative;
   z-index: 1;
@@ -188,6 +198,7 @@ const handleLogin = async () => {
   text-align: center;
 }
 
+/* Formas lauki un paroles redzamības poga */
 form {
   width: 100%;
 }
@@ -259,6 +270,7 @@ form {
   color: var(--brand-teal);
 }
 
+/* Kļūdu paziņojums un login poga */
 .error {
   font-family: 'Inter', sans-serif;
   font-size: 13px;
@@ -316,6 +328,7 @@ form {
   display: inline-block;
 }
 
+/* Paslēpj pārlūka noklusēto paroles redzamības ikonu */
 input[type="password"]::-ms-reveal,
 input[type="password"]::-ms-clear,
 input::-webkit-credentials-auto-fill-button {
@@ -326,6 +339,7 @@ input::-webkit-credentials-auto-fill-button {
   to { transform: rotate(360deg); }
 }
 
+/* Responsivitāte mazākiem ekrāniem */
 @media (max-width: 480px) {
   .login-card {
     margin: 20px;

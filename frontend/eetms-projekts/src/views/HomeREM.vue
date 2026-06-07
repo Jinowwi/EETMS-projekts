@@ -191,12 +191,7 @@ import Calendar from '@/components/calendar.vue'
 // Importēt modālos logus
 import MissedPunchModal from '@/components/MissedPunchModal.vue'
 import ShiftRequestRemModal from '@/components/ShiftRequestRemModal.vue'
-<<<<<<< HEAD
-
-// Importēt izrakstīšanās funkciju un administratoru piekļūves līmeni
-=======
 import CompanyDetailsModal from '@/components/CompanyDetailsModal.vue'
->>>>>>> d4ba59517d570442cfba15254d822e5fd1001658
 import { logout } from '@/services/auth.js'
 import { getAdminRoleLevel, getAdmin } from '@/services/auth.js'
 
@@ -284,9 +279,6 @@ const refreshAllData = async () => {
   }
 }
 
-<<<<<<< HEAD
-// Ielādēt uzņēmumus no API
-=======
 const companyRatingsForModal = computed(() => {
   if (!selectedCompany.value) return []
 
@@ -300,7 +292,6 @@ const companyRatingsForModal = computed(() => {
   })
 })
 
->>>>>>> d4ba59517d570442cfba15254d822e5fd1001658
 const fetchCompanies = async () => {
   const res = await fetch(`${API_BASE_ADMIN}/companies`)
   if (!res.ok) return []

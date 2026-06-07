@@ -3,6 +3,7 @@ using BC = BCrypt.Net.BCrypt;
 
 namespace MyApi.Models
 {
+    // veikalu tipu enum
     public enum ShopType
     {
         Hyper = 1, 

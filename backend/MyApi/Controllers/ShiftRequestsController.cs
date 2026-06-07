@@ -16,6 +16,7 @@ namespace MyApi.Controllers
             _context = context;
         }
         
+        // pieprasījumu saraksta iegūšana kopā ar piesaistītu iemeslu, uzņēmumu, veikalu, adminu, plānoto maiņu un vērtējumu datiem
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
@@ -31,6 +32,7 @@ namespace MyApi.Controllers
             return Ok(requests);
         }
 
+        // pieprasījuma apstiprināšana un admina (REM) piesaistīšana
         [HttpPatch("{id}/accept")]
         public async Task<IActionResult> AcceptShiftRequest(int id, [FromBody] AcceptShiftRequestDto dto)
         {
@@ -46,7 +48,7 @@ namespace MyApi.Controllers
             return Ok(request);
         }
 
-        // GET: api/shiftrequests/byshop/{shopId}
+        // pieprasījumu iegūšana pēc veikalu ID
         [HttpGet("byshop/{shopId}")]
         public async Task<IActionResult> GetByShop(int shopId)
         {
@@ -63,7 +65,7 @@ namespace MyApi.Controllers
             return Ok(requests);
         }
 
-        // POST: api/shiftrequests
+        // jaunā pieprasījuma izveidošana
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] ShiftRequestDto dto)
         {
@@ -83,6 +85,7 @@ namespace MyApi.Controllers
                 new { shopId = request.ShopId }, request);
         }
 
+        // pieprasījumu dzēšana
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteShiftRequest(int id)
         {
@@ -96,6 +99,7 @@ namespace MyApi.Controllers
             return NoContent();
         }
 
+        // pieprasījuma statusa un uzņēmuma rediģēšana pēc ID
         [HttpPatch("{id}")]
         public async Task<IActionResult> UpdateShiftRequest(int id, [FromBody] UpdateShiftRequestDto dto)
         {
@@ -111,6 +115,7 @@ namespace MyApi.Controllers
             return Ok(request);
         }
 
+        // ieplānotās maiņas pievienošana pieprasījumam
         [HttpPatch("{id}/planned-shift")]
         public async Task<IActionResult> SavePlannedShift(int id, [FromBody] PlannedShiftDto dto)
         {
@@ -118,9 +123,11 @@ namespace MyApi.Controllers
                 .Include(r => r.PlannedShift)
                 .FirstOrDefaultAsync(r => r.ShiftRequestID == id);
 
+            // pārbaude, vai pieprasījums eksistē
             if (request == null)
                 return NotFound();
 
+            // pārbaude vai pieprasījumām eksistē plānotā maiņa
             if (request.PlannedShift == null)
             {
                 request.PlannedShift = new PlannedShifts

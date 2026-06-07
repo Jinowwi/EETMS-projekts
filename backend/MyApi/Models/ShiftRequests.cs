@@ -1,5 +1,6 @@
 namespace MyApi.Models
 {
+    // pieprasījuma statusa enum
     public enum ShiftRequestStatus
     {
         Sent = 1,

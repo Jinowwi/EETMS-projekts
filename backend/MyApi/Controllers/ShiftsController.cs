@@ -18,6 +18,7 @@ namespace MyApi.Controllers
             _context = context; 
         }
 
+        // visu maiņu iegūšana kopā ar saistītu uzņēmumu, iemeslu un veikalu datiem
         [HttpGet] 
         public async Task<ActionResult<IEnumerable<ShiftsDto>>> GetShifts()
         {
@@ -45,6 +46,7 @@ namespace MyApi.Controllers
                 .ToListAsync(); 
         }
 
+        // maiņas iegūšana pēc ID
         [HttpGet("{id}")]
         public async Task<ActionResult<ShiftsDto>> GetShift(int id)
         {
@@ -76,6 +78,7 @@ namespace MyApi.Controllers
             };
         }
 
+        // maiņu iegūšana pēc iemesla ID (filtrēšana)
         [HttpGet("byreason/{reasonId}")]
         public async Task<ActionResult<IEnumerable<ShiftsDto>>> GetShiftsByReason(int reasonId)
         {
@@ -101,6 +104,7 @@ namespace MyApi.Controllers
                 .ToListAsync();
         }
 
+        // maiņu iegūšana pēc uzņēmuma ID
         [HttpGet("bycompany/{companyId}")]
         public async Task<ActionResult<IEnumerable<ShiftsDto>>> GetShiftsByCompany(int companyId)
         {
@@ -129,6 +133,7 @@ namespace MyApi.Controllers
                 .ToListAsync();
         }
         
+        // maiņu iegūšana pēc veikala ID
         [HttpGet("byshop/{shopId}")]
         public async Task<ActionResult<IEnumerable<ShiftsDto>>> GetShiftsByShop(int shopId)
         {
@@ -155,6 +160,7 @@ namespace MyApi.Controllers
                 .ToListAsync();
         }
 
+        // maiņu iegūšana pēc veikala tipa
         [HttpGet("byshoptype/{shopTypeId}")]
         public async Task<ActionResult<IEnumerable<ShiftsDto>>> GetShiftsByShopType(int shopTypeId)
         {
@@ -181,11 +187,13 @@ namespace MyApi.Controllers
                 .ToListAsync();
         }
 
+        // maiņu iegūšana pēc datuma
         [HttpGet("bydate/{date}")]
         public async Task<ActionResult<IEnumerable<ShiftsDto>>> GetShiftsByDate(DateTime date)
         {
             var dateOnly = DateOnly.FromDateTime(date);
 
+            // atkļūdošana
             Console.WriteLine($"Looking for shifts on date: {dateOnly}");
 
             var shifts = await _context.Shifts
@@ -216,6 +224,7 @@ namespace MyApi.Controllers
             }).ToList();
         }
 
+        // nepabeigto maiņu iegūšana (paziņojumiem)
         [HttpGet("reminders")]
         public async Task<ActionResult<IEnumerable<ShiftsDto>>> GetShiftReminders()
         {
@@ -251,6 +260,7 @@ namespace MyApi.Controllers
                 .ToListAsync(); 
         }
 
+        // maiņas pievienošana
         [HttpPost]
         public async Task<ActionResult<Shift>> CreateShift(ShiftsDto dto)
         {
@@ -263,6 +273,7 @@ namespace MyApi.Controllers
             var phone = dto.employee_phone_number;
             var shopId = dto.ShopID == 0 ? 1 : dto.ShopID;
 
+            // pārbaude, vai darbiniekam ir nepabeigtā maiņa veikalā
             var hasOpenShift = await _context.Shifts
                 .AsNoTracking()
                 .AnyAsync(s =>
@@ -293,7 +304,7 @@ namespace MyApi.Controllers
             return CreatedAtAction(nameof(GetShift), new { id = shift.ShiftID }, shift);
         }
 
-
+        // maiņas rediģēšana pēc ID
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateShift(int id, ShiftsDto dto)
         {
@@ -311,6 +322,7 @@ namespace MyApi.Controllers
             if (dto.EndDate != null) 
                 shift.end_date = dto.EndDate;
 
+            // datumu sakārtošana
             if (dto.endTime != null && shift.end_date == null)
                 shift.end_date = shift.start_date; 
             if (dto.startTime != null && shift.start_date == null)
@@ -363,6 +375,7 @@ namespace MyApi.Controllers
             return NoContent();
         }
 
+        // maiņas dzēšana pēc ID
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteShift(int id)
         {
@@ -376,6 +389,7 @@ namespace MyApi.Controllers
             return NoContent();
         }
 
+        // CompanyReasonID iegūšana no starptaulas
         [HttpGet("companyreason")]
         public async Task<ActionResult> GetCompanyReasonId([FromQuery] int companyId, [FromQuery] int reasonId)
         {
@@ -388,6 +402,7 @@ namespace MyApi.Controllers
             return Ok(new { companyReasonID = companyReason.CompanyReasonID });
         }
 
+        // aktīvas maiņas atrašana pēc tālruņa numura un veikala
         [HttpPost("find-ongoing")]
         public async Task<ActionResult<ShiftsDto>> GetOngoingShift([FromBody] OngoingShiftRequest request)
         {
@@ -432,12 +447,14 @@ namespace MyApi.Controllers
             };
         }
 
+        // pieprasījuma modelis aktīvas maiņas meklēšanai
         public class OngoingShiftRequest
         {
             public string PhoneNumber { get; set; }
             public int ShopId { get; set; }
         }
 
+        //  maiņas noslēgšana ar pašreizējo datumu un laiku
         [HttpPatch("{id}/end")]
         public async Task<IActionResult> EndShift(int id)
         {
@@ -452,6 +469,7 @@ namespace MyApi.Controllers
             return NoContent();
         }
 
+        // pārbaude, vai maiņa eksistē pēc ID
         private bool ShiftExists(int id)
         {
             return _context.Shifts.Any(r => r.ShiftID == id); 

@@ -2,6 +2,7 @@ using BC = BCrypt.Net.BCrypt;
 
 namespace MyApi.Models
 {
+    // valstu enum (priekš veikaliem arī)
     public enum Country
     {
         Lithuania = 1,
@@ -23,11 +24,13 @@ namespace MyApi.Models
         public int? RemID { get; set; }
         public ICollection<CompanyReason> CompanyReasons { get; set; }
 
+        // paroles šifrēšana
         public void SetPassword(string plainTextPassword)
         {
             PasswordHash = BC.HashPassword(plainTextPassword, workFactor: 12);
         }
 
+        // ievadītās paroles pārbaude pret saglabāto hash
         public bool VerifyPassword(string plainTextPassword)
         {
             return BC.Verify(plainTextPassword, PasswordHash);

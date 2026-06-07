@@ -16,6 +16,7 @@ namespace MyApi.Controllers
             _context = context;
         }
 
+        // visu uzņēmumu un iemeslu saišu iegūšana
         [HttpGet]
         public async Task<IActionResult> GetAllCompanyReasons()
         {
@@ -23,12 +24,14 @@ namespace MyApi.Controllers
             return Ok(data);
         }
 
+        // jaunu ierakstu veidošana (iemeslu piešķiršana uzņēmumam)
         [HttpPost]
         public async Task<IActionResult> AddCompanyReason([FromBody] CompanyReason newConnection)
         {
             if (newConnection == null) 
                 return BadRequest();
 
+            // pārbaude, vai šāda sasaite jau eksistē
             var exists = await _context.CompanyReasons.AnyAsync(cr => 
                 cr.CompaniesCompanyID == newConnection.CompaniesCompanyID && 
                 cr.ReasonsReasonID == newConnection.ReasonsReasonID);
@@ -42,6 +45,7 @@ namespace MyApi.Controllers
             return Ok(newConnection);
         }
 
+        // ierakstu dzēšana
         [HttpDelete("{companyId}/{reasonId}")]
         public async Task<IActionResult> DeleteCompanyReason(int companyId, int reasonId)
         {
@@ -51,6 +55,7 @@ namespace MyApi.Controllers
             if (connection == null) 
                 return NotFound();
 
+            // ja sasaistei ir maiņas, tad tās arī tiks dzēstas
             var attachedShifts = _context.Shifts.Where(s => s.CompanyReasonID == connection.CompanyReasonID);
             
             if (attachedShifts.Any()) 

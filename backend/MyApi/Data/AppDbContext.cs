@@ -3,6 +3,7 @@ using MyApi.Models;
 
 namespace MyApi.Data
 {
+    // datu bāzes konteksts visām sistēmas tabulām
     public class AppDbContext : DbContext
     {
         public AppDbContext(DbContextOptions<AppDbContext> options) 
@@ -10,6 +11,7 @@ namespace MyApi.Data
         {
         }
 
+        // datu bāzes tabulu definēšana
         public DbSet<Company> Companies { get; set; }
         public DbSet<Shift> Shifts { get; set; }
         public DbSet<Reason> Reasons { get; set; }
@@ -20,16 +22,20 @@ namespace MyApi.Data
         public DbSet<Ratings> Ratings { get; set; }
         public DbSet<PlannedShifts> PlannedShifts { get; set; }
 
+        // entītiju atslēgu un saistību konfigurēšana
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
+            // primārās atslēgas iestatīšana administratoram
             modelBuilder.Entity<Administration>()
                 .HasKey(a => a.RemID); 
 
+            // primārās atslēgas iestatīšana starptabulai CompanyReason
             modelBuilder.Entity<CompanyReason>()
                 .HasKey(cr => cr.CompanyReasonID);
     
+            // sasaite starp uzņēmumu un iemeslu
             modelBuilder.Entity<CompanyReason>()
                 .HasOne(cr => cr.Company)
                 .WithMany(c => c.CompanyReasons)
@@ -40,22 +46,26 @@ namespace MyApi.Data
                 .WithMany(r => r.CompanyReasons)
                 .HasForeignKey(cr => cr.ReasonsReasonID);
             
+            // sasaite starp maiņu un uzņēmuma iemeslu
             modelBuilder.Entity<Shift>()
                 .HasOne(s => s.CompanyReason)
                 .WithMany()
                 .HasForeignKey(s => s.CompanyReasonID)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            // sasaite starp maiņu un veikalu
             modelBuilder.Entity<Shift>()
                 .HasOne(s => s.Shop)
                 .WithMany(sh => sh.Shifts)
                 .HasForeignKey(s => s.ShopID)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            // ShiftRequest konfigurēšana un saistību noteikšana
             modelBuilder.Entity<ShiftRequest>(entity =>
             {
                 entity.HasKey(e => e.ShiftRequestID);
 
+                // statusa saglabāšana kā teksts
                 entity.Property(e => e.Status)
                     .HasConversion<string>()
                     .IsRequired();
@@ -84,6 +94,7 @@ namespace MyApi.Data
                     .OnDelete(DeleteBehavior.Restrict);
             });
 
+            // Ratings konfigurēšana un piesaiste maiņas pieprasījumam
             modelBuilder.Entity<Ratings>(entity =>
             {
                 entity.HasKey(e => e.RatingID);
@@ -99,10 +110,12 @@ namespace MyApi.Data
                     .HasForeignKey<Ratings>(e => e.ShiftRequestID)
                     .OnDelete(DeleteBehavior.Cascade);
 
+                // nodrošināt, ka vienam pieprasījumam ir tikai viens vērtējums
                 entity.HasIndex(e => e.ShiftRequestID)
                     .IsUnique();
             });
 
+            // PlannedShifts konfigurēšana un piesaiste maiņas pieprasījumam
             modelBuilder.Entity<PlannedShifts>(entity =>
             {
                 entity.HasKey(e => e.PlannedShiftsID);

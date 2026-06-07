@@ -9,6 +9,8 @@ namespace MyApi.Models
         public string? FirstName { get; set; }
         public string? LastName { get; set; }
         public string? PhoneNumber { get; set; }
+        
+        // adminu tipa enum
         public enum Type
         {
             RealEstate = 1,

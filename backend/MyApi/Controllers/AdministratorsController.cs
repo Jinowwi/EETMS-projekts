@@ -9,11 +9,14 @@ using MyApi.Dto;
 public class AdministratorsController : ControllerBase
 {
     private readonly AppDbContext _context; 
+
+    // kontroliera inicializācija ar datu bāzes kontekstu
     public AdministratorsController(AppDbContext context)
     {
         _context = context; 
     }
     
+    // administratoru saraksta iegūšana
     [HttpGet]
     public async Task<ActionResult<IEnumerable<Administration>>> GetAdministrators()
     {

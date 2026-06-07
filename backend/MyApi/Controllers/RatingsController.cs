@@ -16,6 +16,7 @@ namespace MyApi.Controllers
             _context = context;
         }
 
+        // visu vērtējumu iegūšana kopā ar saistīto maiņas pieprasījumu
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
@@ -26,6 +27,7 @@ namespace MyApi.Controllers
             return Ok(ratings);
         }
 
+        // vērtējumu iegūšana pēc ID kopā ar saistīto maiņas pieprasījumu
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
         {
@@ -39,6 +41,7 @@ namespace MyApi.Controllers
             return Ok(rating);
         }
 
+        // vērtējumu iegūšana pēc maiņas pieprasījuma ID
         [HttpGet("byshiftrequest/{shiftRequestId}")]
         public async Task<IActionResult> GetByShiftRequest(int shiftRequestId)
         {
@@ -52,9 +55,11 @@ namespace MyApi.Controllers
             return Ok(rating);
         }
 
+        // vērtējumu veidošana
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] RatingDto dto)
         {
+            // pārbaude, vai maiņas pieprasījums eksistē
             if (dto.ShiftRequestID == null)
                 return BadRequest("ShiftRequestID is required.");
 
@@ -65,9 +70,11 @@ namespace MyApi.Controllers
             if (shiftRequest == null)
                 return NotFound("Shift request not found.");
 
+            // statusa pārbaude (vai maiņas pieprasījums ir pabeigts)
             if (shiftRequest.Status != ShiftRequestStatus.Done)
                 return BadRequest("Only done shift requests can be rated.");
 
+            // pārbaude, vai vērtējums pie pieprasījuma jau eksistē
             if (shiftRequest.Rating != null)
                 return BadRequest("This shift request already has a rating.");
 
@@ -84,6 +91,7 @@ namespace MyApi.Controllers
             return Ok(rating);
         }
 
+        // vērtējumu rediģēšana
         [HttpPatch("{id}")]
         public async Task<IActionResult> Patch(int id, [FromBody] RatingDto dto)
         {
@@ -116,6 +124,7 @@ namespace MyApi.Controllers
             return Ok(rating);
         }
 
+        // vērtējumu dzēšana
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {

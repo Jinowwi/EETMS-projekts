@@ -1,5 +1,6 @@
 using MyApi.Models;
 
+// starptabula iemeslu piešķiršanai uzņēmumiem
 namespace MyApi.Models
 {
     public class CompanyReason

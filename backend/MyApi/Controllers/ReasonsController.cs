@@ -17,6 +17,7 @@ namespace MyApi.Controllers
             _context = context; 
         }
 
+        // iemeslu iegūšana DTO formātā
         [HttpGet] 
         public async Task<ActionResult<IEnumerable<ReasonsDto>>> GetReason()
         {
@@ -28,10 +29,12 @@ namespace MyApi.Controllers
                 }).ToListAsync(); 
         }
 
+        // iemeslu iegūšana pēc uzņēmuma ID
         [HttpGet("bycompany/{companyId}")]
         public async Task<ActionResult<IEnumerable<ReasonsDto>>> GetReasonsByCompany(int companyId)
         {
             return await (
+                // tabulu apvienošana
                 from cr in _context.CompanyReasons
                 join r in _context.Reasons on cr.ReasonsReasonID equals r.ReasonID
                 where cr.CompaniesCompanyID == companyId
@@ -43,6 +46,7 @@ namespace MyApi.Controllers
             ).ToListAsync();
         }
         
+        // iemeslu iegūšana pēc ID
         [HttpGet("{id}")]
         public async Task<ActionResult<Reason>> GetReason(int id)
         {
@@ -53,6 +57,7 @@ namespace MyApi.Controllers
             return reason; 
         }
 
+        // iemeslu pievienošana
         [HttpPost]
         public async Task<ActionResult<Reason>> CreateReason(Reason reason)
         {
@@ -62,6 +67,7 @@ namespace MyApi.Controllers
             return CreatedAtAction(nameof(GetReason), new { id = reason.ReasonID }, reason); 
         }
 
+        // iemesla rediģēšana pēc ID
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateReason(int id, Reason reason)
         {
@@ -84,6 +90,7 @@ namespace MyApi.Controllers
             return NoContent(); 
         }
 
+        // iemesla dzēšana pēc ID
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteReason(int id)
         {
@@ -104,6 +111,7 @@ namespace MyApi.Controllers
             return NoContent();
         }
 
+        // pārbaude, vai iemesls eksistē pēc ID
         private bool ReasonExists(int id)
         {
             return _context.Reasons.Any(r => r.ReasonID == id); 

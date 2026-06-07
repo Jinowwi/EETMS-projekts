@@ -11,7 +11,6 @@ namespace MyApi.Models
         public CompanyReason CompanyReason { get; set; } = null!;
         public int ShopID { get; set; }
         public Shop? Shop { get; set; }
-        // public Reminder? Reminder { get; set; }
         public string? employee_phone_number { get; set; }
         public string? verification_code { get; set; }
     }

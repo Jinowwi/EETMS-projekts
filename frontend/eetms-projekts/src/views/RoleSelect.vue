@@ -1,10 +1,14 @@
 <template>
   <div class="role-page">
+    <!-- Dekoratīvie fona elementi -->
     <div class="blob blob-teal"></div>
     <div class="blob blob-pink"></div>
 
+    <!-- Konteiners lomas izvēles kartītēm -->
     <div class="role-container">
       <div class="role-cards">
+        
+        <!-- Poga: RIMI administrācija -->
         <button class="role-card" @click="navigateTo('/login')">
           <div class="role-icon teal-icon">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="22" height="22">
@@ -14,6 +18,7 @@
           <span class="role-name">RIMI Administration</span>
         </button>
 
+        <!-- Poga: Ārējā uzņēmuma pārstāvis -->
         <button class="role-card" @click="navigateTo('/login-comp')">
           <div class="role-icon grey-icon">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
@@ -27,6 +32,7 @@
           <span class="role-name">External Company representative</span>
         </button>
 
+        <!-- Poga: Veikala direktors -->
         <button class="role-card" @click="navigateTo('/login-shop')">
           <div class="role-icon grey-icon">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
@@ -45,16 +51,20 @@
 </template>
 
 <script setup>
+// Importēt Router Vue navigācijai 
 import { useRouter } from 'vue-router';
 
+// Inicializēt routeri
 const router = useRouter();
 
+// Funkcija navigācijai uz citu lapu
 const navigateTo = (path) => {
     router.push(path);
 };
 </script>
 
 <style scoped>
+/* Galvenas lapas stils */
 .role-page {
   padding-top: 0;
   min-height: 100vh;
@@ -67,6 +77,7 @@ const navigateTo = (path) => {
   overflow: hidden;
 }
 
+/* Fona elementi */
 .blob {
   position: absolute;
   border-radius: 50%;
@@ -91,6 +102,7 @@ const navigateTo = (path) => {
   right: -320px;
 }
 
+/* Konteinera stils lomu izvēles kartītēm */
 .role-container {
   position: relative;
   z-index: 1;
@@ -130,12 +142,14 @@ const navigateTo = (path) => {
   width: 100%;
 }
 
+/* Hover efekts kartītei */
 .role-card:hover {
   background: rgba(255, 255, 255, 0.82);
   transform: translateY(-1px);
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
 }
 
+/* Lomas ikonas konteineris */
 .role-icon {
   width: 40px;
   height: 40px;
@@ -156,12 +170,14 @@ const navigateTo = (path) => {
   color: var(--brand-teal);
 }
 
+/* Lomas nosaukums */
 .role-name {
   font-size: 20px;
   font-weight: bold;
   color: var(--brand-teal);
 }
 
+/* Responsivitāte: vidējie ekrāni */
 @media (min-width: 1024px) and (max-width: 1280px) {
   .blob-teal {
     width: 850px;

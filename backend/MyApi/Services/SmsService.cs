@@ -3,75 +3,56 @@ using MyApi.Models;
 
 namespace MyApi.Services
 {
-    public class SmsService {
+    public class SmsService
+    {
         private readonly IConfiguration _config;
+        private readonly IHttpClientFactory _httpFactory;
 
-        private static readonly ConcurrentDictionary<string, OtpRecord> _otpStore = new(); 
-        
-        public SmsService(IConfiguration config)
-        {
-            _config = config; 
-        }
+        private static readonly ConcurrentDictionary<string, DateTime> _cooldowns = new();
 
-        private string GenerateOtp()
+        public SmsService(IConfiguration config, IHttpClientFactory httpFactory)
         {
-            return new Random().Next(100000, 999999).ToString(); 
+            _config = config;
+            _httpFactory = httpFactory;
         }
 
         private static readonly HashSet<string> ValidBalticPrefixes = new()
         {
-            // Lithuania +370 - mobile prefixes
-            "6",
-            // Latvia +371 - mobile prefixes
-            "2",
-            // Estonia +372 - mobile prefixes
-            "5", "81", "82", "83", "84", "85", "87", "89"
+            "6", "2", "5", "81", "82", "83", "84", "85", "87", "89"
         };
 
         private void ValidatePhoneNumber(string phoneNumber)
         {
-            // Strip the country code and get the local part
             string local;
             if (phoneNumber.StartsWith("+370"))
             {
                 local = phoneNumber[4..];
-                if (local.Length != 8)
-                    throw new Exception("INVALID_LENGTH");
-                if (!local.StartsWith("6"))
-                    throw new Exception("INVALID_NUMBER"); // LT mobiles start with 6
+                if (local.Length != 8) throw new Exception("INVALID_LENGTH");
+                if (!local.StartsWith("6")) throw new Exception("INVALID_NUMBER");
             }
             else if (phoneNumber.StartsWith("+371"))
             {
                 local = phoneNumber[4..];
-                if (local.Length != 8)
-                    throw new Exception("INVALID_LENGTH");
-                if (!local.StartsWith("2"))
-                    throw new Exception("INVALID_NUMBER"); // LV mobiles start with 2
+                if (local.Length != 8) throw new Exception("INVALID_LENGTH");
+                if (!local.StartsWith("2")) throw new Exception("INVALID_NUMBER");
             }
             else if (phoneNumber.StartsWith("+372"))
             {
                 local = phoneNumber[4..];
-                if (local.Length < 7 || local.Length > 8)
-                    throw new Exception("INVALID_LENGTH");
-                // EE mobiles start with 5, or 8x
+                if (local.Length < 7 || local.Length > 8) throw new Exception("INVALID_LENGTH");
                 bool validPrefix = local.StartsWith("5") ||
-                                (local.Length == 8 && local.StartsWith("8") && 
-                                    new[] {"81","82","83","84","85","87","89"}
-                                    .Any(p => local.StartsWith(p)));
-                if (!validPrefix)
-                    throw new Exception("INVALID_NUMBER");
+                    (local.Length == 8 && local.StartsWith("8") &&
+                        new[] { "81","82","83","84","85","87","89" }
+                        .Any(p => local.StartsWith(p)));
+                if (!validPrefix) throw new Exception("INVALID_NUMBER");
             }
             else
             {
                 throw new Exception("INVALID_NUMBER");
             }
 
-            // Reject all same digits (00000000, 66666666)
-            if (local.Distinct().Count() == 1)
-                throw new Exception("INVALID_NUMBER");
-
-            // Reject sequential (56789012 etc.)
-            var ascending  = "0123456789";
+            if (local.Distinct().Count() == 1) throw new Exception("INVALID_NUMBER");
+            var ascending = "0123456789";
             var descending = "9876543210";
             if (ascending.Contains(local) || descending.Contains(local))
                 throw new Exception("INVALID_NUMBER");
@@ -80,56 +61,72 @@ namespace MyApi.Services
         public async Task<bool> SendOtpAsync(string phoneNumber)
         {
             ValidatePhoneNumber(phoneNumber);
-            
-            if (_otpStore.TryGetValue(phoneNumber, out var existing))
+
+            if (_cooldowns.TryGetValue(phoneNumber, out var lastSent))
+                if (DateTime.UtcNow < lastSent.AddMinutes(1))
+                    throw new Exception("COOLDOWN");
+
+            var accountSid = _config["TWILIO_ACCOUNT_SID"];
+            var authToken  = _config["TWILIO_AUTH_TOKEN"];
+            var serviceSid = _config["TWILIO_VERIFY_SERVICE_SID"];
+
+            var credentials = Convert.ToBase64String(
+                System.Text.Encoding.ASCII.GetBytes($"{accountSid}:{authToken}"));
+
+            var body = new FormUrlEncodedContent(new Dictionary<string, string>
             {
-                if (DateTime.UtcNow < existing.ExpiresAt.AddMinutes(-4))
-                    throw new Exception("COOLDOWN"); 
-            }
+                ["To"]      = phoneNumber,
+                ["Channel"] = "sms"
+            });
 
-            var otp = GenerateOtp(); 
-            var expiresAt = DateTime.UtcNow.AddMinutes(5); 
+            var client = _httpFactory.CreateClient();
+            client.DefaultRequestHeaders.Authorization =
+                new System.Net.Http.Headers.AuthenticationHeaderValue("Basic", credentials);
 
-            var apiKey = _config["SMS_API_KEY"]; 
-            var content = Uri.EscapeDataString($"Rimi EETMS verification code: {otp}");
-            var url = $"https://direct.traffic.sales.lv/API:0.12/?Command=SendOne&APIKey={apiKey}&Number={Uri.EscapeDataString(phoneNumber)}&Content={content}&Sender=RIMI";
-
-            using var client = new HttpClient(); 
-            var response = await client.GetAsync(url); 
+            var url = $"https://verify.twilio.com/v2/Services/{serviceSid}/Verifications";
+            var response = await client.PostAsync(url, body);
 
             if (!response.IsSuccessStatusCode)
             {
-                var err = await response.Content.ReadAsStringAsync(); 
+                var err = await response.Content.ReadAsStringAsync();
                 throw new Exception($"SMS service error: {err}");
             }
 
-            _otpStore[phoneNumber] = new OtpRecord { Otp = otp, ExpiresAt = expiresAt };
-            return true; 
+            _cooldowns[phoneNumber] = DateTime.UtcNow;
+            return true;
         }
 
-        public VerifyResult VerifyOtp(string phoneNumber, string enteredOtp)
+        public async Task<VerifyResult> VerifyOtpAsync(string phoneNumber, string enteredOtp)
         {
-            if (!_otpStore.TryGetValue(phoneNumber, out var record))
-                return new VerifyResult { Valid = false, Reason = "wrong_code" }; 
-            
-            if (DateTime.UtcNow > record.ExpiresAt)
+            var accountSid = _config["TWILIO_ACCOUNT_SID"];
+            var authToken  = _config["TWILIO_AUTH_TOKEN"];
+            var serviceSid = _config["TWILIO_VERIFY_SERVICE_SID"];
+
+            var credentials = Convert.ToBase64String(
+                System.Text.Encoding.ASCII.GetBytes($"{accountSid}:{authToken}"));
+
+            var body = new FormUrlEncodedContent(new Dictionary<string, string>
             {
-                _otpStore.TryRemove(phoneNumber, out _);
-                return new VerifyResult { Valid = false, Reason = "expired" }; 
-            }
+                ["To"]   = phoneNumber,
+                ["Code"] = enteredOtp
+            });
 
-            if (record.Otp != enteredOtp)
-                return new VerifyResult { Valid = false, Reason = "wrong_code" };
+            var client = _httpFactory.CreateClient();
+            client.DefaultRequestHeaders.Authorization =
+                new System.Net.Http.Headers.AuthenticationHeaderValue("Basic", credentials);
 
-            _otpStore.TryRemove(phoneNumber, out _);
-            return new VerifyResult { Valid = true };
+            var url = $"https://verify.twilio.com/v2/Services/{serviceSid}/VerificationCheck";
+            var response = await client.PostAsync(url, body);
+            var json = await response.Content.ReadAsStringAsync();
+
+            if (json.Contains("\"approved\""))
+                return new VerifyResult { Valid = true };
+
+            if (json.Contains("expired"))
+                return new VerifyResult { Valid = false, Reason = "expired" };
+
+            return new VerifyResult { Valid = false, Reason = "wrong_code" };
         }
-    }
-
-    public class OtpRecord
-    {
-        public string Otp { get; set; } = ""; 
-        public DateTime ExpiresAt { get; set; } 
     }
 
     public class VerifyResult

@@ -85,7 +85,7 @@ const handleSubmit = async () => {
   setVerificationCode(code.value);
 
   try {
-    /*
+    // ✅ Verify OTP first
     const verifyRes = await fetch(`${API_BASE}/sms/verify`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -98,15 +98,15 @@ const handleSubmit = async () => {
     if (!verifyRes.ok) {
       const err = await verifyRes.json();
       if (err.error === 'expired') {
-        alert('Code has expired. Request a new one.');
+        alert('Code has expired. Please go back and request a new one.');
       } else {
-        alert('Incorrect code.');
+        alert('Incorrect code. Please try again.');
         code.value = '';
       }
       return;
     }
-    */
 
+    // ✅ OTP verified — now proceed with shift logic
     if (shiftType.value === 'start') {
       const startDateTime = new Date(registrationData.value.startDate);
 
@@ -127,18 +127,17 @@ const handleSubmit = async () => {
 
       if (!response.ok) {
         const err = await response.text();
-        console.error('Backend error:', err);
         alert(err || 'Failed to create shift.');
         return;
       }
 
       const created = await response.json();
       setShiftId(created.shiftID);
-
       router.push('/successful');
       return;
     }
 
+    // End shift
     const response = await fetch(`${API_BASE}/shifts/${shiftId.value}/end`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' }
@@ -146,7 +145,6 @@ const handleSubmit = async () => {
 
     if (!response.ok) {
       const err = await response.text();
-      console.error('Backend error:', err);
       alert(err || 'Failed to end shift.');
       return;
     }

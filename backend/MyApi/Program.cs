@@ -10,7 +10,8 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     )
 );
 
-builder.Services.AddSingleton<SmsService>(); 
+builder.Services.AddHttpClient();
+builder.Services.AddScoped<SmsService>();
 
 builder.Services.Configure<EmailSettings>(
     builder.Configuration.GetSection("EmailSettings"));

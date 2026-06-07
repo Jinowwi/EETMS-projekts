@@ -167,12 +167,14 @@ const handleEndShift = async (fullPhoneNumber) => {
                 shopId: registrationData.value.shopId
             })
         });
+
         if (!response.ok) {
             const errorData = await response.json();
-            console.error('Backend error:', errorData);
-            alert('No ongoing shift found. You either pressed the wrong button or forgot to register the start of the shift.');
+            console.error('find-ongoing error:', errorData); // 👈 check browser console
+            alert(`No ongoing shift found: ${JSON.stringify(errorData)}`); // 👈 show full error
             return;
         }
+
         const ongoingShift = await response.json();
         console.log('Found ongoing shift:', ongoingShift);
         setOngoingShift(ongoingShift);
@@ -182,15 +184,18 @@ const handleEndShift = async (fullPhoneNumber) => {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ phoneNumber: fullPhoneNumber })
         });
+
         if (!smsRes.ok) {
             const err = await smsRes.json();
+            console.error('SMS send error:', err); // 👈 check browser console
             alert(err.error || 'Failed to send verification code.');
             return;
         }
+
         router.push('/code');
     } catch (error) {
-        console.error('Error finding ongoing shift:', error);
-        alert('Failed to find ongoing shift. Please try again.');
+        console.error('Error in handleEndShift:', error);
+        alert(`Error: ${error.message}`);
     }
 };
 

@@ -1,19 +1,25 @@
 <template>
   <div class="page">
     <div class="container">
+      <!-- Dekoratīvie fona elementi -->
       <div class="blob blob-teal"></div>
       <div class="blob blob-pink"></div>
 
+      <!-- Izrakstīšanās poga -->
       <button class="logout-btn" @click="handleLogout">
         <FontAwesomeIcon icon="fa-solid fa-right-from-bracket" />
         Logout
       </button>
 
+      <!-- Lapas virsraksts-->
       <h1>Welcome to EETMS!</h1>
 
+      <!-- Ielādes ziņojums, kamēr tiek saņemti veikala dati -->
       <div v-if="isLoading" class="loading-msg">Loading shop info...</div>
 
+      <!-- Galvenais lapas saturs, ja veikala dati ir veiksmīgi ielādēti -->
       <div v-else-if="shop" class="cards-grid">
+        <!-- Veikala informācijas kartīte -->
         <div class="card shop-info card-tall">
           <h2>{{ shop.code }}</h2>
           <div class="info-row">
@@ -34,16 +40,19 @@
           </div>
         </div>
 
+        <!-- Aktuālo maiņu pieprasījumu kartīte -->
         <div class="card shift-requests card-wide">
           <div class="card-header">
             <h2>Relevant shift requests</h2>
             <span class="card-count">{{ activeShiftRequests.length }}</span>
           </div>
 
+          <!-- Ziņojums, ja nav aktuālu pieprasījumu -->
           <div v-if="activeShiftRequests.length === 0" class="empty-msg">
             No relevant shift requests
           </div>
 
+          <!-- Pieprasījumu saraksts -->
           <div v-else class="request-list">
             <div
               v-for="req in activeShiftRequests"
@@ -56,27 +65,33 @@
                   {{ statusMap[req.status] ?? req.status }}
                 </span>
               </div>
+
+              <!-- Poga pieprasījuma detaļu apskatei -->
               <button class="btn-view" @click="selectedRequest = req">View</button>
             </div>
           </div>
         </div>
 
+        <!-- Kartīte jauna pieprasījuma izveidei -->
         <div class="card make-request card-action">
           <h2>Make request</h2>
           <p class="card-subtext">Create a new external shift request.</p>
           <button class="plus-btn" @click="showModal = true">+</button>
         </div>
 
+        <!-- Kartīte pieprasījumiem, kas gaida novērtējumu -->
         <div class="card rating-card">
           <div class="card-header">
             <h2>Waiting for rating</h2>
             <span class="card-count">{{ waitingForRating.length }}</span>
           </div>
 
+          <!-- Ziņojums, ja nav pieprasījumu novērtēšanai -->
           <div v-if="waitingForRating.length === 0" class="empty-msg">
             No shift requests waiting for rating
           </div>
 
+          <!-- Saraksts ar pieprasījumiem, kas jānovērtē, ja tie ir -->
           <div v-else class="request-list">
             <div
               v-for="req in waitingForRating"
@@ -92,16 +107,19 @@
           </div>
         </div>
 
+        <!-- Kartīte ar jau iesniegtajiem novērtējumiem -->
         <div class="card rating-card">
           <div class="card-header">
             <h2>Your ratings</h2>
             <span class="card-count">{{ ratedRequests.length }}</span>
           </div>
 
+          <!-- Ziņojums, ja vēl nav iesniegtu novērtējumu -->
           <div v-if="ratedRequests.length === 0" class="empty-msg">
             No ratings submitted yet
           </div>
 
+          <!-- Saraksts ar novērtētajiem pieprasījumiem -->
           <div v-else class="request-list">
             <div
               v-for="req in ratedRequests"
@@ -117,6 +135,7 @@
           </div>
         </div>
 
+        <!-- Modālais logs jauna pieprasījuma izveidei -->
         <ShiftRequestModal
           v-if="showModal"
           :shopId="Number(shopId)"
@@ -124,6 +143,7 @@
           @submitted="refreshRequests"
         />
 
+        <!-- Modālais logs pieprasījuma detaļu apskatei -->
         <ShiftRequestDetailModal
           v-if="selectedRequest"
           :request="selectedRequest"
@@ -132,6 +152,7 @@
           @updated="refreshRequests"
         />
 
+        <!-- Modālais logs novērtējuma pievienošanai -->
         <RatingModal
           v-if="selectedRatingRequest"
           :request="selectedRatingRequest"
@@ -139,6 +160,7 @@
           @submitted="handleRatingSubmitted"
         />
 
+        <!-- Modālais logs esoša novērtējuma apskatei vai rediģēšanai -->
         <RatingModal
           v-if="selectedRatedRequest"
           :request="selectedRatedRequest"
@@ -148,12 +170,14 @@
         />
       </div>
 
+      <!-- Kļūdas ziņojums, ja neizdevās ielādēt veikala informāciju -->
       <div v-else class="error-msg">Failed to load shop info.</div>
     </div>
   </div>
 </template>
 
 <script setup>
+// Importēt Vue funkcijas un komponentes
 import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { logout } from '@/services/auth.js'
@@ -162,12 +186,19 @@ import ShiftRequestModal from '../components/ShiftRequestModal.vue'
 import ShiftRequestDetailModal from '../components/ShiftRequestDetailModal.vue'
 import RatingModal from '../components/RatingModal.vue'
 
+// Mainīgais modālā loga parādīšanai
 const showModal = ref(false)
+
+// Masīvs ar maiņu pieprasījumiem
 const shiftRequests = ref([])
 
+// API bāzes adrese
 const API_BASE = 'http://localhost:5001/api'
+
+// Router inicializācija navigācijai starp lapām 
 const router = useRouter()
 
+// Reaktīvie mainīgie lapas datiem un stāvokļiem
 const shop = ref(null)
 const totalExternalShifts = ref(0)
 const isLoading = ref(true)
@@ -176,12 +207,14 @@ const selectedRequest = ref(null)
 const selectedRatingRequest = ref(null)
 const selectedRatedRequest = ref(null)
 
+// Valsts nosaukumi 
 const countryMap = {
   1: 'Lithuania',
   2: 'Latvia',
   3: 'Estonia'
 }
 
+// Veikalu tipi 
 const typeMap = {
   1: 'Hyper',
   2: 'Super',
@@ -189,6 +222,7 @@ const typeMap = {
   4: 'Express'
 }
 
+// Pieprasījumu statusi 
 const statusMap = {
   1: 'Sent',
   2: 'Approved',
@@ -196,6 +230,7 @@ const statusMap = {
   4: 'Done'
 }
 
+// Funkcija CSS klases noteikšanai pēc statusa
 function statusClass(status) {
   const map = {
     1: 'status-sent',
@@ -206,37 +241,44 @@ function statusClass(status) {
   return map[status] ?? 'status-default'
 }
 
+// Aprēķināts saraksts ar aktīvajiem pieprasījumiem
 const activeShiftRequests = computed(() => {
   return shiftRequests.value.filter(req => Number(req.status) !== 4)
 })
 
+// Aprēķināts saraksts ar pieprasījumiem, kas gaida novērtējumu
 const waitingForRating = computed(() => {
   return shiftRequests.value.filter(req =>
     Number(req.status) === 4 && !req.rating
   )
 })
 
+// Funkcija pēc novērtējuma labošanas
 async function handleRatedEdited() {
   selectedRatedRequest.value = null
   await refreshRequests()
 }
 
+// Aprēķināts saraksts ar jau novērtētajiem pieprasījumiem
 const ratedRequests = computed(() => {
   return shiftRequests.value.filter(req =>
     Number(req.status) === 4 && req.rating
   )
 })
 
+// Funkcija zvaigžņu attēlošanai pēc vērtējuma
 function renderStars(count) {
   const n = Number(count) || 0
   return '★'.repeat(n) + '☆'.repeat(5 - n)
 }
 
+// Izrakstīšanās funkcija
 const handleLogout = () => {
   logout()
   router.push('/roleselect')
 }
 
+// Funkcija pieprasījumu saraksta atjaunošanai no servera
 async function refreshRequests() {
   const res = await fetch(`${API_BASE}/shiftrequests/byshop/${shopId.value}`)
   if (res.ok) {
@@ -244,41 +286,50 @@ async function refreshRequests() {
   }
 }
 
+// Funkcija pēc novērtējuma iesniegšanas
 async function handleRatingSubmitted() {
   selectedRatingRequest.value = null
   await refreshRequests()
 }
 
+// Kad komponents ielādējas, iegūt veikala datus un pieprasījumus
 onMounted(async () => {
   shopId.value = localStorage.getItem('shopId')
 
+  // Ja nav veikala ID, pārvirza uz pieteikšanās lapu
   if (!shopId.value) {
     router.push('/login')
     return
   }
 
   try {
+    // Iegūt veikala datus
     const shopRes = await fetch(`${API_BASE}/shops/${shopId.value}`)
     if (!shopRes.ok) throw new Error('Failed to fetch shop')
     shop.value = await shopRes.json()
 
+    // Iegūt maiņu sarakstu
     const shiftsRes = await fetch(`${API_BASE}/shifts/byshop/${shopId.value}`)
     if (shiftsRes.ok) {
       const shifts = await shiftsRes.json()
       totalExternalShifts.value = shifts.length
     }
 
+    // Atjaunot maiņu pieprasījumu sarakstu
     await refreshRequests()
   } catch (err) {
     console.error('Error loading shop home:', err)
     shop.value = null
   } finally {
+    // Beigt ielādes stāvokli
     isLoading.value = false
   }
 })
 </script>
 
 <style scoped>
+
+/* Pamatstili visiem elementiem */
 * {
   margin: 0;
   padding: 0;
@@ -286,12 +337,14 @@ onMounted(async () => {
   font-family: 'Segoe UI', sans-serif;
 }
 
+/* Galvenais lapas konteiners */
 .page {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
 }
 
+/* Satura konteiners */
 .container {
   position: relative;
   flex: 1;
@@ -301,6 +354,7 @@ onMounted(async () => {
   padding: 30px 20px 40px;
 }
 
+/* Virsraksti */
 h1 {
   color: var(--brand-berry);
   font-size: 30px;
@@ -310,6 +364,7 @@ h1 {
   z-index: 2;
 }
 
+/* Kartīšu režģis */
 .cards-grid {
   width: 100%;
   max-width: 1200px;
@@ -320,6 +375,7 @@ h1 {
   z-index: 2;
 }
 
+/* Kartītes stils */
 .card {
   background: rgba(255, 255, 255, 0.5);
   backdrop-filter: blur(24px);
@@ -333,6 +389,7 @@ h1 {
   flex-direction: column;
 }
 
+/* Kartītes virsraksts */
 .card h2 {
   color: var(--brand-berry);
   font-size: 24px;
@@ -340,6 +397,7 @@ h1 {
   margin-bottom: 16px;
 }
 
+/* Kartītes galvene */
 .card-header {
   display: flex;
   align-items: center;
@@ -348,10 +406,12 @@ h1 {
   margin-bottom: 12px;
 }
 
+/* Kartītes galvenes virsraksts */
 .card-header h2 {
   margin-bottom: 0;
 }
 
+/* Skaitītāja un etiķetes kopīgais stils */
 .card-count,
 .card-pill {
   display: inline-flex;
@@ -375,6 +435,7 @@ h1 {
   color: #218c74;
 }
 
+/* Apakšteksts kartītē */
 .card-subtext {
   color: #7b6d75;
   font-size: 14px;
@@ -382,6 +443,7 @@ h1 {
   margin-bottom: 16px;
 }
 
+/* Karšu platumi */
 .shop-info {
   grid-column: span 4;
 }
@@ -398,12 +460,14 @@ h1 {
   grid-column: span 4;
 }
 
+/* Informācijas rindas stils */
 .info-row {
   margin-bottom: 10px;
   font-size: 14px;
   line-height: 1.45;
 }
 
+/* Etiķetes teksts */
 .label {
   font-weight: 900;
   color: var(--brand-berry);
@@ -418,6 +482,7 @@ h1 {
   flex-direction: column;
 }
 
+/* Tukša saraksta ziņojums */
 .empty-msg {
   flex: 1;
   display: flex;
@@ -435,6 +500,7 @@ h1 {
   justify-content: space-between;
 }
 
+/* Poga jauna pieprasījuma izveidei */
 .plus-btn {
   width: 50px;
   height: 50px;
@@ -457,6 +523,7 @@ h1 {
   transform: translateY(-1px);
 }
 
+/* Pieprasījumu saraksts */
 .request-list {
   display: flex;
   flex-direction: column;
@@ -464,6 +531,7 @@ h1 {
   margin-top: 6px;
 }
 
+/* Viena pieprasījuma rinda */
 .request-row {
   display: flex;
   align-items: center;
@@ -482,6 +550,7 @@ h1 {
   min-width: 0;
 }
 
+/* Pieprasījuma iemesla teksts */
 .req-reason {
   font-size: 14px;
   font-weight: 700;
@@ -498,26 +567,31 @@ h1 {
   width: fit-content;
 }
 
+/* Statuss: gaida apstiprinājumu */
 .status-pending {
   background: #fff3cd;
   color: #856404;
 }
 
+/* Statuss: apstiprināts */
 .status-approved {
   background: #d4edda;
   color: #155724;
 }
 
+/* Statuss: noraidīts */
 .status-rejected {
   background: #f8d7da;
   color: #721c24;
 }
 
+/* Noklusējuma statusa stils */
 .status-default {
   background: var(--color-bg-muted);
   color: var(--color-text-dim);
 }
 
+/* Poga detaļu apskatei */
 .btn-view {
   flex-shrink: 0;
   background: transparent;
@@ -537,6 +611,7 @@ h1 {
   transform: translateY(-1px);
 }
 
+/* Placeholder saraksts */
 .placeholder-list {
   display: flex;
   flex-direction: column;
@@ -558,11 +633,13 @@ h1 {
   width: 65%;
 }
 
+/* Statusu krāsas */
 .status-sent { background: #ddeeff; color: #1a4a8b; }
 .status-approved { background: #d4efcc; color: #2a6e1a; }
 .status-inprogress { background: #fff0cc; color: #7a5500; }
 .status-done { background: #e0e0e0; color: #444; }
 
+/* Ielādes un kļūdas ziņojumu stils */
 .loading-msg,
 .error-msg {
   color: var(--brand-berry);
@@ -570,6 +647,7 @@ h1 {
   z-index: 2;
 }
 
+/* Zvaigžņu vērtējuma stils */
 .rating-stars {
   font-size: 15px;
   font-weight: 700;
@@ -577,6 +655,7 @@ h1 {
   letter-spacing: 1px;
 }
 
+/* Responsivitāte: planšetdatoriem un mazākiem ekrāniem */
 @media (max-width: 1100px) {
   .shop-info,
   .shift-requests,
@@ -586,6 +665,7 @@ h1 {
   }
 }
 
+/* Responsivitāte: mobilajām ierīcēm */
 @media (max-width: 700px) {
   .cards-grid {
     grid-template-columns: 1fr;

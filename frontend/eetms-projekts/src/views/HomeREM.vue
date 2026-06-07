@@ -61,7 +61,7 @@
         </h2>
 
         <div class="shiftrequests-list">
-          <!-- AttēloT lietotājam aktuālos maiņu pieprasījumus -->
+          <!-- Attēlot lietotājam aktuālos maiņu pieprasījumus -->
           <div
             v-for="req in relevantShiftRequests"
             :key="req.shiftRequestID"

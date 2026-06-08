@@ -1,26 +1,37 @@
 <template>
+  <!-- Galvenais statistikas konteiners -->
   <div class="single-company-statistics-container">
+    <!-- Dekoratīvais fona elements-->
     <div class="blob-pink"></div>
 
+    <!-- Brīdinājuma josla, ja ir jāparāda ziņojums -->
     <div v-if="showWarning" class="warning-banner">
       <div class="warning-content">
         <span class="warning-icon">!</span>
         <span>{{ warningMessage }}</span>
+        
+        <!-- Brīdinājuma aizvēršanas poga -->
         <button class="warning-close" @click="showWarning = false">×</button>
       </div>
     </div>
 
+    <!-- Lapas galvene -->
     <div class="header-section">
       <h2>{{ companyName }} – Work Statistics</h2>
+      
+      <!-- Parādīt pielietoto periodu -->
       <p v-if="appliedDateRange[0] && appliedDateRange[1]">
         Period: {{ formatDate(appliedDateRange[0]) }} – {{ formatDate(appliedDateRange[1]) }}
       </p>
     </div>
 
+    <!-- Datuma filtru kartīte -->
     <div class="time-period-card">
       <div class="time-period-section">
         <div class="time-period">
           <label>Time period</label>
+          
+          <!-- Datumu periodu izvēle -->
           <select
             v-model="selectedPreset"
             @change="onPresetChange"
@@ -34,6 +45,8 @@
             <option value="year">Past Year</option>
             <option value="custom">Custom Range</option>
           </select>
+
+          <!-- Datumu ievades lauks: datu perioda sākums -->
           <div class="date-inputs">
             <div class="date-field-wrapper">
               <input
@@ -44,6 +57,7 @@
                 :disabled="selectedPreset !== 'custom' || isApplying"
                 @click="!isApplying && $refs.startPicker.showPicker()"
               />
+              
               <input
                 type="date"
                 ref="startPicker"
@@ -54,8 +68,10 @@
               />
             </div>
             
+            <!-- Sadalījums starp diviem datumiem -->
             <span class="date-separator">-</span>
 
+            <!-- Datumu ievades lauks: datu perioda beigas -->
             <div class="date-field-wrapper">
               <input 
                 type="text"
@@ -76,6 +92,8 @@
               />
             </div>
           </div>
+
+          <!-- Apstiprinājuma poga, kura rādās tikai, ja datumi tika mainīti -->
           <button
             class="btn-apply-dates"
             v-if="hasDateChanges"
@@ -89,7 +107,10 @@
       </div>
     </div>
 
+    <!-- Saturs, ja nenotiek ielādē -->
     <template v-if="!isLoading">
+      
+      <!-- Tukšais stāvoklis, ja nav pieejami dati -->
       <div v-if="noData" class="empty-state">
         <div class="empty-icon-circle">
           <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -104,14 +125,20 @@
         <p>No shifts found for this company in the selected period.</p>
       </div>
 
+      <!-- Lapas saturs, ja dati eksistē -->
       <div v-else class="content-wrapper">
         <section class="full-card">
+          
+          <!-- Divas diagrammas rindā -->
           <div class="dual-charts-row">
+            
+            <!-- Darba iemeslu diagramma -->
             <div class="chart-section">
               <div class="chart-header">
                 <h3>Reasons</h3>
                 <div class="chart-header-right">
                   <div class="btn-group">
+                    <!-- Poga sektoru diagrammas ieslēgšanai -->
                     <button
                       class="chart-type-btn"
                       :class="{ active: reasonsChartType === 'pie' }"
@@ -119,6 +146,8 @@
                       :disabled="!reasonStats.length"
                       title="Pie Chart"
                     >Pie</button>
+                    
+                    <!-- Poga stabiņu diagrammas ieslēgšanai -->
                     <button
                       class="chart-type-btn"
                       :class="{ active: reasonsChartType === 'bar' }"
@@ -127,11 +156,15 @@
                       title="Bar Chart"
                     >Bar</button>
                     <span class="btn-group-divider"></span>
+                    
+                    <!-- Eksporta pogas -->
                     <button class="chart-type-btn" @click="exportChartAsPNG('reasons')" :disabled="!reasonStats.length" title="Export PNG">PNG</button>
                     <button class="chart-type-btn" @click="exportTableAsXLSX('reasons')" :disabled="!reasonStats.length" title="Export XLSX">XLSX</button>
                   </div>
                 </div>
               </div>
+
+              <!-- Diagrammas konteiners eksporta funkcijai -->
               <div class="chart-wrapper" ref="reasonsChartWrapper">
                 <div class="chart-container">
                   <canvas ref="reasonsChartCanvas" :key="reasonsChartCanvasKey"></canvas>
@@ -139,11 +172,13 @@
               </div>
             </div>
 
+            <!-- Veikalu diagramma -->
             <div class="chart-section">
               <div class="chart-header">
                 <h3>Shops</h3>
                 <div class="chart-header-right">
                   <div class="btn-group">
+                    <!-- Diagrammas tipa maiņa -->
                     <button
                       class="chart-type-btn"
                       :class="{ active: shopsChartType === 'pie' }"
@@ -158,12 +193,16 @@
                       :disabled="!shopStats.length"
                       title="Bar Chart"
                     >Bar</button>
+
                     <span class="btn-group-divider"></span>
+
+                    <!-- Eksporta pogas -->
                     <button class="chart-type-btn" @click="exportChartAsPNG('shops')" :disabled="!shopStats.length" title="Export PNG">PNG</button>
                     <button class="chart-type-btn" @click="exportTableAsXLSX('shops')" :disabled="!shopStats.length" title="Export XLSX">XLSX</button>
                   </div>
                 </div>
               </div>
+              <!-- Diagrammas konteiners eksportam -->
               <div class="chart-wrapper" ref="shopsChartWrapper">
                 <div class="chart-container">
                   <canvas ref="shopsChartCanvas" :key="shopsChartCanvasKey"></canvas>
@@ -173,9 +212,10 @@
 
           </div>
 
-          <!-- Table -->
+          <!-- Datu tabula -->
           <div class="table-section">
             <div class="table-tabs">
+              <!-- Pārslēgšanās starp Darba iemeslu un Veikalu tabulu -->
               <button
                 @click="currentTableSection = 'reasons'"
                 :class="{ active: currentTableSection === 'reasons' }"
@@ -187,6 +227,8 @@
                 class="tab-btn"
               >Shops</button>
             </div>
+
+            <!-- Datu tabula -->
             <table class="glass-table">
               <thead>
                 <tr>
@@ -199,6 +241,7 @@
                 </tr>
               </thead>
               <tbody>
+                <!-- Dinamiska tabulas rinda atkarībā no izvēlētās sadaļas -->
                 <tr v-for="item in currentTableData" :key="item.reason || item.shopId">
                   <td v-if="currentTableSection === 'shops'">{{ item.code }}</td>
                   <td v-else>{{ item.reason }}</td>
@@ -214,6 +257,7 @@
       </div>
     </template>
 
+    <!-- Ielādes stāvoklis -->
     <div v-if="isLoading" class="loading-state">
       <span class="btn-spinner" style="width:28px;height:28px;border-width:3px;border-color:rgba(161,41,113,0.2);border-top-color:#a12971;"></span>
     </div>
@@ -221,84 +265,123 @@
 </template>
 
 <script setup>
+// Importēt Vue funkcijas reaktivitātei 
 import { ref, onMounted, computed, nextTick, watch } from 'vue'
+
+// Importēt Chart.js elementus un kontrolierus sektoru/stabiņu diagrammām
 import { Chart, ArcElement, BarElement, CategoryScale, LinearScale, Tooltip, Legend, PieController, BarController } from 'chart.js'
+
+// Importēt ExcelJS Excel failu eksportam
 import ExcelJS from 'exceljs'
+
+// Importēt html2canvas elementu eksportam kā PNG
 import html2canvas from 'html2canvas'
 
+// Reģistrēt Chart.js komponentes
 Chart.register(ArcElement, BarElement, CategoryScale, LinearScale, Tooltip, Legend, PieController, BarController)
 
+// Nolasīt companyId no localStorage
 const companyId = ref(localStorage.getItem('companyId'))
 
+// API bāzes adrese
 const API_BASE = 'http://localhost:5001/api'
 
+// Galvenie stāvokļi
 const companyName = ref('')
 const isLoading = ref(false)
 const isApplying = ref(false)
 const showWarning = ref(false)
 const warningMessage = ref('')
 
+// Datumu diapazoni
 const selectedDateRange = ref(['', ''])
 const appliedDateRange = ref(['', ''])
+
+// Izvēlētais datu periods un pielietotais datu periods
 const selectedPreset = ref('year')
 const appliedPreset = ref('year')
+
+// Karogs, lai atšķirtu pieejamus periodus no manuālas datuma maiņas
 const isSettingPresetDates = ref(false)
 
+// Statistikas dati
 const reasonStats = ref([])
 const shopStats = ref([])
+
+// Atsauces uz canvas elementiem
 const reasonsChartCanvas = ref(null)
 const shopsChartCanvas = ref(null)
+
+// Atsauces uz Chart.js instancēm
 const reasonsChartInstance = ref(null)
 const shopsChartInstance = ref(null)
+
+// Konteinera elementi eksportam
 const reasonsChartWrapper = ref(null)
 const shopsChartWrapper = ref(null)
+
+// Neapstrādātie veikalu dati detalizētam eksportam
 const shopsRaw = ref([])
 
+// Diagrammu tipi
 const reasonsChartType = ref('pie')
 const shopsChartType = ref('pie')
+
+// Atslēgas canvas atjaunošanai
 const reasonsChartCanvasKey = ref(0)
 const shopsChartCanvasKey = ref(0)
 
+// Mainīgais sadaļai, kura pašlaik ir izvēlēta
 const currentTableSection = ref('reasons')
 
+// Veikalu un valsts datu attēlošana 
 const shopTypeMap = { 1: 'Hyper', 2: 'Super', 3: 'Mini', 4: 'Express' }
 const countryMap = { 1: 'Lithuania', 2: 'Latvia', 3: 'Estonia' }
 
+// Norādīt, vai nav neviena statistikas ieraksta
 const noData = computed(() => 
   reasonStats.value.length === 0 && shopStats.value.length === 0 &&
 !isLoading.value)
 
+// Pārbaudīt, vai lietotājs ir mainījis datuma diapazonu
 const hasDateChanges = computed(() =>
   selectedDateRange.value[0] !== appliedDateRange.value[0] ||
   selectedDateRange.value[1] !== appliedDateRange.value[1]
 )
 
+// Pārbaudīt, vai izvēlētais datumu diapazons ir derīgs
 const isDateRangeValid = computed(() => {
   if (!selectedDateRange.value[0] || !selectedDateRange.value[1]) return false
   return new Date(selectedDateRange.value[0]) <= new Date(selectedDateRange.value[1])
 })
 
+// Tabulas attiecīgu datu noteikšana pēc aktīvās sadaļas
 const currentTableData = computed(() =>
   currentTableSection.value === 'reasons' ? reasonStats.value : shopStats.value
 )
 
+// Šodienas datums ISO formātā
 const today = new Date().toISOString().split('T')[0]
 
+// Formatēt ISO datumu uz dd.mm.yyyy
 const formatDate = (iso) => {
   if (!iso) return ''
   const [y, m, d] = iso.split('-')
   return `${d}.${m}.${y}`
 }
 
+// Palīgfunkcijas veikala tipa un valsts nosaukuma attēlošanai
 function getShopTypeName(typeId) { return shopTypeMap[typeId] || 'Unknown' }
 function getCountryName(countryId) { return countryMap[countryId] || 'Unknown' }
 
+// Brīdinājuma paziņojuma parādīšana uz 4 sekundēm 
 function showWarningMessage(message) {
   warningMessage.value = message
   showWarning.value = true
   setTimeout(() => { showWarning.value = false }, 4000)
 }
 
+// Mainīt datuma diapazonu pēc izvēlēta preset 
 function onPresetChange() {
   isSettingPresetDates.value = true
   const endDate = new Date()
@@ -315,14 +398,17 @@ function onPresetChange() {
     startDate.toISOString().split('T')[0],
     endDate.toISOString().split('T')[0]
   ]
+
   queueMicrotask(() => { isSettingPresetDates.value = false })
 }
 
+// Ja datums tiek mainīts manuāli, pārslēgt no preset uz custom
 function onDateInputChange() {
   if (isSettingPresetDates.value) return
   selectedPreset.value = 'custom'
 }
 
+// Pielietot izvēlēto datuma diapazonu un ielādēt datus
 async function applyDateRange() {
   if (!isDateRangeValid.value) return showWarningMessage('Please select a valid date range')
   isApplying.value = true
@@ -332,6 +418,7 @@ async function applyDateRange() {
   isApplying.value = false
 }
 
+// Aprēķināt vienas maiņas darba stundas
 function calculateShiftHours(shift) {
   try {
     const { startTime, endTime, startDate } = shift
@@ -343,7 +430,9 @@ function calculateShiftHours(shift) {
   } catch { return 0 }
 }
 
+// Iegūt datus par uzņēmumiem 
 async function fetchCompanyStatistics() {
+  // Notīrīt visus iepriekšējos datus
   reasonStats.value = []
   shopStats.value = []
   shopsRaw.value = []
@@ -353,30 +442,36 @@ async function fetchCompanyStatistics() {
 
   isLoading.value = true
   try {
+    // Ielādēt uzņēmuma pamatinformāciju
     const companyRes = await fetch(`${API_BASE}/companies/${companyId.value}`)
     if (companyRes.ok) {
       const c = await companyRes.json()
       companyName.value = c.companyName || c.name || ''
     }
 
+    // Ielādēt visas maiņas uzņēmumam
     const shiftsRes = await fetch(`${API_BASE}/shifts/bycompany/${companyId.value}`)
     if (!shiftsRes.ok) return showWarningMessage('Failed to load shifts')
     const allShifts = await shiftsRes.json()
 
+    // Izveidot izvēlētā perioda robežas
     const start = new Date(appliedDateRange.value[0])
     const end = new Date(appliedDateRange.value[1])
     end.setHours(23, 59, 59, 999)
 
+    // Filtrēt tikai maiņas izvēlētajā periodā
     const shiftsInRange = allShifts.filter(s => {
       const d = new Date(s.startDate)
       return d >= start && d <= end
     })
 
+    // Uzrādīt paziņojumu, ja maiņas nav
     if (shiftsInRange.length === 0) {
       showWarningMessage('No shifts found in this range')
       return
     }
 
+    // Sagatavot apkopošanas objektus
     const reasonMap = {}
     const shopStatsMap = {}
 
@@ -384,10 +479,12 @@ async function fetchCompanyStatistics() {
       const hours = calculateShiftHours(shift)
       if (!hours) continue
 
+      // Apkopot statistiku pēc iemesla
       const reasonName = shift.companyReason?.reason?.name || 'Unknown'
       if (!reasonMap[reasonName]) reasonMap[reasonName] = { reason: reasonName, totalHours: 0 }
       reasonMap[reasonName].totalHours += hours
 
+      // Apkopot statistiku pēc veikala
       const shop = shift.shop
       if (shop) {
         const shopId = shop.shopID
@@ -408,19 +505,23 @@ async function fetchCompanyStatistics() {
       }
     }
 
+    // Nofiltrēt ļoti mazas vērtības 
     const reasonArray = Object.values(reasonMap).filter(r => r.totalHours > 0.1)
     const shopArray = Object.values(shopStatsMap).filter(s => s.totalHours > 0.1)
 
     shopsRaw.value = shopArray
 
+    // Aprēķināt kopējo stundu summu 
     const totalReasonHours = reasonArray.reduce((s, r) => s + r.totalHours, 0)
     const totalShopHours = shopArray.reduce((s, r) => s + r.totalHours, 0)
 
+    // Iemeslu statistika ar procentiem
     reasonStats.value = reasonArray.map(r => ({ 
       ...r, 
       percentage: totalReasonHours ? (r.totalHours / totalReasonHours) * 100 : 0 
     }))
 
+    // Veikalu statistika ar procentiem
     shopStats.value = shopArray.map(s => ({ 
       ...s, 
       percentage: totalShopHours ? (s.totalHours / totalShopHours) * 100 : 0 
@@ -435,13 +536,16 @@ async function fetchCompanyStatistics() {
   }
 }
 
+// Funkcija, lai iznīcināt iemeslu/veikalu diagrammu, ja tā eksistē 
 function destroyReasonsChart() {
   if (reasonsChartInstance.value) { reasonsChartInstance.value.destroy(); reasonsChartInstance.value = null }
 }
+
 function destroyShopsChart() {
   if (shopsChartInstance.value) { shopsChartInstance.value.destroy(); shopsChartInstance.value = null }
 }
 
+// Inicializēt iemeslu diagrammu 
 async function initReasonsChart() {
   await nextTick()
   if (!reasonsChartWrapper.value || !reasonsChartCanvas.value || !reasonStats.value.length) return
@@ -452,6 +556,7 @@ async function initReasonsChart() {
 
   const height = reasonsChartType.value === 'pie' ? 460 : 400
 
+  // Uzstādīt canvas fiziskos un vizuālos izmērus
   canvas.width = width
   canvas.height = height
   canvas.style.width = `${width}px`
@@ -461,6 +566,7 @@ async function initReasonsChart() {
   reasonsChartInstance.value = new Chart(canvas.getContext('2d'), getReasonsChartConfig())
 }
 
+// Inicializēt veikalu diagrammu
 async function initShopsChart() {
   await nextTick()
   if (!shopsChartWrapper.value || !shopsChartCanvas.value || !shopStats.value.length) return
@@ -480,11 +586,13 @@ async function initShopsChart() {
   shopsChartInstance.value = new Chart(canvas.getContext('2d'), getShopsChartConfig())
 }
 
+// Atgriezt krāsu paleti diagrammām
 function getPalette(count) {
   const base = ['#FF6B6B','#4ECDC4','#45B7D1','#FFA07A','#98D8C8','#F7DC6F','#BB8FCE','#85C1E2','#F8B739','#52B788']
   return Array.from({ length: count }, (_, i) => base[i % base.length])
 }
 
+// Izveidot iemeslu diagrammas konfigurāciju
 function getReasonsChartConfig() {
   const labels = reasonStats.value.map(i => i.reason)
   const data = reasonsChartType.value === 'pie'
@@ -515,6 +623,7 @@ function getReasonsChartConfig() {
   }
 }
 
+// Izveidot veikalu diagrammas konfigurāciju
 function getShopsChartConfig() {
   const labels = shopStats.value.map(i => i.code)
   const data = shopsChartType.value === 'pie'
@@ -545,6 +654,7 @@ function getShopsChartConfig() {
   }
 }
 
+// Mainīt iemeslu diagrammas tipu un pārveidot canvas
 function changeReasonsChartType(type) {
   if (reasonsChartType.value === type || !reasonStats.value.length) return
   reasonsChartType.value = type
@@ -552,6 +662,7 @@ function changeReasonsChartType(type) {
   nextTick(() => initReasonsChart())
 }
 
+// Eksportēt izvēlēto diagrammu kā PNG
 function changeShopsChartType(type) {
   if (shopsChartType.value === type || !shopStats.value.length) return
   shopsChartType.value = type
@@ -575,6 +686,7 @@ async function exportChartAsPNG(section) {
   }
 }
 
+// Eksportēt izvēlēto tabulu uz Excel
 async function exportTableAsXLSX(section) {
   const data = section === 'reasons' ? reasonStats.value : shopStats.value
   if (!data.length) {
@@ -586,6 +698,7 @@ async function exportTableAsXLSX(section) {
     workbook.creator = 'EETMS'
     workbook.created = new Date()
 
+    // Eksports iemeslu sadaļai
     if (section === 'reasons') {
       const worksheet = workbook.addWorksheet('Reasons')
 
@@ -624,6 +737,8 @@ async function exportTableAsXLSX(section) {
           }
         })
       }
+
+    // Eksports veikalu sadaļai
     } else {
       const worksheet = workbook.addWorksheet('Shop Details')
 
@@ -675,6 +790,7 @@ async function exportTableAsXLSX(section) {
         })
       }
 
+      // Katram veikalam izveidot atsevišķu lapu ar maiņu detaļām
       for (const shop of shopsRaw.value) {
         const sheetName = (shop.code || `Shop_${shop.shopId}`)
           .replace(/[\\/*?:[\]]/g, '')
@@ -738,6 +854,7 @@ async function exportTableAsXLSX(section) {
       }
     }
 
+    // Izveidot faila buferi un lejupielādē to
     const buffer = await workbook.xlsx.writeBuffer()
 
     const blob = new Blob([buffer], {
@@ -760,9 +877,12 @@ async function exportTableAsXLSX(section) {
   }
 }
 
+// Vērot reasonStats un inicializēt iemeslu/veikalu diagrammu, kad dati ir gatavi
 watch(reasonStats, async (val) => { if (val.length) { await nextTick(); await initReasonsChart() } }, { deep: true })
 watch(shopStats,   async (val) => { if (val.length) { await nextTick(); await initShopsChart()   } }, { deep: true })
 
+// Pie komponenta ielādes uzstādīt noklusēto datumu periodu uz pēdējo gadu 
+// Ielādēt statistiku uzņēmumu statistiku 
 onMounted(async () => {
   const end = new Date()
   const start = new Date()
@@ -774,6 +894,7 @@ onMounted(async () => {
 </script>
 
 <style scoped>
+/* Galvenais lapas konteiners */
 .single-company-statistics-container {
   font-family: 'Inter', sans-serif;
   padding: 32px 48px;
@@ -781,6 +902,7 @@ onMounted(async () => {
   margin: 0 auto;
 }
 
+/* Dekoratīvs fona aplis */
 .blob-pink {
   width: 950px;
   height: 950px;
@@ -793,17 +915,21 @@ onMounted(async () => {
   filter: blur(60px);
 }
 
+/* Galvenes virsraksts */
 .header-section h2 {
   margin: 0 0 4px;
   font-size: 24px;
   color: var(--brand-berry, #a12971);
 }
+
+/* Galvenes apakšteksts */
 .header-section p {
   margin: 0 0 16px;
   color: var(--color-text-dim, #666);
   font-size: 13px;
 }
 
+/* Datuma filtru kartīte */
 .time-period-card {
   background: var(--color-white, #fff);
   border-radius: 16px;
@@ -814,12 +940,14 @@ onMounted(async () => {
   margin: 0 auto 20px;
 }
 
+/* Filtru sadaļa */
 .time-period-section { 
   display: flex; 
   flex-direction: column; 
   gap: 12px; 
 }
 
+/* Iekšējā perioda struktūra */
 .time-period { 
   display: flex; 
   flex-direction: column; 
@@ -833,6 +961,7 @@ onMounted(async () => {
   color: var(--brand-berry, #a12971); 
 }
 
+/* Preset izvēles lauks */
 .preset-select {
   padding: 8px 12px;
   border-radius: 14px;
@@ -843,6 +972,7 @@ onMounted(async () => {
   box-sizing: border-box; 
 }
 
+/* Datuma lauku rinda */
 .date-inputs { 
   display: flex; 
   align-items: center; 
@@ -851,6 +981,7 @@ onMounted(async () => {
   width: 100%;
 }
 
+/* Datuma ievades lauks */
 .date-input  { 
   flex: 1; 
   width: 100%; 
@@ -863,11 +994,13 @@ onMounted(async () => {
   cursor: pointer; 
 }
 
+/* Datumu atdalītājs */
 .date-separator { 
   font-weight: 600; 
   color: var(--color-text-light, #999); 
 }
 
+/* Konteiners vienam datuma laukam */
 .date-field-wrapper {
   position: relative; 
   flex: 1;
@@ -884,6 +1017,7 @@ onMounted(async () => {
   left: 0;
 }
 
+/* Apstiprinājuma poga */
 .btn-apply-dates {
   margin-top: 10px;
   align-self: flex-end;
@@ -897,8 +1031,17 @@ onMounted(async () => {
   cursor: pointer;
   transition: background 0.18s;
 }
-.btn-apply-dates:hover:not(:disabled) { background: #87205d; }
-.btn-apply-dates:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* Apstiprinājuma pogas hover */
+.btn-apply-dates:hover:not(:disabled) { 
+  background: #87205d; 
+}
+
+/* Pogas izslēgts stāvoklis */
+.btn-apply-dates:disabled { 
+  opacity: 0.5; 
+  cursor: not-allowed; 
+}
 
 .btn-spinner {
   width: 14px; height: 14px;
@@ -908,10 +1051,20 @@ onMounted(async () => {
   animation: spin 0.7s linear infinite;
   display: inline-block;
 }
-@keyframes spin { to { transform: rotate(360deg); } }
 
-.content-wrapper { width: 100%; max-width: 1400px; margin: 0 auto; }
+/* Rotācijas animācija */
+@keyframes spin { 
+  to { transform: rotate(360deg); } 
+}
 
+/* Galvenā satura konteiners */
+.content-wrapper { 
+  width: 100%; 
+  max-width: 1400px; 
+  margin: 0 auto; 
+}
+
+/* Satura kartīte */
 .full-card {
   background: #fff;
   border-radius: 20px;
@@ -923,18 +1076,45 @@ onMounted(async () => {
   width: 100%;
 }
 
-.dual-charts-row { display: flex; gap: 24px; align-items: flex-start; flex-wrap: wrap; }
-.chart-section   { flex: 1; min-width: 400px; max-width: 50%; }
+/* Abu diagrammu rinda */
+.dual-charts-row { 
+  display: flex; 
+  gap: 24px; 
+  align-items: flex-start; 
+  flex-wrap: wrap; 
+}
 
+/* Diagrammas sadaļa */
+.chart-section { 
+  flex: 1; 
+  min-width: 400px; 
+  max-width: 50%; 
+}
+
+/* Diagrammas galvene */
 .chart-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 8px;
 }
-.chart-header h3 { margin: 0; font-size: 16px; font-weight: 600; }
-.chart-header-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
 
+/* Diagrammas virsraksts */
+.chart-header h3 { 
+  margin: 0; 
+  font-size: 16px; 
+  font-weight: 600; 
+}
+
+/* Diagrammas galvenes labā daļa */
+.chart-header-right { 
+  display: flex; 
+  align-items: center; 
+  gap: 8px; 
+  flex-shrink: 0; 
+}
+
+/* Pogu grupa */
 .btn-group {
   display: inline-flex;
   align-items: center;
@@ -946,6 +1126,7 @@ onMounted(async () => {
   box-shadow: 0 1px 3px rgba(0,0,0,0.06);
 }
 
+/* Atdalītājs pogu grupā */
 .btn-group-divider {
   width: 1px;
   height: 16px;
@@ -955,6 +1136,7 @@ onMounted(async () => {
   border-radius: 1px;
 }
 
+/* Diagrammas pārslegšanās poga */
 .chart-type-btn {
   display: inline-flex;
   align-items: center;
@@ -970,30 +1152,60 @@ onMounted(async () => {
   transition: background 0.18s, color 0.18s, box-shadow 0.18s;
   white-space: nowrap;
 }
+
+/* Hover stāvoklis */
 .chart-type-btn:hover:not(:disabled):not(.active) {
   background: rgba(161,41,113,0.08);
   color: var(--brand-berry, #a12971);
 }
 
+/* Aktīvā poga */
 .chart-type-btn.active {
   background: var(--brand-berry, #a12971);
   color: #fff;
   box-shadow: 0 1px 4px rgba(161,41,113,0.3);
 }
 
-.chart-type-btn:disabled { opacity: 0.38; cursor: not-allowed; }
+/* Izslēgta poga */
+.chart-type-btn:disabled { 
+  opacity: 0.38; 
+  cursor: not-allowed; 
+}
 
-.chart-type-btn.export-btn { color: #888; }
+/* Eksporta pogu stils */
+.chart-type-btn.export-btn { 
+  color: #888; 
+}
+
+/* Eksporta pogu hover */
 .chart-type-btn.export-btn:hover:not(:disabled) {
   background: rgba(161,41,113,0.08);
   color: var(--brand-berry, #a12971);
 }
 
-.chart-wrapper   { height: 400px; width: 100%; position: relative; display: block; }
-.chart-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+/* Diagrammas konteiners */
+.chart-wrapper { 
+  height: 400px; 
+  width: 100%; 
+  position: relative; 
+  display: block; 
+}
 
-.table-section { width: 100%; }
+/* Diagrammas iekšējais konteiners */
+.chart-container { 
+  position: absolute; 
+  top: 0; 
+  left: 0; 
+  width: 100%; 
+  height: 100%; 
+}
 
+/* Tabulas sadaļa */
+.table-section { 
+  width: 100%; 
+}
+
+/* Tabulas pogu rinda */
 .table-tabs {
   display: inline-flex;
   gap: 2px;
@@ -1006,6 +1218,7 @@ onMounted(async () => {
   width: fit-content;
 }
 
+/* Atsevišķas tabulas pogas stils */
 .tab-btn {
   display: inline-flex;
   align-items: center;
@@ -1019,16 +1232,20 @@ onMounted(async () => {
   color: #777;
   transition: background 0.18s, color 0.18s, box-shadow 0.18s;
 }
+
 .tab-btn:hover:not(.active) {
   background: rgba(161,41,113,0.08);
   color: var(--brand-berry, #a12971);
 }
+
+/* Aktīvās tabulas pogas stils */
 .tab-btn.active {
   background: var(--brand-berry, #a12971);
   color: #fff;
   box-shadow: 0 1px 4px rgba(161,41,113,0.3);
 }
 
+/* Galvenā tabula */
 .glass-table { 
   width: 100%; 
   border-collapse: collapse; 
@@ -1036,12 +1253,14 @@ onMounted(async () => {
   font-size: 13px; 
 }
 
+/* Tabulas šūnas */
 .glass-table th,
 .glass-table td { 
   padding: 8px 10px; 
   border-bottom: 1px solid rgba(0,0,0,0.05); 
 }
 
+/* Tabulas galvenes šūnas */
 .glass-table thead th {
   background: var(--header-gradient, linear-gradient(135deg, #667eea 0%, #764ba2 100%));
   color: #fff;
@@ -1050,12 +1269,14 @@ onMounted(async () => {
   letter-spacing: 0.5px;
 }
 
+/* Stundu kolonna */
 .hours-cell { 
   text-align: right; 
   font-weight: 600; 
   color: var(--brand-berry, #a12971); 
 }
 
+/* Tukšā stāvokļa konteiners */
 .empty-state {
   background: var(--color-bg-light, #f8f9fa);
   padding: 40px 30px;
@@ -1064,6 +1285,8 @@ onMounted(async () => {
   border: 2px dashed var(--color-border, #e0e0e0);
   margin-top: 16px;
 }
+
+/* Ikonas aplis */
 .empty-icon-circle {
   width: 70px; height: 70px;
   border-radius: 50%;
@@ -1075,7 +1298,15 @@ onMounted(async () => {
   color: var(--brand-berry, #a12971);
 }
 
-.warning-banner { position: fixed; top: 20px; right: 20px; z-index: 1000; }
+/* Brīdinājuma paziņojums */
+.warning-banner { 
+  position: fixed; 
+  top: 20px; 
+  right: 20px; 
+  z-index: 1000; 
+}
+
+/* Brīdinājuma saturs */
 .warning-content {
   background: var(--color-warning-bg, #fff7e6);
   border: 1px solid var(--color-warning-border, #ffa940);
@@ -1085,6 +1316,8 @@ onMounted(async () => {
   align-items: center;
   gap: 8px;
 }
+
+/* Brīdinājuma ikona */
 .warning-icon {
   width: 22px; height: 22px;
   border-radius: 50%;
@@ -1095,8 +1328,17 @@ onMounted(async () => {
   justify-content: center;
   font-weight: 700;
 }
-.warning-close { margin-left: auto; border: none; background: transparent; font-size: 18px; cursor: pointer; }
 
+/* Brīdinājuma aizvēršanas poga */
+.warning-close { 
+  margin-left: auto; 
+  border: none; 
+  background: transparent; 
+  font-size: 18px; 
+  cursor: pointer; 
+}
+
+/* Ielādes stāvokļa bloks */
 .loading-state {
   margin-top: 48px;
   display: flex;

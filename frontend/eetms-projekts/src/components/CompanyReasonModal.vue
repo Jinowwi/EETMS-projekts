@@ -1,23 +1,35 @@
 <template>
+  <!-- Modālā loga fons, aizvērās, nospiežot uz fona -->
   <div class="modal-backdrop" @click.self="$emit('close')">
     <div class="modal-card">
 
+      <!-- Galvenā modālā kartīte -->
       <div class="modal-header">
         <div>
+          <!-- Uzņēmuma nosaukums un sadaļas virsraksts -->
           <h2>{{ company?.name }} reason statistics</h2>
+          
+          <!-- Informācija par stundām un periodu -->
           <p class="modal-subtitle">
             Total hours: {{ totalHours.toFixed(1) }}h &nbsp;|&nbsp;
             Time period: {{ dateRange[0] }} – {{ dateRange[1] }}
           </p>
         </div>
+
+        <!-- Modālā loga aizvēršanas poga -->
         <button class="modal-close" @click="$emit('close')">×</button>
       </div>
 
+      <!-- Modālā loga saturs -->
       <div class="modal-body">
+        
+        <!-- Diagrammas sadaļa tiek rādīta tikai tad, ja ir dati -->
         <div class="chart-section" v-if="reasons.length > 0">
           <div class="chart-header">
             <h2>Reason work hours</h2>
             <div class="chart-controls">
+              
+              <!-- Pogas diagrammas tipa maiņai -->
               <div class="chart-type-switcher">
                 <button
                   class="chart-type-btn"
@@ -53,6 +65,8 @@
                   </svg>
                 </button>
               </div>
+              
+              <!-- Diagrammas eksporta poga -->
               <button class="export-btn" @click="exportChartAsPNG" :disabled="reasons.length === 0" title="Export Chart as PNG">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
@@ -64,10 +78,13 @@
             </div>
           </div>
 
+          <!-- Diagrammas un leģendas konteineris -->
           <div class="chart-wrapper" ref="chartWrapperElement">
             <div class="chart-container">
               <canvas ref="reasonChart"></canvas>
             </div>
+
+            <!-- Diagrammas leģenda -->
             <div class="chart-legend">
               <div v-for="(r, index) in reasons" :key="index" class="legend-item">
                 <span class="legend-color" :style="{ backgroundColor: r.color }"></span>
@@ -76,10 +93,13 @@
             </div>
           </div>
         </div>
-
+      
+      <!-- Tabulas sadaļa ar iemeslu datiem -->
       <div class="company-table" v-if="reasons.length > 0">
           <div class="table-header-section">
             <h3><strong>Reason Details</strong></h3>
+            
+            <!-- Tabulas eksports uz Excel -->
             <button class="export-btn" @click="exportTableAsXLSX" :disabled="reasons.length === 0" title="Export Table as Excel">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
@@ -89,10 +109,13 @@
               Export Excel
             </button>
           </div>
+
+          <!-- Datu tabula -->
           <table>
             <thead>
               <tr>
                 <th>
+                  <!-- Kolonnas virsraksts ar kārtošanu pēc nosaukuma -->
                   <span class="sortable-header" @click="toggleSort('name')">
                     NAME
                     <FontAwesomeIcon
@@ -103,6 +126,7 @@
                   </span>
                 </th>
                 <th>
+                  <!-- Kolonnas virsraksts ar kārtošanu pēc stundām -->
                   <span class="sortable-header" @click="toggleSort('hours')">
                     WORK HOURS
                     <FontAwesomeIcon
@@ -115,6 +139,8 @@
               </tr>
             </thead>
             <tbody>
+
+              <!-- Attēlot sakārtotus iemeslu ierakstus -->
               <tr v-for="(r, index) in sortedReasons" :key="index">
                 <td>{{ r.name }}</td>
                 <td>{{ r.hours.toFixed(1) }}h</td>
@@ -123,6 +149,7 @@
           </table>
         </div>
 
+        <!-- Stāvoklis, ja nav datu -->
         <div v-if="reasons.length === 0" class="empty-state">
           <div class="empty-icon-circle">
             <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -141,40 +168,69 @@
 </template>
 
 <script setup>
+// Importēt Vue funkcijas
 import { ref, computed, onMounted, onBeforeUnmount, watch, nextTick } from 'vue'
+
+// Importēt Chart.js vajadzīgos elementus un kontrolierus
 import {
   Chart, ArcElement, BarElement, LineElement, PointElement,
   CategoryScale, LinearScale, Tooltip, Legend,
   PieController, BarController, LineController
 } from 'chart.js'
 
+// Importē ExcelJS Excel failu ģenerēšanai
 import ExcelJS from 'exceljs'
+
+// Importē html2canvas elementa eksportēšanai attēlā
 import html2canvas from 'html2canvas'
 
+// Reģistrēt Chart.js komponentus
 Chart.register(
   ArcElement, BarElement, LineElement, PointElement,
   CategoryScale, LinearScale, Tooltip, Legend,
   PieController, BarController, LineController
 )
 
+// Definē props komponentus
 const props = defineProps({
+  // Uzņēmuma objekts
   company: { type: Object, required: true },
+
+  // Uzņēmuma statistikas objekts ar shift datiem
   companyStat: { type: Object, required: true },
+
+  // Izvēlētais datumu diapazons
   dateRange: { type: Array, required: true }
 })
 
+// Definēt notikumu, ko komponents izsūta uz pamata komponentu
 defineEmits(['close'])
 
+// Atsauce uz canvas elementu
 const reasonChart = ref(null)
+
+// Atsauce uz Chart.js instanci, lai to varētu pārzīmēt
 const chartInstance = ref(null)
+
+// Izvēlētais diagrammas tips
 const chartType = ref('pie')
+
+// Saraksts ar apkopotajiem iemeslu datiem
 const reasons = ref([])
+
+// Atsauce uz wrapper elementu eksportam uz PNG
 const chartWrapperElement = ref(null)
+
+// Kopējās darba stundas visiem iemeslu ierakstiem
 const totalHours = ref(0)
 
+// Aktīvā kārtošanas kolonna
 const sortColumn = ref('hours')
+
+// Kārtošanas virziens
 const sortDirection = ref('desc')
 
+// Mainīt kārtošanas kārtību tabulai
 const toggleSort = (column) => {
   if (sortColumn.value === column) {
     sortDirection.value = sortDirection.value === 'asc' ? 'desc' : 'asc'
@@ -184,13 +240,17 @@ const toggleSort = (column) => {
   }
 }
 
+// Atgriezt sakārtotu reasons masīva kopiju
 const sortedReasons = computed(() => {
   return [...reasons.value].sort((a, b) => {
     let valA, valB
+    
+    // Šķirojot pēc stundām, salīdzināt skaitļus
     if (sortColumn.value === 'hours') {
       valA = a.hours
       valB = b.hours
     } else {
+      // Šķirojot pēc nosaukuma, salīdzināt tekstu mazajos burtos
       valA = (a.name || '').toLowerCase()
       valB = (b.name || '').toLowerCase()
     }
@@ -200,30 +260,38 @@ const sortedReasons = computed(() => {
   })
 })
 
+// Izveido iemeslu statistiku no companyStat.shifts
 const buildReasonStats = () => {
   const stats = {}
 
   for (const shift of props.companyStat.shifts || []) {
-    // CORRECT PATH confirmed from data structure
+    // Iegūt iemesla nosaukumu no nested objekta
     const reasonName = shift.companyReason?.reason?.name
     if (!reasonName) continue
 
+    // Ja iemesls vēl nav stats objektā, izveidot sākuma ierakstu
     if (!stats[reasonName]) {
       stats[reasonName] = { name: reasonName, hours: 0 }
     }
 
+    // Aprēķinat maiņas stundas
     const hours = calculateShiftHours(shift)
+    
+    // Pieskaitīt stundas tikai tad, ja tās ir pozitīvas
     if (hours > 0) {
       stats[reasonName].hours += hours
     }
   }
 
+  // Pārvērst objektu masīvā, atmet ļoti mazas vērtības un sakārtot dilstoši
   const reasonArray = Object.values(stats)
     .filter(r => r.hours >= 0.1)
     .sort((a, b) => b.hours - a.hours)
-
+  
+  // Aprēķināt kopējās stundas
   totalHours.value = reasonArray.reduce((sum, r) => sum + r.hours, 0)
 
+  // Krāsu palete diagrammai un leģendai 
   const palette = [
     '#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A', '#98D8C8',
     '#F7DC6F', '#BB8FCE', '#85C1E2', '#F8B739', '#52B788',
@@ -231,6 +299,7 @@ const buildReasonStats = () => {
     '#E76F51', '#264653', '#E9C46A', '#F77F00', '#06AED5'
   ]
 
+  // Sagatavot gala masīvu ar procentiem un krāsām
   reasons.value = reasonArray.map((reason, index) => ({
     ...reason,
     percentage: totalHours.value > 0
@@ -240,25 +309,37 @@ const buildReasonStats = () => {
   }))
 }
 
+// Aprēķināt vienas maiņas ilgumu stundās
 const calculateShiftHours = (shift) => {
   try {
+    // Atbalstīt dažādus lauku nosaukumu variantus
     const startTime = shift.startTime || shift.StartTime
     const endTime = shift.endTime || shift.EndTime
     const startDate = shift.startDate || shift.StartDate
     const endDate = shift.endDate || shift.EndDate
+    
+    // Ja trūkst obligāto datu, atgriezt 0
     if (!startTime || !endTime || !startDate) return 0
+    
+    // Izveidot Date objektus sākumam un beigām
     const start = new Date(`${startDate}T${startTime}`)
     const end = new Date(`${endDate}T${endTime}`)
+    
+    // Aprēķināt starpību stundās
     const diffHours = (end.getTime() - start.getTime()) / (1000 * 60 * 60)
+    
+    // Neļaut atgriezt negatīvas vērtības
     return Math.max(0, diffHours)
   } catch {
     return 0
   }
 }
 
+// Izveidot jaunu vai pārzīmēt diagrammu
 const updateChart = () => {
   if (!reasonChart.value || reasons.value.length === 0) return
 
+  // Ja iepriekšējā diagramma eksistē, iznīcināt to pirms jaunās izveides
   if (chartInstance.value) {
     chartInstance.value.destroy()
     chartInstance.value = null
@@ -269,6 +350,7 @@ const updateChart = () => {
   const hoursData = reasons.value.map(r => r.hours)
   const colors = reasons.value.map(r => r.color)
 
+  // Tooltip konfigurācija visiem diagrammu tipiem
   const commonTooltip = {
     callbacks: {
       label: (context) => {
@@ -279,6 +361,7 @@ const updateChart = () => {
     }
   }
 
+  // Sektoru diagramma
   if (chartType.value === 'pie') {
     chartInstance.value = new Chart(canvas, {
       type: 'pie',
@@ -298,6 +381,8 @@ const updateChart = () => {
         plugins: { legend: { display: false }, tooltip: commonTooltip }
       }
     })
+  
+  // Stabiņu diagramma
   } else if (chartType.value === 'bar') {
     chartInstance.value = new Chart(canvas, {
       type: 'bar',
@@ -322,6 +407,8 @@ const updateChart = () => {
         plugins: { legend: { display: false }, tooltip: commonTooltip }
       }
     })
+
+  // Līniju diagramma
   } else if (chartType.value === 'line') {
     chartInstance.value = new Chart(canvas, {
       type: 'line',
@@ -355,15 +442,22 @@ const updateChart = () => {
   }
 }
 
+// Eksportēt diagrammu wrapper kā PNG attēlu
 const exportChartAsPNG = async () => {
   try {
     if (!chartInstance.value) return
     if (!chartWrapperElement.value) return
+    
+    // Uzņemt wrapper ekrānuzņēmumu kā canvas
     const canvas = await html2canvas(chartWrapperElement.value, {
       backgroundColor: '#ffffff',
       scale: 2
     })
+
+    // Pārvērst canvas par PNG datu URL
     const url = canvas.toDataURL('image/png')
+    
+    // Izveidot lejupielādes saiti un automātiski lejupielādēt failu
     const link = document.createElement('a')
     link.download = `${props.company.name}-reason-chart-${props.dateRange[0]}to${props.dateRange[1]}.png`
     link.href = url
@@ -375,18 +469,27 @@ const exportChartAsPNG = async () => {
   }
 }
 
+// Eksportēt tabulas datus Excel failā
 const exportTableAsXLSX = async () => {
   if (reasons.value.length === 0) return
+  
+  // Izveidot jaunu workbook un worksheet
   const workbook = new ExcelJS.Workbook()
   const worksheet = workbook.addWorksheet('Reason Details')
+  
+  // Definēt tabulas kolonnas
   worksheet.columns = [
     { header: 'Reason Name', key: 'name', width: 30 },
     { header: 'Working Hours', key: 'hours', width: 20 }
   ]
+
+  // Pievienot rindas no sakārtotajiem datiem
   sortedReasons.value.forEach(r => {
     worksheet.addRow({ name: r.name, hours: `${r.hours.toFixed(1)}h` })
   })
   const lastRow = sortedReasons.value.length + 1
+  
+  // Pievienot Excel tabulas stilu un filtrus
   worksheet.addTable({
     name: 'ReasonTable',
     ref: 'A1',
@@ -399,13 +502,21 @@ const exportTableAsXLSX = async () => {
     ],
     rows: sortedReasons.value.map(r => [r.name, `${r.hours.toFixed(1)}h`])
   })
+
+  // Centrēt šūnu saturu
   for (let i = 1; i <= lastRow; i++) {
     ['A', 'B'].forEach(col => {
       worksheet.getCell(`${col}${i}`).alignment = { horizontal: 'center', vertical: 'middle' }
     })
   }
+
+  // Izveidot Excel faila buferi
   const buffer = await workbook.xlsx.writeBuffer()
+  
+  // Pārvērst buferi blob objektā
   const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
+  
+  // Izveidot lejupielādes URL
   const url = window.URL.createObjectURL(blob)
   const link = document.createElement('a')
   link.href = url
@@ -413,24 +524,30 @@ const exportTableAsXLSX = async () => {
   document.body.appendChild(link)
   link.click()
   document.body.removeChild(link)
+
+  // Atbrīvot izveidoto URL no atmiņas
   window.URL.revokeObjectURL(url)
 }
 
+// Nomainīt diagrammas tipu un pārzīmēt diagrammu pēc DOM atjaunošanas
 const changeChartType = async (type) => {
   chartType.value = type
   await nextTick()
   updateChart()
 }
 
+// Kad komponents ielādējas, sagatavot statistiku un uzzīmēt diagrammu
 onMounted(() => {
   buildReasonStats()
   nextTick().then(updateChart)
 })
 
+// Pirms komponentes iznīcināšanas atbrīvot Chart.js instanci
 onBeforeUnmount(() => {
   if (chartInstance.value) chartInstance.value.destroy()
 })
 
+// Vērot companyStat izmaiņas, pārbūvēt datus un atjaunot diagramm
 watch(() => props.companyStat, () => {
   buildReasonStats()
   nextTick().then(updateChart)
@@ -438,7 +555,7 @@ watch(() => props.companyStat, () => {
 </script>
 
 <style scoped>
-/* Modal backdrop + card */
+/* Modālā fona pārklājums */
 .modal-backdrop {
   position: fixed;
   inset: 0;
@@ -450,6 +567,7 @@ watch(() => props.companyStat, () => {
   backdrop-filter: blur(4px);
 }
 
+/* Galvenā modālā kartīte */
 .modal-card {
   background: var(--color-white);
   border-radius: 20px;
@@ -462,12 +580,13 @@ watch(() => props.companyStat, () => {
   animation: modalSlideIn 0.3s ease-out;
 }
 
+/* Atvēršanās animācija */
 @keyframes modalSlideIn {
   from { opacity: 0; transform: translateY(-20px) scale(0.97); }
   to   { opacity: 1; transform: translateY(0)   scale(1); }
 }
 
-/* Header */
+/* Galvene */
 .modal-header {
   display: flex;
   justify-content: space-between;
@@ -490,6 +609,7 @@ watch(() => props.companyStat, () => {
   color: var(--color-text-dim);
 }
 
+/* Aizvēršanas poga */
 .modal-close {
   background: var(--color-bg-light);
   border: none;
@@ -511,7 +631,7 @@ watch(() => props.companyStat, () => {
   color: white;
 }
 
-/* Body - same grid as ShopStatistics .content-row */
+/* Modālā loga saturs divās kolonnās */
 .modal-body {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -522,7 +642,7 @@ watch(() => props.companyStat, () => {
   min-height: 0;
 }
 
-/* CHART SECTION - exact copy from ShopStatistics */
+/* Diagrammas sadaļa */
 .chart-section {
   background: var(--color-white);
   padding: 30px;
@@ -530,6 +650,7 @@ watch(() => props.companyStat, () => {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
+/* Diagrammas galvene */
 .chart-header {
   display: flex;
   justify-content: space-between;
@@ -539,6 +660,7 @@ watch(() => props.companyStat, () => {
   gap: 16px;
 }
 
+/* Diagrammas sadaļas virsraksts */
 .chart-header h2 {
   font-size: 18px;
   font-weight: 600;
@@ -546,6 +668,7 @@ watch(() => props.companyStat, () => {
   color: var(--color-text-main);
 }
 
+/* Diagrammas vadības elementi */
 .chart-controls {
   display: flex;
   align-items: center;
@@ -560,6 +683,7 @@ watch(() => props.companyStat, () => {
   border-radius: 8px;
 }
 
+/* Atsevišķa diagrammas tipa poga */
 .chart-type-btn {
   padding: 8px 12px;
   background: transparent;
@@ -578,6 +702,7 @@ watch(() => props.companyStat, () => {
   color: var(--color-text-main);
 }
 
+/* Aktīvās diagrammas tipa pogas stils */
 .chart-type-btn.active {
   background: var(--brand-berry);
   color: var(--color-white);
@@ -585,6 +710,7 @@ watch(() => props.companyStat, () => {
 
 .chart-type-btn svg { display: block; }
 
+/* Konteiners diagrammai un leģendai */
 .chart-wrapper {
   display: flex;
   flex-direction: column;
@@ -592,6 +718,7 @@ watch(() => props.companyStat, () => {
   align-items: center;
 }
 
+/* Diagrammas konteiners */
 .chart-container {
   width: 100%;
   height: 400px;
@@ -600,11 +727,13 @@ watch(() => props.companyStat, () => {
   justify-content: center;
 }
 
+/* Canvas ierobežojumi */
 .chart-wrapper canvas {
   max-width: 100%;
   max-height: 100%;
 }
 
+/* Leģendas režģis */
 .chart-legend {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -612,12 +741,14 @@ watch(() => props.companyStat, () => {
   width: 100%;
 }
 
+/* Atsevišķs leģendas elements */
 .legend-item {
   display: flex;
   align-items: center;
   gap: 8px;
 }
 
+/* Krāsainais punkts leģendā */
 .legend-color {
   width: 12px;
   height: 12px;
@@ -631,13 +762,14 @@ watch(() => props.companyStat, () => {
   line-height: 1.2;
 }
 
-/* ── Table wrapper ── */
+/* Tabulas konteiners */
 .company-table {
   background: var(--color-white);
   padding: 30px;
   border-radius: 12px;
 }
 
+/* Tabulas galvenes daļa */
 .table-header-section {
   flex-shrink: 0;
   margin-bottom: 20px;
@@ -647,6 +779,7 @@ watch(() => props.companyStat, () => {
   gap: 12px;
 }
 
+/* Tabulas virsraksts */
 .table-header-section h3 {
   font-size: 24px;
   width: 100%;
@@ -656,6 +789,7 @@ watch(() => props.companyStat, () => {
   line-height: 1;
 }
 
+/* Galvenā tabula */
 .company-table table {
   width: 100%;
   border-collapse: separate;
@@ -669,10 +803,12 @@ watch(() => props.companyStat, () => {
   box-shadow: var(--shadow-box) 0px 4px 12px;
 }
 
+/* Tabulas galvene */
 .company-table table thead {
   background: var(--header-gradient);
 }
 
+/* Tabulas galvenes šūnas */
 .company-table table thead tr th {
   text-align: center;
   padding: 16px 20px;
@@ -688,6 +824,7 @@ watch(() => props.companyStat, () => {
   overflow: hidden;
 }
 
+/* Klikšķināmais kārtošanas virsraksts */
 .sortable-header {
   cursor: pointer;
   user-select: none;
@@ -699,6 +836,7 @@ watch(() => props.companyStat, () => {
   width: 100%;
 }
 
+/* Tabulas rinda */
 .company-table table tbody tr {
   border-bottom: 1px solid var(--color-border);
   transition: background-color 0.2s;
@@ -708,10 +846,12 @@ watch(() => props.companyStat, () => {
   background-color: var(--color-bg-light);
 }
 
+/* Noņemt apakšējo līniju pēdējai rindai */
 .company-table table tbody tr:last-child {
   border-bottom: none;
 }
 
+/* Tabulas datu šūnas */
 .company-table table tbody tr td {
   padding: 16px 20px;
   font-size: 14px;
@@ -742,6 +882,7 @@ watch(() => props.companyStat, () => {
   color: var(--brand-berry);
 }
 
+/* Tukšā stāvokļa virsraksts */
 .empty-state h3 {
   font-size: 20px;
   font-weight: 600;
@@ -749,12 +890,14 @@ watch(() => props.companyStat, () => {
   color: var(--color-text-main);
 }
 
+/* Tukšā stāvokļa teksts */
 .empty-state p {
   font-size: 14px;
   color: var(--color-text-dim);
   margin: 0;
 }
 
+/* Eksporta poga */
 .export-btn {
   display: flex;
   align-items: center;
@@ -778,6 +921,7 @@ watch(() => props.companyStat, () => {
   box-shadow: 0 4px 8px rgba(72, 187, 185, 0.4);
 }
 
+/* Izslēgts stāvoklis eksporta pogai */
 .export-btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
@@ -788,12 +932,13 @@ watch(() => props.companyStat, () => {
   flex-shrink: 0;
 }
 
-/* Responsive */
+/* Responsivitāte: planšetdatori */
 @media (max-width: 900px) {
   .modal-body { grid-template-columns: 1fr; }
   .chart-legend { grid-template-columns: repeat(3, 1fr); }
 }
 
+/* Responsivitāte: mobilas ierīces */
 @media (max-width: 600px) {
   .modal-body { padding: 16px; gap: 16px; }
   .chart-container { height: 250px; }

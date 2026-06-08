@@ -1,17 +1,22 @@
 <template>
+  <!-- Modālais logs tiek rādīts tikai tad, ja isOpen ir true -->
   <div v-if="isOpen" class="modal-overlay" @click.self="$emit('close')">
     <div class="modal-content">
+      <!-- Brīdinājuma josla, kas parādās validācijas kļūdu gadījumā -->
       <div class="warning-banner" v-if="showWarning">
         <div class="warning-content">
           <span class="warning-icon">!</span>
           <span>{{ warningMessage }}</span>
+          <!-- Poga brīdinājuma aizvēršanai -->
           <button class="warning-close" @click="showWarning = false">×</button>
         </div>
       </div>
+      <!-- Modālā loga virsraksts -->
       <div class="section-header">
         <h2>Add New Company</h2>
       </div>
 
+      <!-- Forma jauna uzņēmuma pievienošanai -->
       <form novalidate @submit.prevent="handleSave" class="company-details">
         <div class="form-group">
           <label>Company Name:</label>
@@ -24,6 +29,7 @@
           />
         </div>
 
+        <!-- Valsts izvēlēs saraksts -->
         <div class="form-row">
           <div class="form-group">
             <label>Country:</label>
@@ -34,6 +40,7 @@
             </select>
           </div>
 
+          <!-- Talruņa numura ievades lauks -->
           <div class="form-group">
             <label>Phone Number:</label>
             <input
@@ -48,6 +55,7 @@
           </div>
         </div>
 
+        <!-- Adreses ievades lauks -->
         <div class="form-group">
           <label>Address:</label>
           <input
@@ -59,8 +67,9 @@
             placeholder="Street, City, Postal Code"
             @keyup.enter="handleSave"
           />
-        </div>
+        </div>  
 
+        <!-- Registrācijas numurs -->
         <div class="form-group">
           <label>Registration Number:</label>
           <input
@@ -73,6 +82,7 @@
           />
         </div>
 
+        <!-- E-pasta adrese -->
         <div class="form-group">
           <label>Email:</label>
           <input
@@ -87,6 +97,7 @@
         </div>
       </form>
 
+      <!-- Darbību pogas: saglabāt vai atcelt -->
       <div class="modal-actions">
         <button @click="handleSave" class="btn-save" title="Save Company">
           <FontAwesomeIcon :icon="['fas', 'check']" />
@@ -100,25 +111,38 @@
 </template>
 
 <script setup>
+// Importēt Vue funkcijas un FontAwesome ikonu komponenti
 import { ref, watch } from 'vue';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 
+// Definēt notikumus, ko komponents var izsūtīt pamata komponentam 
 const emit = defineEmits(['close', 'save']);
+
+// Definēt ienākošos parametrus
 const props = defineProps({ isOpen: Boolean });
+
+// Mainīgie brīdinājuma ziņas attēlošanai
 const showWarning = ref(false);
 const warningMessage = ref('');
 
+// Taimeris, lai brīdinājums pazustu pēc noteikta laika
 let warningTimer = null;
 
+// Funkcija brīdinājuma ziņas parādīšanai
 const showWarningMessage = (message) => {
   warningMessage.value = message;
   showWarning.value = true;
+  
+  // Ja iepriekšējais taimeris vēl darbojas, to notīra
   if (warningTimer) clearTimeout(warningTimer);
+  
+  // Paslēpj brīdinājumu pēc 3 sekundēm
   warningTimer = setTimeout(() => {
     showWarning.value = false;
   }, 3000);
 };
 
+// Formas dati
 const form = ref({
   companyName: '',
   country: 2,
@@ -129,36 +153,43 @@ const form = ref({
   remID: null 
 });
 
+// Funkcija datu validācijai un saglabāšanai
 const handleSave = () => {
   showWarning.value = false;
   warningMessage.value = '';
 
+  // Iegūt un apgrieZT ievadītās vērtības
   const companyName = (form.value.companyName ?? '').trim();
   const phone = (form.value.phoneNumber ?? '').trim();
   const address = (form.value.address ?? '').trim();
   const regNo = (form.value.registrationNumber ?? '').trim();
   const email = (form.value.email ?? '').trim();
 
+  // PārbaudĪT, vai visi obligātie lauki ir aizpildīti
   if (!companyName || !phone || !address || !regNo || !email) {
     showWarningMessage('Please fill in all required fields.');
     return;
   }
 
+  // Pārbaudīt, vai telefona numurā ir tikai cipari un izvēles + zīme sākumā
   if (!/^\+?\d+$/.test(phone)) {
     showWarningMessage('Phone number may contain only numbers.');
     return;
   }
 
+  // Pārbaudīt minimālo garumu dažiem laukiem
   if (phone.length < 8 || address.length < 10 || regNo.length < 9) {
     showWarningMessage('Some fields are too short.');
     return;
   }
 
+  // Pārbaudīt e-pasta formātu
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     showWarningMessage('Please enter a valid email address.');
     return;
   }
 
+  // Saglabāšanas notikums ar formas datiem
   emit('save', {
     companyName: companyName,
     address: address,
@@ -170,7 +201,10 @@ const handleSave = () => {
   });
 };
 
+// Novērot modālā loga statusu
 watch(() => props.isOpen, (val) => {
+  // Kad modālais logs tiek aizvērts, 
+  // notīrīt brīdinājumus un atiestatīt formu
   if (!val) {
     if (warningTimer) clearTimeout(warningTimer);
     showWarning.value = false;
@@ -189,6 +223,7 @@ watch(() => props.isOpen, (val) => {
 </script>
 
 <style scoped>
+/* Fona pārklājums aiz modālā loga */
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -203,6 +238,7 @@ watch(() => props.isOpen, (val) => {
   padding: 20px;
 }
 
+/* Modālā loga konteiners */
 .modal-content {
   font-family: 'Inter', sans-serif;
   background: var(--color-white);
@@ -214,6 +250,7 @@ watch(() => props.isOpen, (val) => {
   overflow: hidden;
 }
 
+/* Virsraksta josla */
 .section-header {
   display: flex;
   align-items: center;
@@ -230,6 +267,7 @@ watch(() => props.isOpen, (val) => {
   padding: 15px 20px;
 }
 
+/* Brīdinājuma joslas novietojums */
 .warning-banner {
   position: fixed;
   top: 20px;
@@ -238,11 +276,13 @@ watch(() => props.isOpen, (val) => {
   animation: slideIn 0.3s ease-out;
 }
 
+/* Animācija brīdinājuma joslas parādīšanai */
 @keyframes slideIn {
   from { transform: translateX(400px); opacity: 0; }
   to { transform: translateX(0); opacity: 1; }
 }
 
+/* Brīdinājuma saturs */
 .warning-content {
   background: var(--color-warning-bg);
   border: 1px solid var(--color-warning-border);
@@ -256,6 +296,7 @@ watch(() => props.isOpen, (val) => {
   max-width: 500px;
 }
 
+/* Brīdinājuma ikona */
 .warning-icon {
   background: var(--color-warning-border);
   color: var(--color-white);
@@ -269,6 +310,7 @@ watch(() => props.isOpen, (val) => {
   flex-shrink: 0;
 }
 
+/* Poga brīdinājuma aizvēršanai */
 .warning-close {
   background: none;
   border: none;
@@ -284,11 +326,13 @@ watch(() => props.isOpen, (val) => {
   color: var(--color-black);
 }
 
+/* Formas galvenais konteiners */
 .company-details {
   padding: 30px;
   background: var(--color-white);
 }
 
+/* Divu kolonnu izkārtojums */
 .form-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -299,6 +343,7 @@ watch(() => props.isOpen, (val) => {
   margin-bottom: 20px;
 }
 
+/* Lauku virsraksti */
 .form-group label {
   font-family: 'Inter', sans-serif;
   font-size: 14px;
@@ -310,6 +355,7 @@ watch(() => props.isOpen, (val) => {
   letter-spacing: 0.5px;
 }
 
+/* Ievades lauki un select lauki */
 .edit-input,
 .edit-select {
   width: 100%;
@@ -329,6 +375,7 @@ watch(() => props.isOpen, (val) => {
   border-color: var(--brand-berry);
 }
 
+/* Pogu zona modālā loga apakšā */
 .modal-actions {
   display: flex;
   justify-content: flex-end;
@@ -336,6 +383,7 @@ watch(() => props.isOpen, (val) => {
   padding: 0 30px 30px 30px;
 }
 
+/* Saglabāšanas un atcelšanas pogu pamata stils */
 .btn-save,
 .btn-delete {
   width: 45px;

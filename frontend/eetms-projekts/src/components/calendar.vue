@@ -1,4 +1,5 @@
 <template>
+  <!-- Kalendāra komponenta konteineris -->
   <div class="calendar-container">
     <VCalendar 
       :initial-page="initialPage"
@@ -11,23 +12,32 @@
 </template>
 
 <script setup>
+// Importēt kalendāra komponenti no v-calendar bibliotēkas
 import { Calendar as VCalendar } from 'v-calendar';
+
+// Importēt v-calendar noklusētus stilus 
 import 'v-calendar/style.css';
 import { computed } from 'vue';
 
+// Komponentes ienākošie dati
 const props = defineProps({
+  // Saraksts ar ierakstiem, kuros ir trūkstoši maiņu datumi 
   missedPunches: {
     type: Array,
     default: () => []
   },
+
+  // Datums, ar kuru atvērās kalendārs
   initialDate: {
     type: [Date, String, null],
     default: null
   }
 });
 
+// Notikums, ko komponents nosūta pamatkomponentam
 const emit = defineEmits(['punchClick']);
 
+// Aprēķina sākuma mēnesi un gadu kalendāram
 const initialPage = computed(() => {
   if (!props.initialDate) return undefined;
 
@@ -41,36 +51,53 @@ const initialPage = computed(() => {
   };
 });
 
+// Klikšķis uz konkrētas dienas kalendārā
 const clickDay = (day) => {
+  // Meklē ierakstu, kuram šajā datumā nav endTime
   const missedPunch = props.missedPunches.find(punch => {
     const punchDate = new Date(punch.date);
     const sameDay = punchDate.toDateString() === day.date.toDateString();
     return sameDay && !punch.endTime;
   });
 
+  // Ja atrasts nepabeigts ieraksts, izsūta to uz vecākkomponentu 
   if (missedPunch) {
     emit('punchClick', missedPunch);
   }
 };
 
+// Izsaucas, kad lietotājs pārslēdz kalendāra mēnesi
 const changeDate = (page) => {
   console.log(page);
 };
 
+// Veidot kalendāra atribūtus datumiem, kuros trūkst endTime 
 const calendarAttributes = computed(() => {
   return props.missedPunches
+    // Filtrēt tikai tos ierakstus, kuros ir neatzīmētie beigas datumi 
     .filter(punch => !punch.endTime)
+    
+    // Katram ierakstam izveido VCalendar objektu 
     .map((punch, index) => ({
       key: `${punch.ShiftID || punch.shiftID || index}-${punch.date}`,
+      
+      // Sarkana punkta marķieris uz datuma
       dot: {
         color: 'red',
         class: 'missed-punch-dot'
       },
+
+      // Datums, kurā jāparāda marķieris
       dates: new Date(punch.date),
+      
+      // Informācija par uzņēmumu 
+      // Kura uzrādās kad lietotājs novirza kursoru uz maiņas
       popover: {
         label: `${punch.companyName || 'No company'} — Missing end time`,
         visibility: 'hover'
       },
+
+      // Papildu dati, notikumu apstrādei
       customData: {
         ...punch,
         companyName: punch.companyName
@@ -80,6 +107,7 @@ const calendarAttributes = computed(() => {
 </script>
 
 <style scoped>
+/* Galvenais kalendāra ārējais konteiners */
 .calendar-container {
   width: calc(100% - 16px);
   max-width: 80%;
@@ -92,6 +120,7 @@ const calendarAttributes = computed(() => {
   margin-left: 40px;
 }
 
+/* Pamatkonteiners no v-calendar */
 :deep(.vc-container) {
   width: 100%;
   background: transparent;
@@ -99,18 +128,21 @@ const calendarAttributes = computed(() => {
   border: none;
 }
 
+/* Kalendāra iekšējais panelis */
 :deep(.vc-pane) {
   background: transparent;
   width: 100%;
   padding-bottom: 0;
 }
 
+/* Kalendāra galvene ar mēneša nosaukumu */
 :deep(.vc-header) {
   padding: 0 0 10px 0;
   margin-bottom: 10px;
   border-bottom: 2px solid #f0f0f0;
 }
 
+/* Mēneša / gada virsraksts */
 :deep(.vc-title) {
   font-size: 15px;
   font-weight: 700;
@@ -123,12 +155,14 @@ const calendarAttributes = computed(() => {
   outline: none;
 }
 
+/* Hover un focus stāvoklis kalendāra virsrakstam */
 :deep(.vc-title:hover),
 :deep(.vc-title:focus) {
   opacity: 0.8;
   outline: none;
 }
 
+/* Pārvietošanās bultiņas starp mēnešiem */
 :deep(.vc-arrow) {
   color: var(--brand-berry);
   width: 28px;
@@ -167,12 +201,14 @@ const calendarAttributes = computed(() => {
   display: none;
 }
 
+/* Mēnešu / gadu navigācijas galvene */
 :deep(.vc-nav-header) {
   padding: 8px 6px;
   border-bottom: 1px solid #f0f0f0;
   margin-bottom: 8px;
 }
 
+/* Navigācijas virsraksts */
 :deep(.vc-nav-title) {
   font-size: 13px;
   font-weight: 600;
@@ -180,6 +216,7 @@ const calendarAttributes = computed(() => {
   outline: none;
 }
 
+/* Navigācijas bultiņas */
 :deep(.vc-nav-arrow) {
   color: var(--brand-berry);
   width: 28px;
@@ -196,6 +233,7 @@ const calendarAttributes = computed(() => {
   box-shadow: 0 0 0 2px rgba(161, 41, 113, 0.2);
 }
 
+/* Mēnešu izvēles režģis */
 :deep(.vc-nav-items) {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -203,6 +241,7 @@ const calendarAttributes = computed(() => {
   padding: 4px;
 }
 
+/* Mēneša izvēles elements */
 :deep(.vc-nav-item) {
   font-size: 11px;
   font-weight: 500;
@@ -230,6 +269,7 @@ const calendarAttributes = computed(() => {
   box-shadow: 0 0 0 2px rgba(161, 41, 113, 0.3);
 }
 
+/* Pašreizējais mēnesis */
 :deep(.vc-nav-item.is-current) {
   background: linear-gradient(135deg, #a12971, #96537b);
   color: var(--color-white);
@@ -237,6 +277,7 @@ const calendarAttributes = computed(() => {
   border-color: transparent;
 }
 
+/* Izvēlētais mēnesis */
 :deep(.vc-nav-item.is-active) {
   background: rgba(161, 41, 113, 0.1);
   border-color: var(--brand-berry);
@@ -244,10 +285,12 @@ const calendarAttributes = computed(() => {
   font-weight: 600;
 }
 
+/* Nedēļas dienu rinda */
 :deep(.vc-weekdays) {
   padding: 0 0 6px 0;
 }
 
+/* Nedēļas dienas nosaukums */
 :deep(.vc-weekday) {
   font-size: 9px;
   font-weight: 600;
@@ -262,12 +305,14 @@ const calendarAttributes = computed(() => {
   margin-bottom: 0;
 }
 
+/* Atsevišķa dienas šūna */
 :deep(.vc-day) {
   padding: 1px;
   min-height: 42px;
   position: relative;
 }
 
+/* Dienas pogas / satura dizains */
 :deep(.vc-day-content) {
   font-size: 11px;
   font-weight: 500;
@@ -297,6 +342,7 @@ const calendarAttributes = computed(() => {
   border-color: #a5698d50;
 }
 
+/* Šodienas datuma izcelšana */
 :deep(.vc-day.is-today .vc-day-content) {
   background: #fff;
   border-color: var(--brand-berry);
@@ -304,6 +350,7 @@ const calendarAttributes = computed(() => {
   font-weight: 600;
 }
 
+/* Izvēlētās dienas stils */
 :deep(.vc-day.is-selected .vc-day-content) {
   background: var(--header-gradient);
   color: var(--color-white);
@@ -311,6 +358,7 @@ const calendarAttributes = computed(() => {
   font-weight: 600;
 }
 
+/* Dienas, kas nav aktuālajā mēnesī */
 :deep(.vc-day.is-not-in-month .vc-day-content) {
   background: transparent;
   color: #d0d0d0;
@@ -321,6 +369,7 @@ const calendarAttributes = computed(() => {
   border-color: transparent;
 }
 
+/* Punkta marķieru konteiners */
 :deep(.vc-dots) {
   position: absolute;
   top: 3px;
@@ -329,6 +378,7 @@ const calendarAttributes = computed(() => {
   gap: 3px;
 }
 
+/* Punkta marķieris uz datuma */
 :deep(.vc-dot) {
   width: 6px !important;
   height: 6px !important;
@@ -347,6 +397,7 @@ const calendarAttributes = computed(() => {
   }
 }
 
+/* Responsivitāte: Mobilas ierīces */
 @media (min-width: 375px) {
   .calendar-container {
     padding: 14px 10px 0 10px;
@@ -373,6 +424,7 @@ const calendarAttributes = computed(() => {
   }
 }
 
+/* Responsivitāte: planšetdatoriem un klēpjdatoriem */
 @media (min-width: 481px) {
   .calendar-container {
     width: calc(100% - 20px);
@@ -432,6 +484,7 @@ const calendarAttributes = computed(() => {
   }
 }
 
+/* Responsivitāte: vidēja izmēra ekrāniem */
 @media (min-width: 768px) {
   .calendar-container {
     width: calc(100% - 140px);
@@ -489,6 +542,7 @@ const calendarAttributes = computed(() => {
   }
 }
 
+/* Responsivitāte: datori */
 @media (min-width: 1024px) {
   .calendar-container {
     max-width: 850px;
@@ -544,6 +598,7 @@ const calendarAttributes = computed(() => {
   }
 }
 
+/* Responsivitāte: liela izmēra ekrāniem */
 @media (min-width: 1200px) {
   .calendar-container {
     max-width: 900px;

@@ -1,18 +1,25 @@
 <template>
+  <!-- Modālais logs tiek attēlots tikai tad, ja props isOpen ir true -->
   <div v-if="isOpen" class="modal-overlay" @click.self="$emit('close')">
     <div class="modal-content">
+
+      <!-- Brīdinājuma paziņojums, kas parādās validācijas kļūdas gadījumā -->
       <div v-if="showWarning" class="warning-banner">
         <div class="warning-content">
           <span class="warning-icon">!</span>
           <span class="warning-text">{{ warningMessage }}</span>
+          
+          <!-- Poga brīdinājuma aizvēršanai -->
           <button class="warning-close" @click="showWarning = false">×</button>
         </div>
       </div>
 
+      <!-- Modālā loga virsraksta daļa -->
       <div class="section-header">
         <h2>Add New Reason</h2>
       </div>
 
+      <!-- Forma jauna iemesla pievienošanai -->
       <form novalidate @submit.prevent="handleSave" class="company-details">
         <div class="form-group">
           <label>Reason Name:</label>
@@ -26,6 +33,7 @@
         </div>
       </form>
 
+      <!-- Darbību pogas saglabāšanai vai aizvēršanai -->
       <div class="modal-actions">
         <button @click="handleSave" class="btn-save" title="Save Reason">
           <FontAwesomeIcon :icon="['fas', 'check']" />
@@ -39,35 +47,50 @@
 </template>
 
 <script setup>
+// Importēt Vue funkcijas un ārējās bibliotēkas
 import { ref, watch, onMounted } from 'vue'; 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import axios from 'axios';
 
+// Definēt notikumus, ko komponents var izsūtīt pamata komponentam 
 const emit = defineEmits(['close', 'save']); 
+
+// Definēt ienākošos props
 const props = defineProps({ isOpen: Boolean }); 
+
+// Masīvs uzņēmumu datu glabāšanai
 const companies = ref([]); 
+
+// API pamatadrese datu pieprasījumiem
 const API_BASE = 'http://localhost:5001/api'; 
 
+// Mainīgie brīdinājuma ziņas attēlošanai
 const showWarning = ref(false)
 const warningMessage = ref('')
 let warningTimer = null 
 
+// Funkcija brīdinājuma ziņas parādīšanai uz noteiktu laiku
 const showWarningMessage = (message) => {
   warningMessage.value = message 
   showWarning.value = true 
 
+  // Ja iepriekšējais taimeris vēl darbojas, tas tiek notīrīts
   if (warningTimer) clearTimeout(warningTimer)
+  
+  // Brīdinājums pazūd pēc 3 sekundēm
   warningTimer = setTimeout(() => {
     showWarning.value = false 
     warningTimer = null
   }, 3000) 
 }; 
 
+// Formas dati jaunā iemesla izveidei
 const form = ref({
     Name: '',
     CompanyID: null 
 });
 
+// Kad komponents tiek ielādēts, tiek pieprasīts uzņēmumu saraksts
 onMounted(async () => {
     try {
         const res = await axios.get(`${API_BASE}/companies`);
@@ -77,22 +100,27 @@ onMounted(async () => {
     }
 }); 
 
+// Funkcija datu validācijai un datu saglabāšanai
 const handleSave = () => {
   showWarning.value = false 
   warningMessage.value = ''
 
+  // No formas iegūst iemesla nosaukumu bez atstarpēm
   const name = (form.value.Name ?? '').trim()
   
+  // Pārbaudīt, vai lauks nav tukšs
   if (!name) {
     showWarningMessage("Please fill in all fields.");
     return; 
   } 
 
+  // Pārbaudīt, vai iemesla nosaukumā ir vismaz 5 rakstzīmes
   if (name.length < 5) {
     showWarningMessage('Reason name must contain at least 5 characters.')
     return
   }
 
+  // Izveidot jauna objekta struktūru saglabāšanai
   const newReason = {
     ReasonID: 0, 
     Name: form.value.Name, 
@@ -101,9 +129,12 @@ const handleSave = () => {
     CompanyReasons: [] 
   }; 
 
+  // Saglabāšanas notikums ar formas datiem
   emit('save', newReason); 
 }; 
 
+// Uzraudzīt modālā loga statusu 
+// Atiestatīt formu, kad logs tiek aizvērts
 watch(() => props.isOpen, (val) => {
     if (!val) {
         form.value = {
@@ -115,6 +146,7 @@ watch(() => props.isOpen, (val) => {
 </script>
 
 <style scoped>
+/* Fona pārklājums aiz modālā loga */
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -129,6 +161,7 @@ watch(() => props.isOpen, (val) => {
   padding: 20px;
 }
 
+/* Modālā loga galvenais konteiners */
 .modal-content {
   font-family: 'Inter', sans-serif;
   background: var(--color-white);
@@ -140,6 +173,7 @@ watch(() => props.isOpen, (val) => {
   overflow: hidden; 
 }
 
+/* Galvenes noformējums */
 .section-header {
   display: flex;
   align-items: center;
@@ -156,6 +190,7 @@ watch(() => props.isOpen, (val) => {
   padding: 15px 20px;
 }
 
+/* Brīdinājuma josla */
 .warning-banner {
   position: fixed;
   top: 20px;
@@ -164,6 +199,7 @@ watch(() => props.isOpen, (val) => {
   animation: slideIn 0.3s ease-out;
 }
 
+/* Brīdinājuma parādīšanās animācija */
 @keyframes slideIn {
   from {
     transform: translateX(400px);
@@ -175,6 +211,7 @@ watch(() => props.isOpen, (val) => {
   }
 }
 
+/* Brīdinājuma satura bloka stils */
 .warning-content {
   background: var(--color-warning-bg);
   border: 1px solid var(--color-warning-border);
@@ -188,6 +225,7 @@ watch(() => props.isOpen, (val) => {
   max-width: 500px;
 }
 
+/* Brīdinājuma ikonas izskats */
 .warning-icon {
   background: var(--color-warning-border);
   color: var(--color-white);
@@ -201,6 +239,7 @@ watch(() => props.isOpen, (val) => {
   flex-shrink: 0;
 }
 
+/* Poga brīdinājuma aizvēršanai */
 .warning-close {
   background: none;
   border: none;
@@ -216,11 +255,13 @@ watch(() => props.isOpen, (val) => {
   color: var(--color-black);
 }
 
+/* Formas satura konteiners */
 .company-details {
   padding: 30px;
   background: var(--color-white);
 }
 
+/* Divu kolonnu izkārtojums */
 .form-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -231,6 +272,7 @@ watch(() => props.isOpen, (val) => {
   margin-bottom: 20px;
 }
 
+/* Ievades lauku virsrakstu stils */
 .form-group label {
   font-family: 'Inter', sans-serif;
   font-size: 14px;
@@ -242,6 +284,7 @@ watch(() => props.isOpen, (val) => {
   letter-spacing: 0.5px;
 }
 
+/* Ievades un izvēlnes lauku pamata stils */
 .edit-input, 
 .edit-select {
   width: 100%; 
@@ -260,6 +303,7 @@ watch(() => props.isOpen, (val) => {
   border-color: var(--brand-berry);
 }
 
+/* Pogu zonas izkārtojums */
 .modal-actions {
   display: flex;
   justify-content: flex-end;
@@ -267,6 +311,7 @@ watch(() => props.isOpen, (val) => {
   padding: 0 30px 30px 30px;
 }
 
+/* Darbību pogu pamata noformējums */
 .btn-save, .btn-delete {
   width: 45px;
   height: 45px;

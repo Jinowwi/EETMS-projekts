@@ -421,13 +421,21 @@ async function applyDateRange() {
 // Aprēķināt vienas maiņas darba stundas
 function calculateShiftHours(shift) {
   try {
-    const { startTime, endTime, startDate } = shift
-    const endDate = shift.endDate || shift.EndDate
-    if (!startTime || !endTime) return 0
-    const diff = new Date(`${endDate}T${endTime}`) - new Date(`${startDate}T${startTime}`)
-    const hours = diff / (1000 * 60 * 60)
-    return hours > 0 ? hours : 0
-  } catch { return 0 }
+    const startDate = shift.startDate
+    const startTime = shift.startTime
+    const endDate = shift.endDate || shift.EndDate || shift.startDate
+    const endTime = shift.endTime
+
+    if (!startDate || !startTime || !endTime) return 0
+
+    const start = new Date(`${startDate}T${startTime}`)
+    const end = new Date(`${endDate}T${endTime}`)
+
+    const hours = (end - start) / (1000 * 60 * 60)
+    return Number.isFinite(hours) && hours > 0 ? hours : 0
+  } catch {
+    return 0
+  }
 }
 
 // Iegūt datus par uzņēmumiem 
@@ -480,9 +488,29 @@ async function fetchCompanyStatistics() {
       if (!hours) continue
 
       // Apkopot statistiku pēc iemesla
-      const reasonName = shift.companyReason?.reason?.name || 'Unknown'
-      if (!reasonMap[reasonName]) reasonMap[reasonName] = { reason: reasonName, totalHours: 0 }
-      reasonMap[reasonName].totalHours += hours
+      const companyReasonId =
+  shift.companyReasonID ??
+  shift.companyReasonId ??
+  shift.CompanyReasonID ??
+  shift.companyReason?.companyReasonID ??
+  shift.companyReason?.companyReasonId
+
+const reasonName =
+  shift.companyReason?.reason?.name?.trim() ||
+  shift.reason?.name?.trim() ||
+  (companyReasonId ? `CompanyReason #${companyReasonId}` : 'Unknown')
+
+const reasonKey = companyReasonId ?? reasonName
+
+if (!reasonMap[reasonKey]) {
+  reasonMap[reasonKey] = {
+    reasonId: companyReasonId ?? null,
+    reason: reasonName,
+    totalHours: 0
+  }
+}
+
+reasonMap[reasonKey].totalHours += hours
 
       // Apkopot statistiku pēc veikala
       const shop = shift.shop
@@ -637,7 +665,7 @@ function getShopsChartConfig() {
       layout: { padding: { left: 20, right: 20, top: 20, bottom: 20 } },
       plugins: {
         legend: { 
-          display: reasonsChartType.value === 'pie', 
+          display: shopsChartType.value === 'pie', 
           position: 'bottom', 
           maxHeight: 80, 
           labels: {

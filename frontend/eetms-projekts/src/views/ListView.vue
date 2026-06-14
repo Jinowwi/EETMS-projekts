@@ -130,7 +130,7 @@
                                 </td>
 
                                 <!-- Standarta skats: Rimi administrācijas darbinieka e-pasts -->
-                                <td v-if="!isEditModeCompanies">{{ row.rimiEmployeeEmail }}</td>
+                                <td v-if="!isEditModeCompanies">{{ row.rimiEmployeeEmail || 'Not Assigned' }}</td>
                                 
                                 <!-- Rediģēšanas skats: e-pasta adreses izvēlne -->
                                 <td v-else @click.stop>

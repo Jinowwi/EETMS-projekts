@@ -89,9 +89,9 @@
               <tr v-for="(shift, index) in sortedShiftsData" :key="index">
                 <td>{{ shift.shopCode }}</td>
                 <td>{{ shift.startDate }}</td>
-                <td>{{ shift.endDate }}</td>
+                <td>{{ shift.endDate || 'No data'}}</td>
                 <td>{{ shift.startTime }}</td>
-                <td>{{ shift.endTime }}</td>
+                <td>{{ shift.endTime || 'No data'}}</td>
                 <td>{{ calculateDuration(shift.startTime, shift.endTime) }}</td>
                 <td>{{ shift.companyReason?.reason?.name }}</td>
               </tr>

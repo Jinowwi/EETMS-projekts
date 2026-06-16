@@ -47,7 +47,7 @@ const modalOpen = ref(false);
 const selectedPunch = ref({});
 
 // API un maršrūts
-const API_BASE = 'http://localhost:5001/api';
+const API_BASE = 'http://localhost:5002/api';
 const route = useRoute(); 
 
 // Sākuma datums no query 

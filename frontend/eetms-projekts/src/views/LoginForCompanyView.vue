@@ -112,7 +112,7 @@ import { useRouter } from 'vue-router'
 
 const isLogin = ref(true)
 const router = useRouter()
-const API_BASE = 'http://localhost:5001/api'
+const API_BASE = 'http://localhost:5002/api'
 
 const email = ref('')
 const password = ref('')

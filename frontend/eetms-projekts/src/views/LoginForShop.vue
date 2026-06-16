@@ -69,7 +69,7 @@ import { useRouter } from 'vue-router'
 
 // Formas stāvokļi un API adrese
 const router = useRouter()
-const API_BASE = 'http://localhost:5001/api'
+const API_BASE = 'http://localhost:5002/api'
 
 const email = ref('')
 const password = ref('')

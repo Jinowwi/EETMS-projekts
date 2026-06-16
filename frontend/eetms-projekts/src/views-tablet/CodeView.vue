@@ -51,7 +51,7 @@ const { t } = useI18n();
 const router = useRouter();
 const { registrationData, setVerificationCode, setShiftId } = useShiftRegistration();
 
-const API_BASE = 'http://localhost:5001/api';
+const API_BASE = 'http://localhost:5002/api';
 
 const shopCode = computed(() => registrationData.value.shopCode);
 const shopType = computed(() => registrationData.value.shopType);

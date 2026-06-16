@@ -549,7 +549,7 @@
     </div>
 </template>
  
-<script setup>
+<script setup> 
 // Vue importi 
 import { ref, computed, onMounted, nextTick } from 'vue';
 
@@ -572,7 +572,7 @@ import { logout } from '@/services/auth.js';
 // import PhoneNumber from '@/views-tablet/PhoneNumber.vue';
 
 // API bāzes adrese 
-const API_BASE = 'http://localhost:5001/api';
+const API_BASE = 'http://localhost:5002/api';
 
 // Meklēšanas ievades
 const query = ref('');

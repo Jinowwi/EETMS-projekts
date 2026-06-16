@@ -203,8 +203,8 @@ const currentAdmin = getAdmin()
 const router = useRouter()
 
 // API bāzes adreses
-const API_BASE_REM = 'http://localhost:5001/api'
-const API_BASE_ADMIN = 'http://localhost:5001/api'
+const API_BASE_REM = 'http://localhost:5002/api'
+const API_BASE_ADMIN = 'http://localhost:5002/api'
 
 // Reaktīvie dati paziņojumiem, maiņām un uzņēmumiem
 const reminders = ref([])

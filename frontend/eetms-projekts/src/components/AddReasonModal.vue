@@ -62,7 +62,7 @@ const props = defineProps({ isOpen: Boolean });
 const companies = ref([]); 
 
 // API pamatadrese datu pieprasījumiem
-const API_BASE = 'http://localhost:5001/api'; 
+const API_BASE = 'http://localhost:5002/api'; 
 
 // Mainīgie brīdinājuma ziņas attēlošanai
 const showWarning = ref(false)

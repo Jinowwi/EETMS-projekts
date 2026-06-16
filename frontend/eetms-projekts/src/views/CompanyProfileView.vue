@@ -144,7 +144,7 @@ import { useRouter } from 'vue-router';
 import { logout } from '@/services/auth.js'
 
 // API bāzes adrese
-const API_BASE = 'http://localhost:5001/api'; 
+const API_BASE = 'http://localhost:5002/api'; 
 
 // Iegūst pašreizējā uzņēmuma ID no localStorage
 const currentCompanyId = ref(parseInt(localStorage.getItem('companyId') || '0'));

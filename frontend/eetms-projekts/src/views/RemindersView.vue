@@ -107,7 +107,7 @@ const currentAdmin = getAdmin();
 const router = useRouter();
 
 // API bāzes adrese
-const API_BASE = 'http://localhost:5001/api'; 
+const API_BASE = 'http://localhost:5002/api'; 
 
 // Paziņojumu saraksts
 const reminders = ref([]); 

@@ -66,7 +66,7 @@ const shopAddress = computed(() => registrationData.value.shopAddress);
 
 const selectedCompany = ref(null);
 const companies = ref([]);
-const API_BASE = 'http://localhost:5001/api';
+const API_BASE = 'http://localhost:5002/api';
 const query = ref(''); 
 const maxlength = 20; 
 const confirmOpen = ref(false);
@@ -106,7 +106,7 @@ const navigateTo = (path) => {
 
 const fetchCompanies = async () => {
     try {
-        const res = await fetch('http://localhost:5001/api/companies');
+        const res = await fetch('http://localhost:5002/api/companies');
         companies.value = await res.json();
     } catch (error) {
         console.error('Failed to load companies:', error);

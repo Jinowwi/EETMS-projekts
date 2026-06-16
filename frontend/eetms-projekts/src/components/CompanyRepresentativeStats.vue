@@ -284,7 +284,7 @@ Chart.register(ArcElement, BarElement, CategoryScale, LinearScale, Tooltip, Lege
 const companyId = ref(localStorage.getItem('companyId'))
 
 // API bāzes adrese
-const API_BASE = 'http://localhost:5001/api'
+const API_BASE = 'http://localhost:5002/api'
 
 // Galvenie stāvokļi
 const companyName = ref('')
@@ -487,26 +487,26 @@ async function fetchCompanyStatistics() {
       const hours = calculateShiftHours(shift)
       if (!hours) continue
 
-      // Apkopot statistiku pēc iemesla
-      const companyReasonId =
-  shift.companyReasonID ??
-  shift.companyReasonId ??
-  shift.CompanyReasonID ??
-  shift.companyReason?.companyReasonID ??
-  shift.companyReason?.companyReasonId
+    // Apkopot statistiku pēc iemesla
+    const companyReasonId =
+    shift.companyReasonID ??
+    shift.companyReasonId ??
+    shift.CompanyReasonID ??
+    shift.companyReason?.companyReasonID ??
+    shift.companyReason?.companyReasonId
 
-const reasonName =
-  shift.companyReason?.reason?.name?.trim() ||
-  shift.reason?.name?.trim() ||
-  (companyReasonId ? `CompanyReason #${companyReasonId}` : 'Unknown')
+    const reasonName =
+      shift.companyReason?.reason?.name?.trim() ||
+      shift.reason?.name?.trim() ||
+      (companyReasonId ? `CompanyReason #${companyReasonId}` : 'Unknown')
 
-const reasonKey = companyReasonId ?? reasonName
+      const reasonKey = companyReasonId ?? reasonName
 
-if (!reasonMap[reasonKey]) {
-  reasonMap[reasonKey] = {
-    reasonId: companyReasonId ?? null,
-    reason: reasonName,
-    totalHours: 0
+    if (!reasonMap[reasonKey]) {
+      reasonMap[reasonKey] = {
+      reasonId: companyReasonId ?? null,
+      reason: reasonName,
+      totalHours: 0
   }
 }
 

@@ -90,7 +90,7 @@ const shopCode = computed(() => registrationData.value.shopCode);
 const shopType = computed(() => registrationData.value.shopType);
 const shopAddress = computed(() => registrationData.value.shopAddress);
 
-const API_BASE = 'http://localhost:5001/api';
+const API_BASE = 'http://localhost:5002/api';
 
 const handleNumberClick = (num) => { code.value += num; };
 const handleBackspace = () => { code.value = code.value.slice(0, -1); };

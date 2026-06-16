@@ -59,7 +59,7 @@ const fetchReasons = async () => {
     }
     
     try {
-        const url = `http://localhost:5001/api/reasons/bycompany/${companyId.value}`;
+        const url = `http://localhost:5002/api/reasons/bycompany/${companyId.value}`;
         const res = await fetch(url);
         
         if (!res.ok) {
@@ -83,7 +83,7 @@ const selectReason = async (reason) => {
     try {
         // Iegūst CompanyReasonID no starptabulas pēc uzņēmuma un iemesla ID
         const response = await fetch(
-            `http://localhost:5001/api/shifts/companyreason?companyId=${companyId.value}&reasonId=${reason.reasonID}`
+            `http://localhost:5002/api/shifts/companyreason?companyId=${companyId.value}&reasonId=${reason.reasonID}`
         );
         
         if (!response.ok) throw new Error('Failed to get CompanyReasonID');

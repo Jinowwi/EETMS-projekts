@@ -133,7 +133,7 @@ const props = defineProps({
 
 const emit = defineEmits(['close', 'deleted', 'updated'])
 
-const API_BASE = 'http://localhost:5001/api'
+const API_BASE = 'http://localhost:5002/api'
 const showCancelConfirm = ref(false)
 const isDeleting = ref(false)
 const isSavingDone = ref(false)

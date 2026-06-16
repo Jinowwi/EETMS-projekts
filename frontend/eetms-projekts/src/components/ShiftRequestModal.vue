@@ -37,7 +37,7 @@ import { ref, computed, onMounted, watch } from 'vue'
 const props = defineProps({ shopId: Number })
 const emit = defineEmits(['close', 'submitted'])
 
-const API_BASE = 'http://localhost:5001/api'
+const API_BASE = 'http://localhost:5002/api'
 
 const reasons = ref([])
 const companies = ref([])

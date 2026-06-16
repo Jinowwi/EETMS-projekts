@@ -102,7 +102,7 @@ const props = defineProps({
 
 const emit = defineEmits(['close', 'submitted'])
 
-const API_BASE = 'http://localhost:5001/api'
+const API_BASE = 'http://localhost:5002/api'
 
 const stars = ref(0)
 const comment = ref('')

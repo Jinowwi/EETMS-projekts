@@ -57,7 +57,7 @@ const shops = ref([]);
 const selectedShopId = ref('');
 const shopError = ref('');
 
-const API_BASE = 'http://localhost:5001/api';
+const API_BASE = 'http://localhost:5002/api';
 
 const navigateTo = (path) => {
   router.push(path);

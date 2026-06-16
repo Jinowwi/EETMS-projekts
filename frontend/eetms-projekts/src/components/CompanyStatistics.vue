@@ -363,7 +363,7 @@ Chart.register(
   LineController
 )
 
-const API_BASE = 'http://localhost:5001/api'
+const API_BASE = 'http://localhost:5002/api'
 
 const currentAdmin = getAdmin()
 const roleLevel = getAdminRoleLevel()

@@ -193,7 +193,7 @@ const showModal = ref(false)
 const shiftRequests = ref([])
 
 // API bāzes adrese
-const API_BASE = 'http://localhost:5001/api'
+const API_BASE = 'http://localhost:5002/api'
 
 // Router inicializācija navigācijai starp lapām 
 const router = useRouter()

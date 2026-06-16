@@ -102,8 +102,8 @@ const handleSubmit = async () => {
     // Izvēlēties pareizo API endpointu, atkārībā no konta tipa 
     const endpoint = 
       accountType.value === 'company'
-      ? 'http://localhost:5001/api/companies/set-password'
-      : 'http://localhost:5001/api/shops/set-password'; 
+      ? 'http://localhost:5002/api/companies/set-password'
+      : 'http://localhost:5002/api/shops/set-password'; 
 
     // Atsūtīt e-pasta adresi un jauno paroli uz serveri 
     await axios.post(endpoint, {

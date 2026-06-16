@@ -76,7 +76,10 @@
         <div class="card make-request card-action">
           <h2>Make request</h2>
           <p class="card-subtext">Create a new external shift request.</p>
-          <button class="plus-btn" @click="showModal = true">+</button>
+          <button class="make-request-btn" @click="showModal = true">
+            <span class="make-request-btn-icon">+</span>
+            New request
+          </button>
         </div>
 
         <!-- Kartīte pieprasījumiem, kas gaida novērtējumu -->
@@ -122,7 +125,7 @@
           <!-- Saraksts ar novērtētajiem pieprasījumiem -->
           <div v-else class="request-list">
             <div
-              v-for="req in ratedRequests"
+              v-for="req in [...ratedRequests].reverse()"
               :key="req.shiftRequestID"
               class="request-row"
             >
@@ -501,26 +504,36 @@ h1 {
 }
 
 /* Poga jauna pieprasījuma izveidei */
-.plus-btn {
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  border: 2px solid #4caf87;
-  background: transparent;
-  color: #4caf87;
-  font-size: 30px;
-  cursor: pointer;
+.make-request-btn {
+  margin-top: auto;
+  width: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background 0.2s, transform 0.2s;
-  padding-bottom: 4px;
-  margin-top: auto;
+  gap: 10px;
+  padding: 13px 20px;
+  border-radius: 14px;
+  border: none;
+  background: linear-gradient(135deg, #2ba492 0%, #4caf87 100%);
+  color: white;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.2s, box-shadow 0.2s;
+  box-shadow: 0 4px 16px rgba(43, 164, 146, 0.35);
+  letter-spacing: 0.3px;
 }
 
-.plus-btn:hover {
-  background: rgba(76, 175, 135, 0.15);
-  transform: translateY(-1px);
+.make-request-btn:hover {
+  opacity: 0.92;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(43, 164, 146, 0.4);
+}
+
+.make-request-btn-icon {
+  font-size: 22px;
+  line-height: 1;
+  font-weight: 400;
 }
 
 /* Pieprasījumu saraksts */
@@ -583,6 +596,29 @@ h1 {
 .status-rejected {
   background: #f8d7da;
   color: #721c24;
+}
+
+.rating-card .request-list {
+  overflow-y: auto;
+  max-height: 260px;
+  padding-right: 4px;
+}
+
+.rating-card .request-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.rating-card .request-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.rating-card .request-list::-webkit-scrollbar-thumb {
+  background: rgba(161, 41, 113, 0.25);
+  border-radius: 999px;
+}
+
+.rating-card .request-list::-webkit-scrollbar-thumb:hover {
+  background: rgba(161, 41, 113, 0.45);
 }
 
 /* Noklusējuma statusa stils */

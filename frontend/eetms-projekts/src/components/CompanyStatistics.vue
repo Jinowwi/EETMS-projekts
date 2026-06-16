@@ -1392,6 +1392,8 @@ onMounted(async () => {
   grid-template-columns: auto 1fr;
   gap: 10px;
   margin-bottom: 30px;
+  max-width: 1450px;
+  margin-inline: auto; 
 }
 
 .content-row {
@@ -1987,6 +1989,7 @@ onMounted(async () => {
 }
 
 .shop-table {
+  min-width: 0;
   background: rgba(255, 255, 255, 0.82);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
@@ -2016,7 +2019,7 @@ onMounted(async () => {
 
 .shop-table-wrapper {
   overflow-y: auto;
-  overflow-x: hidden;
+  overflow-x: auto;
   max-height: 600px;
   border-radius: 12px;
   position: relative;

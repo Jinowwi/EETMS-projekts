@@ -804,6 +804,10 @@ const formatDate = (dateLike) => {
   border-radius: 12px;
   padding: 10px 14px;
   box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
 }
 
 .company-name {

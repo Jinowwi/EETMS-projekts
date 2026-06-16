@@ -1585,12 +1585,12 @@ onMounted(async () => {
 
 .shop-item { padding: 8px 20px; }
 
-/* .shop-info-item {
+.shop-info-item {
   display: flex;
   align-items: flex-start;
   gap: 10px;
   width: 100%;
-} */
+}
 
 .shop-details { flex: 1; }
 .shop-code { font-weight: 600; color: var(--brand-berry); font-size: 13px; }
